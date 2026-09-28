@@ -62,11 +62,10 @@ jobs:
       - name: Run go vet
         run: go vet ./...
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
           # golangci-lint v2 (config migrated to the v2 schema in .golangci.yml).
-          # Pinned explicitly: the action's "latest" resolves to v1.64.8,
-          # whose prebuilt binary (go1.24) refuses go.mod >= 1.25.
+          # action v7 is required for v2; v6's "latest" resolves to v1.64.8.
           version: v2.14.0
           args: --timeout 5m --max-issues-per-linter 0
 
