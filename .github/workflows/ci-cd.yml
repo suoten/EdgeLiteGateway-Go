@@ -106,6 +106,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: false
+          load: true
           tags: edgelite-gateway:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -115,6 +116,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile.sidecar
           push: false
+          load: true
           tags: edgelite-ai-sidecar:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
