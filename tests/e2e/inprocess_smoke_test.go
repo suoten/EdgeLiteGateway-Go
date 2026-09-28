@@ -22,15 +22,16 @@ import (
 
 	"edgelite/internal/api"
 	"edgelite/internal/config"
+	"edgelite/internal/drivers"
+	"edgelite/internal/engine"
 	"edgelite/internal/security"
+	"edgelite/internal/services"
 	"edgelite/internal/storage"
 	"edgelite/internal/ws"
-	"edgelite/internal/engine"
-	"edgelite/internal/services"
-	"edgelite/internal/drivers"
 
 	"github.com/labstack/echo/v4"
 	echomw "github.com/labstack/echo/v4/middleware"
+
 	elware "edgelite/internal/middleware"
 )
 
@@ -401,7 +402,7 @@ func TestSmokeAppAuthFlow(t *testing.T) {
 	headers := map[string]string{
 		"Authorization": "Bearer " + token,
 	}
-	code, resp = doRequest(t, "GET", app.baseURL()+"/api/v1/devices", nil, headers)
+	code, _ = doRequest(t, "GET", app.baseURL()+"/api/v1/devices", nil, headers)
 	if code != 200 {
 		t.Fatalf("Expected 200 with auth token, got %d", code)
 	}
@@ -470,11 +471,7 @@ func TestSmokeAppServerStop(t *testing.T) {
 
 	// Verify the server is no longer responding
 	baseURL := fmt.Sprintf("http://127.0.0.1:%d", port)
-	_, err := http.Get(baseURL + "/health/live")
-	if err == nil {
-		// May still be in TIME_WAIT, but new connections should fail
-		// This is acceptable
-	}
+	_, _ = http.Get(baseURL + "/health/live")
 
 	// Verify port is released (can listen again)
 	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))

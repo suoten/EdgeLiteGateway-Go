@@ -77,9 +77,9 @@ func TestBridgeRecordsWriteFailure(t *testing.T) {
 
 func TestBridgeStopsWhenDisabledOrUnstarted(t *testing.T) {
 	cases := []struct {
-		name       string
-		bridgeOn   bool
-		startMgr   bool
+		name     string
+		bridgeOn bool
+		startMgr bool
 	}{
 		{"disabled bridge", false, true},
 		{"stopped manager", true, false},

@@ -27,10 +27,10 @@ const (
 
 // SandboxConfig holds configuration for the sandbox executor.
 type SandboxConfig struct {
-	Timeout         time.Duration
-	MaxResultSize   int
-	AllowedFuncs    map[string]bool
-	AllowedVars    map[string]bool
+	Timeout       time.Duration
+	MaxResultSize int
+	AllowedFuncs  map[string]bool
+	AllowedVars   map[string]bool
 }
 
 // SandboxExecutor provides safe expression evaluation.
@@ -140,7 +140,7 @@ func (s *SandboxExecutor) Close() {
 }
 
 func (s *SandboxExecutor) filterVariables(variables map[string]interface{}) map[string]interface{} {
-	if s.config.AllowedVars == nil || len(s.config.AllowedVars) == 0 {
+	if len(s.config.AllowedVars) == 0 {
 		return variables
 	}
 	filtered := make(map[string]interface{})

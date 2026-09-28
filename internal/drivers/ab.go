@@ -100,7 +100,7 @@ func (d *ABDriver) registerSession() error {
 	binary.LittleEndian.PutUint32(frame[20:24], 0)          // Options
 	binary.LittleEndian.PutUint32(frame[24:28], 0x00000001) // Option: socket binding, version 1
 
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(frame); err != nil {
 		return fmt.Errorf("ab register write: %w", err)
 	}
@@ -128,8 +128,8 @@ func (d *ABDriver) Disconnect() error {
 		binary.LittleEndian.PutUint16(frame[0:2], 0x0066) // Unregister
 		binary.LittleEndian.PutUint16(frame[2:4], 0)
 		binary.LittleEndian.PutUint32(frame[4:8], d.sessionID)
-		d.conn.SetDeadline(time.Now().Add(d.timeout))
-		d.conn.Write(frame)
+		_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
+		_, _ = d.conn.Write(frame)
 		err := d.conn.Close()
 		d.conn = nil
 		d.SetConnected(false)

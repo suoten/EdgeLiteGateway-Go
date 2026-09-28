@@ -107,11 +107,11 @@ func (c *LRUCache) Keys() []interface{} {
 
 // DriverWatchdog monitors driver health and handles exceptions.
 type DriverWatchdog struct {
-	mu              sync.Mutex
+	mu               sync.Mutex
 	exceptionHistory []watchdogException
-	maxHistory      int
-	stats           *HealthStatsManager
-	circuitBreaker  *CircuitBreaker
+	maxHistory       int
+	stats            *HealthStatsManager
+	circuitBreaker   *CircuitBreaker
 }
 
 type watchdogException struct {
@@ -175,16 +175,16 @@ func (w *DriverWatchdog) HandleException(err error, ctx string) bool {
 	// Unknown exceptions
 	if recentCount >= 10 {
 		logrus.WithFields(logrus.Fields{
-				"context": ctx,
-				"count":   recentCount,
-				"error":   err,
-			}).Error("Too many exceptions, driver may be unhealthy")
+			"context": ctx,
+			"count":   recentCount,
+			"error":   err,
+		}).Error("Too many exceptions, driver may be unhealthy")
 	} else {
 		logrus.WithFields(logrus.Fields{
-				"context": ctx,
-				"count":   recentCount,
-				"error":   err,
-			}).Error("Unexpected error in watchdog")
+			"context": ctx,
+			"count":   recentCount,
+			"error":   err,
+		}).Error("Unexpected error in watchdog")
 	}
 	return true
 }
@@ -225,14 +225,14 @@ func isContextCanceled(err error) bool {
 
 // PointHealthTracker tracks per-point health statistics.
 type PointHealthTracker struct {
-	mu              sync.Mutex
-	totalReads      map[string]int64  // "device:point" -> count
-	failedReads     map[string]int64  // "device:point" -> count
-	latencySamples  map[string][]float64 // "device:point" -> samples
+	mu                sync.Mutex
+	totalReads        map[string]int64     // "device:point" -> count
+	failedReads       map[string]int64     // "device:point" -> count
+	latencySamples    map[string][]float64 // "device:point" -> samples
 	maxLatencySamples int
-	lastValues      *LRUCache          // "device:point" -> last value
-	frozenThresholds map[string]float64 // "device:point" -> frozen threshold
-	lastUpdateTimes map[string]time.Time // "device:point" -> last update time
+	lastValues        *LRUCache            // "device:point" -> last value
+	frozenThresholds  map[string]float64   // "device:point" -> frozen threshold
+	lastUpdateTimes   map[string]time.Time // "device:point" -> last update time
 }
 
 // NewPointHealthTracker creates a new PointHealthTracker.

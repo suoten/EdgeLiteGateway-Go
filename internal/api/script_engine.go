@@ -250,7 +250,7 @@ func runScriptCode(language, code string, timeoutMs int) (string, error) {
 	vm := goja.New()
 	var logs bytes.Buffer
 	console := vm.NewObject()
-	console.Set("log", func(args ...goja.Value) {
+	_ = console.Set("log", func(args ...goja.Value) {
 		for i, a := range args {
 			if i > 0 {
 				logs.WriteString(" ")
@@ -259,9 +259,9 @@ func runScriptCode(language, code string, timeoutMs int) (string, error) {
 		}
 		logs.WriteString("\n")
 	})
-	console.Set("error", console.Get("log"))
-	console.Set("warn", console.Get("log"))
-	vm.Set("console", console)
+	_ = console.Set("error", console.Get("log"))
+	_ = console.Set("warn", console.Get("log"))
+	_ = vm.Set("console", console)
 
 	timer := time.AfterFunc(time.Duration(timeoutMs)*time.Millisecond, func() {
 		vm.Interrupt("execution timeout")

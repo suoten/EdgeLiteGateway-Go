@@ -265,18 +265,18 @@ func (m *CertManager) loadCA() error {
 	return nil
 }
 
-// TlsConfigBuilder builds TLS configurations for different services.
-type TlsConfigBuilder struct {
+// TLSConfigBuilder builds TLS configurations for different services.
+type TLSConfigBuilder struct {
 	certManager *CertManager
 }
 
-// NewTlsConfigBuilder creates a new TlsConfigBuilder.
-func NewTlsConfigBuilder(certManager *CertManager) *TlsConfigBuilder {
-	return &TlsConfigBuilder{certManager: certManager}
+// NewTLSConfigBuilder creates a new TLSConfigBuilder.
+func NewTLSConfigBuilder(certManager *CertManager) *TLSConfigBuilder {
+	return &TLSConfigBuilder{certManager: certManager}
 }
 
 // BuildMqttTLSConfig builds a TLS configuration for MQTT.
-func (b *TlsConfigBuilder) BuildMqttTLSConfig(certFile, keyFile, caFile string, insecureSkipVerify bool) (*tls.Config, error) {
+func (b *TLSConfigBuilder) BuildMqttTLSConfig(certFile, keyFile, caFile string, insecureSkipVerify bool) (*tls.Config, error) {
 	var cert tls.Certificate
 	var err error
 	if certFile != "" && keyFile != "" {
@@ -287,9 +287,9 @@ func (b *TlsConfigBuilder) BuildMqttTLSConfig(certFile, keyFile, caFile string, 
 	}
 
 	tlsConfig := &tls.Config{
-		Certificates:           []tls.Certificate{cert},
-		InsecureSkipVerify:     insecureSkipVerify,
-		MinVersion:             tls.VersionTLS12,
+		Certificates:       []tls.Certificate{cert},
+		InsecureSkipVerify: insecureSkipVerify,
+		MinVersion:         tls.VersionTLS12,
 	}
 
 	if caFile != "" {
@@ -307,8 +307,8 @@ func (b *TlsConfigBuilder) BuildMqttTLSConfig(certFile, keyFile, caFile string, 
 	return tlsConfig, nil
 }
 
-// BuildHttpsTLSConfig builds a TLS configuration for HTTPS.
-func (b *TlsConfigBuilder) BuildHttpsTLSConfig(certFile, keyFile string) (*tls.Config, error) {
+// BuildHTTPSTLSConfig builds a TLS configuration for HTTPS.
+func (b *TLSConfigBuilder) BuildHTTPSTLSConfig(certFile, keyFile string) (*tls.Config, error) {
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load HTTPS cert: %w", err)
@@ -319,28 +319,28 @@ func (b *TlsConfigBuilder) BuildHttpsTLSConfig(certFile, keyFile string) (*tls.C
 	}, nil
 }
 
-// TlsManager provides high-level TLS management.
-type TlsManager struct {
+// TLSManager provides high-level TLS management.
+type TLSManager struct {
 	certManager *CertManager
-	builder     *TlsConfigBuilder
+	builder     *TLSConfigBuilder
 }
 
-// NewTlsManager creates a new TlsManager.
-func NewTlsManager(certDir string) *TlsManager {
+// NewTLSManager creates a new TLSManager.
+func NewTLSManager(certDir string) *TLSManager {
 	cm := NewCertManager(certDir)
-	return &TlsManager{
+	return &TLSManager{
 		certManager: cm,
-		builder:     NewTlsConfigBuilder(cm),
+		builder:     NewTLSConfigBuilder(cm),
 	}
 }
 
 // SetupMqttTLS sets up TLS for MQTT.
-func (m *TlsManager) SetupMqttTLS(certFile, keyFile, caFile string, insecure bool) (*tls.Config, error) {
+func (m *TLSManager) SetupMqttTLS(certFile, keyFile, caFile string, insecure bool) (*tls.Config, error) {
 	return m.builder.BuildMqttTLSConfig(certFile, keyFile, caFile, insecure)
 }
 
 // SetupOpcuaTLS sets up TLS for OPC UA.
-func (m *TlsManager) SetupOpcuaTLS(certFile, keyFile, caFile string, serverName string) (*tls.Config, error) {
+func (m *TLSManager) SetupOpcuaTLS(certFile, keyFile, caFile string, serverName string) (*tls.Config, error) {
 	tlsConfig, err := m.builder.BuildMqttTLSConfig(certFile, keyFile, caFile, false)
 	if err != nil {
 		return nil, err
@@ -352,7 +352,7 @@ func (m *TlsManager) SetupOpcuaTLS(certFile, keyFile, caFile string, serverName 
 }
 
 // GetCertFingerprint returns the fingerprint of a certificate file.
-func (m *TlsManager) GetCertFingerprint(certPath string) (string, error) {
+func (m *TLSManager) GetCertFingerprint(certPath string) (string, error) {
 	content, err := m.certManager.LoadCert(certPath)
 	if err != nil {
 		return "", err

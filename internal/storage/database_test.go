@@ -15,11 +15,11 @@ func newTestConfig(t *testing.T) *config.AppConfig {
 	tmpDir := t.TempDir()
 	return &config.AppConfig{
 		Database: config.DatabaseConfig{
-			Backend:    "sqlite",
-			SQLitePath: filepath.Join(tmpDir, "test.db"),
-			PoolSize:   5,
+			Backend:     "sqlite",
+			SQLitePath:  filepath.Join(tmpDir, "test.db"),
+			PoolSize:    5,
 			MaxOverflow: 10,
-			BackupDir:  filepath.Join(tmpDir, "backups"),
+			BackupDir:   filepath.Join(tmpDir, "backups"),
 		},
 	}
 }

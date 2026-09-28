@@ -29,9 +29,9 @@ import (
 
 // ExpressionEngine evaluates mathematical and logical expressions safely.
 type ExpressionEngine struct {
-	mu               sync.RWMutex
-	customFunctions  map[string]ExpressionFunc
-	evalTimeout      time.Duration
+	mu              sync.RWMutex
+	customFunctions map[string]ExpressionFunc
+	evalTimeout     time.Duration
 }
 
 // ExpressionFunc is a custom function that can be registered with the engine.
@@ -168,14 +168,7 @@ func (e *ExpressionEngine) evalExpr(expr string) (interface{}, error) {
 type exprParser struct {
 	engine *ExpressionEngine
 	input  string
-	pos   int
-}
-
-func (p *exprParser) peek() byte {
-	if p.pos >= len(p.input) {
-		return 0
-	}
-	return p.input[p.pos]
+	pos    int
 }
 
 func (p *exprParser) skipWhitespace() {
@@ -488,11 +481,11 @@ func (p *exprParser) tryParseNumber() (interface{}, bool) {
 	numStr := p.input[start:p.pos]
 	if hasDot {
 		var f float64
-		fmt.Sscanf(numStr, "%f", &f)
+		_, _ = fmt.Sscanf(numStr, "%f", &f)
 		return f, true
 	}
 	var i int
-	fmt.Sscanf(numStr, "%d", &i)
+	_, _ = fmt.Sscanf(numStr, "%d", &i)
 	return i, true
 }
 

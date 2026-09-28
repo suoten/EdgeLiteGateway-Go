@@ -152,14 +152,14 @@ func handleTestRule(c echo.Context) error {
 	}
 
 	return OK(c, map[string]interface{}{
-		"rule_name":        req.Name,
-		"device_id":        req.DeviceID,
-		"severity":         req.Severity,
-		"logic":            req.Logic,
-		"conditions":       conditions,
-		"duration":         req.Duration,
-		"notify_channels":  req.NotifyChannels,
-		"evaluable":        true,
+		"rule_name":       req.Name,
+		"device_id":       req.DeviceID,
+		"severity":        req.Severity,
+		"logic":           req.Logic,
+		"conditions":      conditions,
+		"duration":        req.Duration,
+		"notify_channels": req.NotifyChannels,
+		"evaluable":       true,
 	})
 }
 
@@ -372,11 +372,11 @@ func recordRuleVersion(cont *ServiceContainer, ruleID string, rule *models.RuleR
 		}
 	}
 	doc := map[string]interface{}{
-		"version":     next,
-		"rule":        rule,
-		"change":      "update",
-		"created_by":  username,
-		"created_at":  time.Now().Format(time.RFC3339),
+		"version":    next,
+		"rule":       rule,
+		"change":     "update",
+		"created_by": username,
+		"created_at": time.Now().Format(time.RFC3339),
 	}
 	raw, err := json.Marshal(doc)
 	if err != nil {
@@ -489,8 +489,8 @@ func handleTestRuleByID(c echo.Context) error {
 
 	return OK(c, map[string]interface{}{
 		"triggered":      triggered,
-		"trigger_values":  triggerValues,
-		"rule_id":         ruleID,
+		"trigger_values": triggerValues,
+		"rule_id":        ruleID,
 	})
 }
 

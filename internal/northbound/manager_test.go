@@ -98,6 +98,7 @@ func waitFor(t *testing.T, timeout time.Duration, cond func() bool, msg string) 
 //     disconnected (read-loop drop detection), and
 //  2. the manager watchdog must reconnect the platform automatically while
 //     the broker is reachable again.
+//
 // It also asserts that an intentional Disconnect is NOT resurrected by the
 // watchdog.
 func TestManagerDropDetectionAndWatchdogReconnect(t *testing.T) {

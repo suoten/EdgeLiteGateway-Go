@@ -560,10 +560,6 @@ func (s *MqttServer) KickClient(clientID string) error {
 	return client.conn.Close()
 }
 
-// maxMQTTPacketSize bounds one control packet so a bogus remaining-length field
-// cannot make the gateway allocate unbounded memory.
-const maxMQTTPacketSize = 1 << 20
-
 // mqttPacket is one decoded control packet: its fixed header byte plus the
 // bytes that follow the remaining-length field.
 type mqttPacket struct {

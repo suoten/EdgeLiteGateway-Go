@@ -39,10 +39,10 @@ type SerialBridgeStats struct {
 	LastError        string
 }
 
-// SerialTcpBridge bridges serial data over TCP in both directions.
+// SerialTCPBridge bridges serial data over TCP in both directions.
 // Remote clients connect to the TCP listener and are served the bytes arriving
 // on the serial device; everything they write goes to the device.
-type SerialTcpBridge struct {
+type SerialTCPBridge struct {
 	opener   func(SerialBridgeConfig) (io.ReadWriteCloser, error)
 	mu       sync.Mutex
 	config   SerialBridgeConfig
@@ -73,20 +73,20 @@ type SerialBridgeConfig struct {
 	IPWhitelist []string `json:"ip_whitelist"`
 }
 
-// NewSerialTcpBridge creates a new SerialTcpBridge served by the OS serial driver.
-func NewSerialTcpBridge() *SerialTcpBridge {
-	return NewSerialTcpBridgeWithOpener(openSerialPort)
+// NewSerialTCPBridge creates a new SerialTCPBridge served by the OS serial driver.
+func NewSerialTCPBridge() *SerialTCPBridge {
+	return NewSerialTCPBridgeWithOpener(openSerialPort)
 }
 
-// NewSerialTcpBridgeWithOpener creates a bridge whose device is produced by
+// NewSerialTCPBridgeWithOpener creates a bridge whose device is produced by
 // opener. Production passes the OS driver; a caller with no serial hardware to
 // serve (the HTTP layer's tests) injects an in-memory device so the
 // start/stop/apply-config paths remain testable on any host.
-func NewSerialTcpBridgeWithOpener(opener func(SerialBridgeConfig) (io.ReadWriteCloser, error)) *SerialTcpBridge {
+func NewSerialTCPBridgeWithOpener(opener func(SerialBridgeConfig) (io.ReadWriteCloser, error)) *SerialTCPBridge {
 	if opener == nil {
 		opener = openSerialPort
 	}
-	return &SerialTcpBridge{
+	return &SerialTCPBridge{
 		opener:  opener,
 		stats:   &SerialBridgeStats{},
 		clients: map[*bridgeClient]struct{}{},
@@ -189,7 +189,7 @@ func ValidateSerialBridgeConfig(cfg SerialBridgeConfig) error {
 // opened, and then report the bridge as running: a client sending bytes got
 // those same bytes back and every counter moved, while no serial hardware was
 // involved. A port that cannot be opened is now a start failure.
-func (b *SerialTcpBridge) Start(ctx context.Context, config SerialBridgeConfig) error {
+func (b *SerialTCPBridge) Start(ctx context.Context, config SerialBridgeConfig) error {
 	b.mu.Lock()
 	if b.started {
 		b.mu.Unlock()
@@ -246,7 +246,7 @@ func (b *SerialTcpBridge) Start(ctx context.Context, config SerialBridgeConfig) 
 }
 
 // Stop stops the serial bridge.
-func (b *SerialTcpBridge) Stop() error {
+func (b *SerialTCPBridge) Stop() error {
 	b.mu.Lock()
 	if !b.started {
 		b.mu.Unlock()
@@ -280,7 +280,7 @@ func (b *SerialTcpBridge) Stop() error {
 }
 
 // GetStatus returns bridge status.
-func (b *SerialTcpBridge) GetStatus() map[string]interface{} {
+func (b *SerialTCPBridge) GetStatus() map[string]interface{} {
 	b.mu.Lock()
 	started := b.started
 	cfg := b.config
@@ -319,7 +319,7 @@ func (b *SerialTcpBridge) GetStatus() map[string]interface{} {
 
 // noteError records the latest relay fault so the status page can show why a
 // running bridge has stopped moving bytes.
-func (b *SerialTcpBridge) noteError(err error) {
+func (b *SerialTCPBridge) noteError(err error) {
 	if err == nil {
 		return
 	}
@@ -332,7 +332,7 @@ func (b *SerialTcpBridge) noteError(err error) {
 
 // admit applies the client limit and the IP whitelist to an accepted
 // connection, and registers it when the bridge may serve it.
-func (b *SerialTcpBridge) admit(conn net.Conn) (*bridgeClient, bool) {
+func (b *SerialTCPBridge) admit(conn net.Conn) (*bridgeClient, bool) {
 	ip, err := clientIP(conn)
 	if err != nil {
 		b.stats.Rejected.Add(1)
@@ -380,7 +380,7 @@ func (b *SerialTcpBridge) admit(conn net.Conn) (*bridgeClient, bool) {
 	return client, true
 }
 
-func (b *SerialTcpBridge) removeClient(client *bridgeClient) {
+func (b *SerialTCPBridge) removeClient(client *bridgeClient) {
 	b.mu.Lock()
 	_, ok := b.clients[client]
 	if ok {
@@ -396,7 +396,7 @@ func (b *SerialTcpBridge) removeClient(client *bridgeClient) {
 
 // clientSnapshots returns the registered clients without holding the bridge
 // lock across a network write.
-func (b *SerialTcpBridge) clientSnapshots() []*bridgeClient {
+func (b *SerialTCPBridge) clientSnapshots() []*bridgeClient {
 	b.mu.Lock()
 	out := make([]*bridgeClient, 0, len(b.clients))
 	for c := range b.clients {
@@ -406,7 +406,7 @@ func (b *SerialTcpBridge) clientSnapshots() []*bridgeClient {
 	return out
 }
 
-func (b *SerialTcpBridge) acceptLoop(ctx context.Context) {
+func (b *SerialTCPBridge) acceptLoop(ctx context.Context) {
 	defer b.wg.Done()
 	for {
 		select {
@@ -436,7 +436,7 @@ func (b *SerialTcpBridge) acceptLoop(ctx context.Context) {
 
 // handleClient relays TCP -> serial for one client. Serial -> TCP is fanned
 // out by serialReadLoop, which owns every registered client's write side.
-func (b *SerialTcpBridge) handleClient(ctx context.Context, client *bridgeClient) {
+func (b *SerialTCPBridge) handleClient(ctx context.Context, client *bridgeClient) {
 	defer b.wg.Done()
 	defer b.removeClient(client)
 
@@ -479,7 +479,7 @@ func (b *SerialTcpBridge) handleClient(ctx context.Context, client *bridgeClient
 // serialReadLoop fans the device's bytes out to every connected client. Before
 // this loop existed the bytes were read, counted and thrown away, so a client
 // could write to the device but never received its answer.
-func (b *SerialTcpBridge) serialReadLoop(ctx context.Context) {
+func (b *SerialTCPBridge) serialReadLoop(ctx context.Context) {
 	defer b.wg.Done()
 	buf := make([]byte, 4096)
 	for {
@@ -525,7 +525,7 @@ func (b *SerialTcpBridge) serialReadLoop(ctx context.Context) {
 
 // writeToClient serialises the relay writes for one client and gives up on it
 // after relayWriteTimeout instead of blocking the other clients.
-func (b *SerialTcpBridge) writeToClient(client *bridgeClient, payload []byte) (int, error) {
+func (b *SerialTCPBridge) writeToClient(client *bridgeClient, payload []byte) (int, error) {
 	client.mu.Lock()
 	defer client.mu.Unlock()
 	_ = client.conn.SetWriteDeadline(time.Now().Add(relayWriteTimeout))

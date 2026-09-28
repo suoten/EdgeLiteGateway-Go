@@ -60,10 +60,10 @@ func callWriteAudit(t *testing.T, deviceID, query string) (int, []map[string]int
 		t.Fatalf("handleGetWriteAudit returned an error: %v", err)
 	}
 	var env struct {
-		Data       []map[string]interface{} `json:"data"`
-		ErrorCode  string                   `json:"error_code"`
-		Error      string                   `json:"error"`
-		ErrorMsg   string                   `json:"message"`
+		Data      []map[string]interface{} `json:"data"`
+		ErrorCode string                   `json:"error_code"`
+		Error     string                   `json:"error"`
+		ErrorMsg  string                   `json:"message"`
 	}
 	body := rec.Body.String()
 	if err := json.Unmarshal([]byte(body), &env); err != nil {

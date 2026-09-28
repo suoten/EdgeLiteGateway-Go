@@ -7,11 +7,11 @@ import (
 
 func TestPlatformRegistry(t *testing.T) {
 	// Use a fresh registry to avoid interference with global state
-	r := &PlatformRegistry{
-		handlers: make(map[string]PlatformHandlerFactory),
+	r := &Registry{
+		handlers: make(map[string]HandlerFactory),
 	}
 
-	r.Register("test_platform", func() PlatformHandler {
+	r.Register("test_platform", func() Handler {
 		return &TestPlatformHandler{name: "test_platform"}
 	})
 
@@ -169,8 +169,8 @@ func TestRegisterAll(t *testing.T) {
 
 func TestMarshalPayload(t *testing.T) {
 	data := map[string]interface{}{
-		"key":  "value",
-		"num":  42,
+		"key": "value",
+		"num": 42,
 	}
 	result := marshalPayload(data)
 	if len(result) == 0 {
@@ -185,7 +185,7 @@ func TestMarshalPayload(t *testing.T) {
 	}
 }
 
-// TestPlatformHandler is a test implementation of PlatformHandler.
+// TestPlatformHandler is a test implementation of Handler.
 type TestPlatformHandler struct {
 	BasePlatform
 	name string

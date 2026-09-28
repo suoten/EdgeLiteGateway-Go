@@ -133,6 +133,7 @@ func (r *DeviceRepo) ListAll() ([]models.DeviceResponse, error) {
 	}
 	return devices, nil
 }
+
 // All field updates are applied in a single transaction; if any update fails,
 // the entire operation is rolled back.
 func (r *DeviceRepo) Update(deviceID string, d *models.DeviceUpdate) error {
@@ -903,7 +904,9 @@ func (r *UserRepo) Update(userID string, role *string, enabled *bool) error {
 	}
 	if enabled != nil {
 		e := 0
-		if *enabled { e = 1 }
+		if *enabled {
+			e = 1
+		}
 		if _, err = tx.Exec("UPDATE users SET enabled = ?, updated_at = ?, version = version + 1 WHERE user_id = ?", e, now, userID); err != nil {
 			return fmt.Errorf("failed to update enabled: %w", err)
 		}
@@ -946,7 +949,9 @@ func (r *TemplateRepo) Get(name string) (*models.TemplateResponse, error) {
 	var configJSON, pointsJSON, createdAt sql.NullString
 	err := row.Scan(&t.Name, &t.Protocol, &configJSON, &pointsJSON, &createdAt)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) { return nil, nil }
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	t.CreatedAt = createdAt.String
@@ -962,7 +967,9 @@ func (r *TemplateRepo) Get(name string) (*models.TemplateResponse, error) {
 // List returns all templates.
 func (r *TemplateRepo) List() ([]models.TemplateResponse, error) {
 	rows, err := r.db.db.Query(`SELECT name, protocol, config_template, point_templates, created_at FROM templates ORDER BY created_at DESC`)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 	var templates []models.TemplateResponse
 	for rows.Next() {

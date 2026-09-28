@@ -77,7 +77,7 @@ func (d *FINSDriver) Connect(ctx context.Context) error {
 		return fmt.Errorf("fins connect %s: %w", addr, err)
 	}
 	d.conn = conn
-	if err := d.finsTcpHandshake(); err != nil {
+	if err := d.finsTCPHandshake(); err != nil {
 		conn.Close()
 		d.conn = nil
 		d.SetConnected(false)
@@ -90,7 +90,7 @@ func (d *FINSDriver) Connect(ctx context.Context) error {
 	return nil
 }
 
-func (d *FINSDriver) finsTcpHandshake() error {
+func (d *FINSDriver) finsTCPHandshake() error {
 	// FINS/TCP node-address negotiation. Body = Command(4)=0x00000000 +
 	// ErrorCode(4)=0 + client node(4). Wrapped in the standard FINS/TCP header
 	// ("FINS" magic + big-endian body length), which the real PLC (and the
@@ -99,7 +99,7 @@ func (d *FINSDriver) finsTcpHandshake() error {
 	binary.BigEndian.PutUint32(body[0:4], 0x00000000) // command: node address send
 	binary.BigEndian.PutUint32(body[4:8], 0x00000000) // error code
 	binary.BigEndian.PutUint32(body[8:12], uint32(d.node))
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(finsTCPFrame(body)); err != nil {
 		return fmt.Errorf("fins handshake write: %w", err)
 	}
@@ -401,13 +401,13 @@ func (d *FINSDriver) finsRead(area int, offset int, count int) ([]byte, error) {
 	binary.BigEndian.PutUint32(body[0:4], 0x00000002)
 	copy(body[8:], fins)
 
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(finsTCPFrame(body)); err != nil {
 		d.SetConnected(false)
 		return nil, fmt.Errorf("fins write: %w", err)
 	}
 	resp, err := finsTCPRead(d.conn)
-	d.conn.SetDeadline(time.Time{})
+	_ = d.conn.SetDeadline(time.Time{})
 	if err != nil {
 		d.SetConnected(false)
 		return nil, fmt.Errorf("fins read: %w", err)
@@ -532,13 +532,13 @@ func (d *FINSDriver) finsWrite(area int, offset int, data []byte) error {
 	binary.BigEndian.PutUint32(body[0:4], 0x00000002)
 	copy(body[8:], fins)
 
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(finsTCPFrame(body)); err != nil {
 		d.SetConnected(false)
 		return fmt.Errorf("fins write: %w", err)
 	}
 	resp, err := finsTCPRead(d.conn)
-	d.conn.SetDeadline(time.Time{})
+	_ = d.conn.SetDeadline(time.Time{})
 	if err != nil {
 		d.SetConnected(false)
 		return fmt.Errorf("fins write resp: %w", err)

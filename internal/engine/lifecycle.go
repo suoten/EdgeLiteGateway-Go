@@ -17,12 +17,12 @@ import (
 type LifecycleState string
 
 const (
-	LifecycleStateCreated   LifecycleState = "created"
-	LifecycleStateStarting  LifecycleState = "starting"
-	LifecycleStateRunning   LifecycleState = "running"
-	LifecycleStateStopping  LifecycleState = "stopping"
-	LifecycleStateStopped   LifecycleState = "stopped"
-	LifecycleStateError     LifecycleState = "error"
+	LifecycleStateCreated  LifecycleState = "created"
+	LifecycleStateStarting LifecycleState = "starting"
+	LifecycleStateRunning  LifecycleState = "running"
+	LifecycleStateStopping LifecycleState = "stopping"
+	LifecycleStateStopped  LifecycleState = "stopped"
+	LifecycleStateError    LifecycleState = "error"
 )
 
 // LifecycleComponent is an interface for components managed by the lifecycle manager.
@@ -244,9 +244,9 @@ func (m *LifecycleManager) Health() map[string]interface{} {
 	m.mu.RUnlock()
 
 	result := map[string]interface{}{
-		"healthy":  allRunning,
-		"running":  m.started.Load(),
-		"uptime_s": m.Uptime().Seconds(),
+		"healthy":    allRunning,
+		"running":    m.started.Load(),
+		"uptime_s":   m.Uptime().Seconds(),
 		"components": states,
 	}
 
@@ -259,9 +259,9 @@ func (m *LifecycleManager) Health() map[string]interface{} {
 
 // ComponentState is a simple lifecycle component adapter for start/stop functions.
 type ComponentState struct {
-	name     string
-	startFn  func(ctx context.Context) error
-	stopFn   func() error
+	name    string
+	startFn func(ctx context.Context) error
+	stopFn  func() error
 }
 
 // NewComponentState creates a lifecycle component from start/stop functions.
@@ -289,8 +289,8 @@ func (c *ComponentState) Stop() error {
 
 // AdapterComponent wraps an EventBus to implement LifecycleComponent.
 type EventBusComponent struct {
-	bus     *EventBus
-	ctx     context.Context
+	bus *EventBus
+	ctx context.Context
 }
 
 // NewEventBusComponent creates a lifecycle component wrapper for EventBus.

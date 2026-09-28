@@ -173,9 +173,9 @@ func (m *Manager) readPump(client *Client) {
 	// (30s ticker). The pong handler resets the deadline each time a pong
 	// is received, so a healthy client will never time out. A dead or
 	// unresponsive client will be evicted after 60 seconds.
-	client.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	_ = client.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	client.conn.SetPongHandler(func(string) error {
-		client.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		_ = client.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 		return nil
 	})
 
@@ -253,15 +253,15 @@ func (m *Manager) writePump(client *Client) {
 		select {
 		case message, ok := <-client.send:
 			if !ok {
-				client.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				_ = client.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-			client.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			_ = client.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := client.conn.WriteMessage(websocket.TextMessage, message); err != nil {
 				return
 			}
 		case <-ticker.C:
-			client.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			_ = client.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := client.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}

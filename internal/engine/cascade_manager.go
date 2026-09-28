@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"sync"
@@ -27,8 +26,8 @@ import (
 //   - Nonce-based replay protection
 
 const (
-	cascadeHopLimit    = 16
-	cascadeTokenTTL    = 300 // seconds
+	cascadeHopLimit     = 16
+	cascadeTokenTTL     = 300 // seconds
 	cascadeTokenHashLen = 16
 )
 
@@ -44,22 +43,22 @@ const (
 
 // NeighborInfo holds information about a neighboring gateway.
 type NeighborInfo struct {
-	NeighborID  string            `json:"neighbor_id"`
-	Host        string            `json:"host"`
-	Port        int               `json:"port"`
-	Role        string            `json:"role"`
-	Properties  map[string]string `json:"properties"`
-	LastSeen    time.Time         `json:"last_seen"`
+	NeighborID string            `json:"neighbor_id"`
+	Host       string            `json:"host"`
+	Port       int               `json:"port"`
+	Role       string            `json:"role"`
+	Properties map[string]string `json:"properties"`
+	LastSeen   time.Time         `json:"last_seen"`
 }
 
 // CascadeTopology holds the current cascade topology data.
 type CascadeTopology struct {
-	LocalID   string           `json:"local_id"`
-	Status    TopologyStatus   `json:"status"`
-	ParentID  string           `json:"parent_id,omitempty"`
-	Children  []string         `json:"children,omitempty"`
-	Peers     []NeighborInfo   `json:"peers,omitempty"`
-	UpdatedAt time.Time        `json:"updated_at"`
+	LocalID   string         `json:"local_id"`
+	Status    TopologyStatus `json:"status"`
+	ParentID  string         `json:"parent_id,omitempty"`
+	Children  []string       `json:"children,omitempty"`
+	Peers     []NeighborInfo `json:"peers,omitempty"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 // CascadeManager manages multi-gateway cascade.
@@ -69,7 +68,6 @@ type CascadeManager struct {
 	parentHost       string
 	parentPort       int
 	parentScheme     string
-	servicePort      int
 	cascadeToken     string
 	allowedNeighbors map[string]bool
 	running          bool
@@ -231,7 +229,7 @@ func (cm *CascadeManager) VerifyCascadeRequest(headers http.Header, body []byte)
 	}
 
 	var ts int64
-	fmt.Sscanf(timestampStr, "%d", &ts)
+	_, _ = fmt.Sscanf(timestampStr, "%d", &ts)
 	if absInt64(time.Now().Unix()-ts) > cascadeTokenTTL {
 		return false, "timestamp out of allowed window"
 	}
@@ -378,40 +376,9 @@ func (cm *CascadeManager) buildCascadeHeaders(body []byte) map[string]string {
 	}
 }
 
-func (cm *CascadeManager) computeTokenHash() string {
-	if cm.cascadeToken == "" {
-		return ""
-	}
-	h := sha256.Sum256([]byte(cm.cascadeToken))
-	return hex.EncodeToString(h[:])[:cascadeTokenHashLen]
-}
-
-func (cm *CascadeManager) verifyNeighbor(neighborID, neighborTokenHash string) bool {
-	if cm.cascadeToken == "" {
-		return true
-	}
-	expected := cm.computeTokenHash()
-	if neighborTokenHash != expected {
-		return false
-	}
-	if cm.allowedNeighbors != nil {
-		return cm.allowedNeighbors[neighborID]
-	}
-	return true
-}
-
-func (cm *CascadeManager) getLocalIP() string {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		return "127.0.0.1"
-	}
-	defer conn.Close()
-	return conn.LocalAddr().(*net.UDPAddr).IP.String()
-}
-
 func generateNonce() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	return hex.EncodeToString(b)
 }
 

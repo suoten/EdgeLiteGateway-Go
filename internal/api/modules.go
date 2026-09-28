@@ -935,7 +935,7 @@ func stopEmbeddedMqttServer(cont *ServiceContainer) {
 // serialBridgeFactory builds the bridge this process runs. Tests replace it with
 // one that serves an in-memory device, because the machine running them has no
 // serial hardware to give the bridge.
-var serialBridgeFactory = engine.NewSerialTcpBridge
+var serialBridgeFactory = engine.NewSerialTCPBridge
 
 // engineSerialBridgeConfig turns the persisted section into the bridge's own
 // settings. The two views are kept in one place so the config the page saves,
@@ -1127,10 +1127,10 @@ func RegisterGrafanaRoutes(g *echo.Group) {
 	g.PUT("/config", handleUpdateGrafanaConfig, requirePermission(security.PermSystemConfig))
 }
 
-// grafanaDisabled reports the state where the operator has not switched the
+// errGrafanaDisabled reports the state where the operator has not switched the
 // integration on, which the dashboard page shows as an information banner
 // rather than a failed request.
-var grafanaDisabled = errors.New("grafana integration is not enabled")
+var errGrafanaDisabled = errors.New("grafana integration is not enabled")
 
 // grafanaRejected carries an answer Grafana itself gave, so the operator sees
 // "Grafana said 401, the configured API key does not work" instead of an empty
@@ -1150,7 +1150,7 @@ var grafanaUpstreamClient = &http.Client{Timeout: 8 * time.Second}
 func grafanaUpstream(method, path string, body, out interface{}) error {
 	cfg := config.GetConfig()
 	if !cfg.Grafana.Enabled && !serviceEnabled(GetContainer(), "grafana") {
-		return grafanaDisabled
+		return errGrafanaDisabled
 	}
 	base := strings.TrimRight(strings.TrimSpace(cfg.Grafana.URL), "/")
 	if base == "" {
@@ -1224,7 +1224,7 @@ func gjsonGetString(raw []byte, field string) string {
 // respondGrafanaUpstream turns the three kinds of failure above into a status
 // the operator can act on, never a success carrying an empty list.
 func respondGrafanaUpstream(c echo.Context, err error) error {
-	if errors.Is(err, grafanaDisabled) {
+	if errors.Is(err, errGrafanaDisabled) {
 		return ErrorCode(c, http.StatusServiceUnavailable, "ERR_GRAFANA_DISABLED", "Grafana integration is not enabled")
 	}
 	var rejected *grafanaRejected
@@ -2856,8 +2856,8 @@ func handleListDeviceLinkages(c echo.Context) error {
 	names := deviceNameLookup()
 	items := make([]map[string]interface{}, 0, len(rules))
 	for _, r := range rules {
-		sn, _ := names[r.SourceDeviceID]
-		tn, _ := names[r.TargetDeviceID]
+		sn := names[r.SourceDeviceID]
+		tn := names[r.TargetDeviceID]
 		if sn == "" {
 			sn = r.SourceDeviceID
 		}

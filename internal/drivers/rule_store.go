@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // register sqlite driver (side-effect import)
 
 	"github.com/sirupsen/logrus"
 )
@@ -37,24 +37,24 @@ func (s *RuleStore) initDB() {
 		return
 	}
 	// Configure connection pool
-		db.SetMaxOpenConns(10)
-		db.SetMaxIdleConns(5)
-		db.SetConnMaxLifetime(time.Hour)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(time.Hour)
 
 	// Create tables
-	db.Exec(`CREATE TABLE IF NOT EXISTS rules (
+	_, _ = db.Exec(`CREATE TABLE IF NOT EXISTS rules (
 		rule_id TEXT PRIMARY KEY,
 		snapshot TEXT NOT NULL,
 		updated_at TEXT NOT NULL
 	)`)
-	db.Exec(`CREATE TABLE IF NOT EXISTS rule_versions (
+	_, _ = db.Exec(`CREATE TABLE IF NOT EXISTS rule_versions (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		rule_id TEXT NOT NULL,
 		version INTEGER NOT NULL,
 		snapshot TEXT NOT NULL,
 		created_at TEXT NOT NULL
 	)`)
-	db.Exec("CREATE INDEX IF NOT EXISTS idx_rule_versions_rule ON rule_versions(rule_id, version)")
+	_, _ = db.Exec("CREATE INDEX IF NOT EXISTS idx_rule_versions_rule ON rule_versions(rule_id, version)")
 
 	s.db = db
 }
@@ -94,9 +94,6 @@ func (s *RuleStore) SaveRule(rule *EdgeRule) error {
 	if err != nil {
 		return fmt.Errorf("marshal rule: %w", err)
 	}
-
-	updated_at := rule.RuleID // Use timestamp from rule
-	_ = updated_at            // Suppress unused warning
 
 	// Upsert rule
 	_, err = s.db.Exec(
@@ -190,7 +187,7 @@ func (s *RuleStore) GetRuleVersions(ruleID string) ([]map[string]interface{}, er
 		}
 		versions = append(versions, map[string]interface{}{
 			"version":    version,
-			"snapshot":  snapshot,
+			"snapshot":   snapshot,
 			"created_at": createdAt,
 		})
 	}

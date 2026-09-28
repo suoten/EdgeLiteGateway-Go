@@ -24,18 +24,18 @@ import (
 //   - clamp: min/max limiting
 //   - sqrt, abs, negate, percent
 type Preprocessor struct {
-	mu                       sync.RWMutex
-	rules                    map[string][]*models.PreprocessRule // key: deviceID
-	enabled                  bool
-	defaultDeadband          float64
-	defaultFilterWindow      int
+	mu                        sync.RWMutex
+	rules                     map[string][]*models.PreprocessRule // key: deviceID
+	enabled                   bool
+	defaultDeadband           float64
+	defaultFilterWindow       int
 	defaultAggregateWindowSec int
 
 	// State windows for filtering and aggregation (key: deviceID:pointName:ruleID)
-	filterWindows    map[string][]float64 // ring buffer for median/moving_avg
-	emaState         map[string]float64   // EMA last value
+	filterWindows    map[string][]float64  // ring buffer for median/moving_avg
+	emaState         map[string]float64    // EMA last value
 	kalmanState      map[string][2]float64 // [estimate, variance]
-	lastValues       map[string]float64   // deadband last values
+	lastValues       map[string]float64    // deadband last values
 	aggregateWindows map[string][]aggEntry // time-windowed aggregation
 }
 
@@ -47,16 +47,16 @@ type aggEntry struct {
 // NewPreprocessor creates a new Preprocessor from config.
 func NewPreprocessor(cfg *config.PreprocessGlobalConfig) *Preprocessor {
 	return &Preprocessor{
-		rules:                    make(map[string][]*models.PreprocessRule),
-		enabled:                  cfg.Enabled,
-		defaultDeadband:          cfg.DefaultDeadband,
-		defaultFilterWindow:      cfg.DefaultFilterWindow,
+		rules:                     make(map[string][]*models.PreprocessRule),
+		enabled:                   cfg.Enabled,
+		defaultDeadband:           cfg.DefaultDeadband,
+		defaultFilterWindow:       cfg.DefaultFilterWindow,
 		defaultAggregateWindowSec: cfg.DefaultAggregateWindowSec,
-		filterWindows:            make(map[string][]float64),
-		emaState:                 make(map[string]float64),
-		kalmanState:              make(map[string][2]float64),
-		lastValues:               make(map[string]float64),
-		aggregateWindows:         make(map[string][]aggEntry),
+		filterWindows:             make(map[string][]float64),
+		emaState:                  make(map[string]float64),
+		kalmanState:               make(map[string][2]float64),
+		lastValues:                make(map[string]float64),
+		aggregateWindows:          make(map[string][]aggEntry),
 	}
 }
 

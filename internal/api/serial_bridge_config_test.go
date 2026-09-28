@@ -60,8 +60,8 @@ func withFakeSerialBridge(t *testing.T) *testSerialDevice {
 	t.Helper()
 	dev := &testSerialDevice{}
 	prevFactory := serialBridgeFactory
-	serialBridgeFactory = func() *engine.SerialTcpBridge {
-		return engine.NewSerialTcpBridgeWithOpener(dev.open)
+	serialBridgeFactory = func() *engine.SerialTCPBridge {
+		return engine.NewSerialTCPBridgeWithOpener(dev.open)
 	}
 	t.Cleanup(func() {
 		serialBridgeFactory = prevFactory

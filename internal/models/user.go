@@ -80,10 +80,10 @@ type LogoutRequest struct {
 }
 
 var (
-	passwordLetterRegex   = regexp.MustCompile(`[a-zA-Z]`)
-	passwordDigitRegex    = regexp.MustCompile(`\d`)
-	passwordSpecialRegex  = regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{}|;':\",.<>?` + "`" + `~]`)
-	usernameValidRegex    = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+	passwordLetterRegex  = regexp.MustCompile(`[a-zA-Z]`)
+	passwordDigitRegex   = regexp.MustCompile(`\d`)
+	passwordSpecialRegex = regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{}|;':\",.<>?` + "`" + `~]`)
+	usernameValidRegex   = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 )
 
 // ValidatePassword checks password complexity: must contain letters, digits, and special chars.

@@ -222,7 +222,7 @@ func refuseWhenMCPOff(c echo.Context) bool {
 	if mcpServiceEnabled() {
 		return false
 	}
-	Conflict(c, "ERR_MCP_DISABLED: mcp_server is switched off, so this build serves no MCP tools - "+
+	_ = Conflict(c, "ERR_MCP_DISABLED: mcp_server is switched off, so this build serves no MCP tools - "+
 		"enable it with POST /api/v1/services/mcp_server/enable or mcp_server.enabled in the config file, then retry")
 	return true
 }

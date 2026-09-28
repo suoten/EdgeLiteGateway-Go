@@ -36,18 +36,18 @@ type SimulatorConfig struct {
 // VideoDeviceConfig holds video device configuration.
 type VideoDeviceConfig struct {
 	PyGBSentryDeviceID string  `json:"pygbsentry_device_id" yaml:"pygbsentry_device_id"`
-	ChannelID         string  `json:"channel_id" yaml:"channel_id"`
-	Timeout           float64 `json:"timeout" yaml:"timeout"`
+	ChannelID          string  `json:"channel_id" yaml:"channel_id"`
+	Timeout            float64 `json:"timeout" yaml:"timeout"`
 }
 
 // DeviceCreate represents a create device request.
 type DeviceCreate struct {
-	DeviceID       string                 `json:"device_id"`
-	Name           string                 `json:"name"`
-	Protocol       string                 `json:"protocol"`
-	Config         map[string]interface{} `json:"config"`
-	Points         []PointDef             `json:"points"`
-	CollectInterval int                   `json:"collect_interval"`
+	DeviceID        string                 `json:"device_id"`
+	Name            string                 `json:"name"`
+	Protocol        string                 `json:"protocol"`
+	Config          map[string]interface{} `json:"config"`
+	Points          []PointDef             `json:"points"`
+	CollectInterval int                    `json:"collect_interval"`
 }
 
 // DeviceUpdate represents an update device request.
@@ -60,45 +60,45 @@ type DeviceUpdate struct {
 
 // DeviceWritePolicyUpdate represents a device write protection policy update.
 type DeviceWritePolicyUpdate struct {
-	WriteVerify     *bool     `json:"write_verify,omitempty"`
-	WriteRateLimit  *int      `json:"write_rate_limit,omitempty"`
-	WriteAudit      *bool     `json:"write_audit,omitempty"`
-	WriteWhitelist  *[]string `json:"write_whitelist,omitempty"`
+	WriteVerify    *bool     `json:"write_verify,omitempty"`
+	WriteRateLimit *int      `json:"write_rate_limit,omitempty"`
+	WriteAudit     *bool     `json:"write_audit,omitempty"`
+	WriteWhitelist *[]string `json:"write_whitelist,omitempty"`
 }
 
 // DeviceResponse represents a device response.
 type DeviceResponse struct {
-	DeviceID       string                 `json:"device_id"`
-	Name           string                 `json:"name"`
-	Protocol       string                 `json:"protocol"`
-	Status         string                 `json:"status"`
-	Collecting     bool                   `json:"collecting"`
-	Config         map[string]interface{} `json:"config"`
-	Points         []PointDef             `json:"points"`
-	CollectInterval int                   `json:"collect_interval"`
-	CreatedBy      string                 `json:"created_by,omitempty"`
-	CreatedAt      string                 `json:"created_at"`
-	UpdatedAt      string                 `json:"updated_at"`
-	Version        int                    `json:"version"`
+	DeviceID        string                 `json:"device_id"`
+	Name            string                 `json:"name"`
+	Protocol        string                 `json:"protocol"`
+	Status          string                 `json:"status"`
+	Collecting      bool                   `json:"collecting"`
+	Config          map[string]interface{} `json:"config"`
+	Points          []PointDef             `json:"points"`
+	CollectInterval int                    `json:"collect_interval"`
+	CreatedBy       string                 `json:"created_by,omitempty"`
+	CreatedAt       string                 `json:"created_at"`
+	UpdatedAt       string                 `json:"updated_at"`
+	Version         int                    `json:"version"`
 }
 
 // SimulatorCreate represents a create simulator device request.
 type SimulatorCreate struct {
-	DeviceID       string     `json:"device_id"`
-	Name           string     `json:"name"`
-	Points         []PointDef `json:"points"`
-	CollectInterval int       `json:"collect_interval"`
+	DeviceID        string     `json:"device_id"`
+	Name            string     `json:"name"`
+	Points          []PointDef `json:"points"`
+	CollectInterval int        `json:"collect_interval"`
 }
 
 // DiscoverRequest represents a device discovery request.
 type DiscoverRequest struct {
 	Protocol string                 `json:"protocol"`
-	Config  map[string]interface{} `json:"config"`
+	Config   map[string]interface{} `json:"config"`
 }
 
 // TemplateCreate represents a create template request.
 type TemplateCreate struct {
-	DeviceID    string `json:"device_id"`
+	DeviceID     string `json:"device_id"`
 	TemplateName string `json:"template_name"`
 }
 
@@ -129,7 +129,7 @@ type ExportDevicesRequest struct {
 type ImportDevicesRequest struct {
 	Data      []map[string]interface{} `json:"data"`
 	Overwrite bool                     `json:"overwrite"`
-	Atomic   bool                      `json:"atomic"`
+	Atomic    bool                     `json:"atomic"`
 }
 
 // WritePointRequest represents a write point value request.
@@ -140,10 +140,10 @@ type WritePointRequest struct {
 
 // PushDataPointValue represents a single data point value push.
 type PushDataPointValue struct {
-	Point    string      `json:"point"`
-	Value    interface{} `json:"value"`
-	Quality  string      `json:"quality,omitempty"`
-	Timestamp string     `json:"timestamp,omitempty"`
+	Point     string      `json:"point"`
+	Value     interface{} `json:"value"`
+	Quality   string      `json:"quality,omitempty"`
+	Timestamp string      `json:"timestamp,omitempty"`
 }
 
 // PushDeviceDataRequest represents a push device data request.

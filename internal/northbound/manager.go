@@ -28,7 +28,7 @@ type PlatformStats struct {
 // Manager owns the runtime instances of northbound platform handlers.
 type Manager struct {
 	mu       sync.RWMutex
-	handlers map[string]platform.PlatformHandler
+	handlers map[string]platform.Handler
 	configs  map[string]map[string]interface{}
 	stats    map[string]*PlatformStats
 	eventBus *engine.EventBus
@@ -46,11 +46,11 @@ type Manager struct {
 func NewManager(eventBus *engine.EventBus) *Manager {
 	platform.RegisterAll()
 	return &Manager{
-		handlers: make(map[string]platform.PlatformHandler),
-		configs:  make(map[string]map[string]interface{}),
-		stats:    make(map[string]*PlatformStats),
-		eventBus: eventBus,
-		stopCh:   make(chan struct{}),
+		handlers:         make(map[string]platform.Handler),
+		configs:          make(map[string]map[string]interface{}),
+		stats:            make(map[string]*PlatformStats),
+		eventBus:         eventBus,
+		stopCh:           make(chan struct{}),
 		watchdogInterval: 15 * time.Second,
 	}
 }
@@ -389,10 +389,10 @@ func (m *Manager) ForwardTelemetry(deviceID string, data map[string]interface{})
 }
 
 // snapshotHandlers returns a copy of the current handler map.
-func (m *Manager) snapshotHandlers() map[string]platform.PlatformHandler {
+func (m *Manager) snapshotHandlers() map[string]platform.Handler {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	out := make(map[string]platform.PlatformHandler, len(m.handlers))
+	out := make(map[string]platform.Handler, len(m.handlers))
 	for name, h := range m.handlers {
 		out[name] = h
 	}

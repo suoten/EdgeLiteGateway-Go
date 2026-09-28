@@ -30,10 +30,10 @@ type AIInferenceRequest struct {
 
 // AIInferenceResponse represents an inference response.
 type AIInferenceResponse struct {
-	ModelID    string                 `json:"model_id"`
-	Output     interface{}            `json:"output"`
-	Confidence float64               `json:"confidence,omitempty"`
-	LatencyMs  float64               `json:"latency_ms"`
+	ModelID    string      `json:"model_id"`
+	Output     interface{} `json:"output"`
+	Confidence float64     `json:"confidence,omitempty"`
+	LatencyMs  float64     `json:"latency_ms"`
 }
 
 // AIModelStats represents AI model statistics.
@@ -47,24 +47,24 @@ type AIModelStats struct {
 
 // AIModelCreateRequest represents a model creation request.
 type AIModelCreateRequest struct {
-	ModelID    string                 `json:"model_id"`
-	ModelType  string                 `json:"model_type"`
-	Version    string                 `json:"version"`
-	Config     map[string]interface{} `json:"config,omitempty"`
+	ModelID   string                 `json:"model_id"`
+	ModelType string                 `json:"model_type"`
+	Version   string                 `json:"version"`
+	Config    map[string]interface{} `json:"config,omitempty"`
 }
 
 // AIModelUpdateRequest represents a model update request.
 type AIModelUpdateRequest struct {
-	Version    string                 `json:"version,omitempty"`
-	Config     map[string]interface{} `json:"config,omitempty"`
-	Status     string                 `json:"status,omitempty"`
+	Version string                 `json:"version,omitempty"`
+	Config  map[string]interface{} `json:"config,omitempty"`
+	Status  string                 `json:"status,omitempty"`
 }
 
 // AIModelDetailResponse represents a detailed model response.
 type AIModelDetailResponse struct {
 	AIModelInfo
-	Description string                 `json:"description,omitempty"`
-	InputSchema map[string]interface{} `json:"input_schema,omitempty"`
+	Description  string                 `json:"description,omitempty"`
+	InputSchema  map[string]interface{} `json:"input_schema,omitempty"`
 	OutputSchema map[string]interface{} `json:"output_schema,omitempty"`
 }
 
@@ -91,23 +91,23 @@ type AIInferenceLogResponse struct {
 
 // ABTestCreateRequest represents an A/B test creation request.
 type ABTestCreateRequest struct {
-	TestID      string `json:"test_id"`
-	ModelA      string `json:"model_a"`
-	ModelB      string `json:"model_b"`
+	TestID       string  `json:"test_id"`
+	ModelA       string  `json:"model_a"`
+	ModelB       string  `json:"model_b"`
 	TrafficSplit float64 `json:"traffic_split"` // 0-1, percentage to model B
-	Description string `json:"description,omitempty"`
+	Description  string  `json:"description,omitempty"`
 }
 
 // ABTestResponse represents an A/B test response.
 type ABTestResponse struct {
-	TestID      string                 `json:"test_id"`
-	ModelA      string                 `json:"model_a"`
-	ModelB      string                 `json:"model_b"`
-	TrafficSplit float64               `json:"traffic_split"`
-	Status      string                 `json:"status"`
-	StatsA      map[string]interface{} `json:"stats_a,omitempty"`
-	StatsB      map[string]interface{} `json:"stats_b,omitempty"`
-	CreatedAt   string                 `json:"created_at,omitempty"`
+	TestID       string                 `json:"test_id"`
+	ModelA       string                 `json:"model_a"`
+	ModelB       string                 `json:"model_b"`
+	TrafficSplit float64                `json:"traffic_split"`
+	Status       string                 `json:"status"`
+	StatsA       map[string]interface{} `json:"stats_a,omitempty"`
+	StatsB       map[string]interface{} `json:"stats_b,omitempty"`
+	CreatedAt    string                 `json:"created_at,omitempty"`
 }
 
 // HotSwapRequest represents a hot-swap model request.

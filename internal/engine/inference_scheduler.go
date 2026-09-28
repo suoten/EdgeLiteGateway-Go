@@ -38,7 +38,6 @@ type inferenceResult struct {
 // 避免在 32 位平台（linux/arm）上 atomic.AddInt64 对未对齐字段操作直接 panic。
 type modelEntry struct {
 	inferFn        func(ctx context.Context, input []float64) (interface{}, error)
-	mu             sync.Mutex
 	requests       atomic.Int64
 	successes      atomic.Int64
 	failures       atomic.Int64

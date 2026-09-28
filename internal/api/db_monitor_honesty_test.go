@@ -10,8 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"edgelite/internal/services"
 	"github.com/labstack/echo/v4"
+
+	"edgelite/internal/services"
 )
 
 // The database-monitor endpoints were the last ones that answered a working

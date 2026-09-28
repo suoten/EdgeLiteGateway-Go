@@ -1,10 +1,12 @@
 package drivers
 
 import (
+	"context"
 	"encoding/binary"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"edgelite/internal/models"
 )
 
@@ -223,9 +225,9 @@ func TestModbusSlaveProcessRequestWriteMultipleRegisters(t *testing.T) {
 	// Build Write Multiple Registers: FC=0x10, addr=2, qty=2, byteCount=4, data=[100,200]
 	pdu := make([]byte, 10)
 	pdu[0] = 0x10
-	binary.BigEndian.PutUint16(pdu[1:3], 2)  // addr
-	binary.BigEndian.PutUint16(pdu[3:5], 2)  // qty
-	pdu[5] = 4                                 // byte count
+	binary.BigEndian.PutUint16(pdu[1:3], 2) // addr
+	binary.BigEndian.PutUint16(pdu[3:5], 2) // qty
+	pdu[5] = 4                              // byte count
 	binary.BigEndian.PutUint16(pdu[6:8], 100)
 	binary.BigEndian.PutUint16(pdu[8:10], 200)
 	resp := sd.processRequest(1, pdu)
@@ -338,7 +340,7 @@ func TestModbusSlaveReadPointsHoldingRegister(t *testing.T) {
 	sd.holdingRegs[0] = 4242
 
 	pts := []models.PointDef{{Name: "HR0", Address: "HR0", DataType: "uint16"}}
-	result, err := driver.ReadPoints(nil, pts)
+	result, err := driver.ReadPoints(context.TODO(), pts)
 	assert.NoError(t, err)
 	assert.Len(t, result, 1)
 	assert.Equal(t, uint16(4242), result[0].Value)
@@ -355,7 +357,7 @@ func TestModbusSlaveReadPointsCoil(t *testing.T) {
 	sd.coilBits[0] = true
 
 	pts := []models.PointDef{{Name: "C0", Address: "coil0", DataType: "bool"}}
-	result, err := driver.ReadPoints(nil, pts)
+	result, err := driver.ReadPoints(context.TODO(), pts)
 	assert.NoError(t, err)
 	assert.Len(t, result, 1)
 	assert.Equal(t, true, result[0].Value)
@@ -369,7 +371,7 @@ func TestModbusSlaveReadPointsInvalidAddress(t *testing.T) {
 	driver, _ := NewModbusSlaveDriver("slave-test-17", config)
 
 	pts := []models.PointDef{{Name: "bad", Address: "INVALID", DataType: "uint16"}}
-	result, err := driver.ReadPoints(nil, pts)
+	result, err := driver.ReadPoints(context.TODO(), pts)
 	// Should not error overall, but the point should have a zero or error value
 	_ = err
 	_ = result
@@ -385,7 +387,7 @@ func TestModbusSlaveWritePointHoldingRegister(t *testing.T) {
 	driver, _ := NewModbusSlaveDriver("slave-test-18", config)
 	sd := driver.(*ModbusSlaveDriver)
 
-	err := driver.WritePoint(nil, "hr0", uint16(555))
+	err := driver.WritePoint(context.TODO(), "hr0", uint16(555))
 	assert.NoError(t, err)
 	assert.Equal(t, uint16(555), sd.holdingRegs[0])
 }
@@ -398,7 +400,7 @@ func TestModbusSlaveWritePointCoil(t *testing.T) {
 	driver, _ := NewModbusSlaveDriver("slave-test-19", config)
 	sd := driver.(*ModbusSlaveDriver)
 
-	err := driver.WritePoint(nil, "coil0", true)
+	err := driver.WritePoint(context.TODO(), "coil0", true)
 	assert.NoError(t, err)
 	assert.True(t, sd.coilBits[0])
 }
@@ -411,7 +413,7 @@ func TestModbusSlaveWritePointCoilInt(t *testing.T) {
 	driver, _ := NewModbusSlaveDriver("slave-test-20", config)
 	sd := driver.(*ModbusSlaveDriver)
 
-	err := driver.WritePoint(nil, "coil0", 1)
+	err := driver.WritePoint(context.TODO(), "coil0", 1)
 	assert.NoError(t, err)
 	assert.True(t, sd.coilBits[0])
 }
@@ -424,7 +426,7 @@ func TestModbusSlaveWritePointHoldingMultiRegs(t *testing.T) {
 	driver, _ := NewModbusSlaveDriver("slave-test-21", config)
 	sd := driver.(*ModbusSlaveDriver)
 
-	err := driver.WritePoint(nil, "hr0.2", []uint16{100, 200})
+	err := driver.WritePoint(context.TODO(), "hr0.2", []uint16{100, 200})
 	assert.NoError(t, err)
 	assert.Equal(t, uint16(100), sd.holdingRegs[0])
 	assert.Equal(t, uint16(200), sd.holdingRegs[1])
@@ -437,7 +439,7 @@ func TestModbusSlaveWritePointInvalidAddress(t *testing.T) {
 	}
 	driver, _ := NewModbusSlaveDriver("slave-test-22", config)
 
-	err := driver.WritePoint(nil, "INVALID", 42)
+	err := driver.WritePoint(context.TODO(), "INVALID", 42)
 	assert.Error(t, err)
 }
 
@@ -449,7 +451,7 @@ func TestModbusSlaveWritePointUnsupportedType(t *testing.T) {
 	driver, _ := NewModbusSlaveDriver("slave-test-23", config)
 
 	// input registers don't support write
-	err := driver.WritePoint(nil, "ir1", 42)
+	err := driver.WritePoint(context.TODO(), "ir1", 42)
 	assert.Error(t, err)
 }
 
@@ -464,7 +466,7 @@ func TestModbusSlaveReadPointsInputRegister(t *testing.T) {
 	sd.inputRegs[0] = 777
 
 	pts := []models.PointDef{{Name: "IR0", Address: "ir0", DataType: "uint16"}}
-	result, err := driver.ReadPoints(nil, pts)
+	result, err := driver.ReadPoints(context.TODO(), pts)
 	assert.NoError(t, err)
 	assert.Len(t, result, 1)
 	assert.Equal(t, uint16(777), result[0].Value)
@@ -481,7 +483,7 @@ func TestModbusSlaveReadPointsDiscrete(t *testing.T) {
 	sd.discreteBits[0] = true
 
 	pts := []models.PointDef{{Name: "DI0", Address: "di0", DataType: "bool"}}
-	result, err := driver.ReadPoints(nil, pts)
+	result, err := driver.ReadPoints(context.TODO(), pts)
 	assert.NoError(t, err)
 	assert.Len(t, result, 1)
 	assert.Equal(t, true, result[0].Value)
@@ -494,7 +496,7 @@ func TestModbusSlaveHealthCheckNotListening(t *testing.T) {
 	}
 	driver, _ := NewModbusSlaveDriver("slave-test-26", config)
 
-	err := driver.HealthCheck(nil)
+	err := driver.HealthCheck(context.TODO())
 	assert.Error(t, err)
 }
 
@@ -506,7 +508,7 @@ func TestModbusSlaveDiscover(t *testing.T) {
 	driver, _ := NewModbusSlaveDriver("slave-test-27", config)
 
 	// A slave is the device being found, not a scanner: it has no peer to ask.
-	result, err := driver.Discover(nil, nil)
+	result, err := driver.Discover(context.TODO(), nil)
 	assert.ErrorIs(t, err, ErrDiscoveryUnsupported)
 	assert.Empty(t, result)
 }

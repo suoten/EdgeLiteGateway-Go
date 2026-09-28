@@ -797,7 +797,7 @@ var (
 
 func registerPushStub() {
 	pushStubOnce.Do(func() {
-		platform.GetPlatformRegistry().Register("apitest_push_stub", func() platform.PlatformHandler {
+		platform.GetPlatformRegistry().Register("apitest_push_stub", func() platform.Handler {
 			obs := &pushObservation{}
 			pushStubSeen = append(pushStubSeen, obs)
 			return &pushStub{BasePlatform: platform.NewBasePlatform(), fail: pushStubFail, seen: obs}

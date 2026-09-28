@@ -10,11 +10,11 @@ import (
 // testJWTManager creates a JWTManager for testing without relying on global config.
 func testJWTManager() *JWTManager {
 	return &JWTManager{
-		secretKey:        []byte("test-secret-key-at-least-32-characters-long!!"),
-		algorithm:        "HS256",
-		accessExpiration: 30 * time.Minute,
+		secretKey:         []byte("test-secret-key-at-least-32-characters-long!!"),
+		algorithm:         "HS256",
+		accessExpiration:  30 * time.Minute,
 		refreshExpiration: 7 * 24 * time.Hour,
-		keyID:            "test-key",
+		keyID:             "test-key",
 	}
 }
 

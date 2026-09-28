@@ -388,7 +388,7 @@ func handleUpdatePreprocessGlobalSettings(c echo.Context) error {
 	// flat spelling GET answers with is accepted too.
 	globalObject, hasGlobal := jsonSubObject(raw, "global")
 	if !hasGlobal {
-		globalObject, hasGlobal = raw, true
+		globalObject = raw
 	}
 	var fields preprocessGlobalFields
 	if err := decodeInto(globalObject, &fields); err != nil {

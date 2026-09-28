@@ -6,8 +6,6 @@
 package config
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -412,8 +410,8 @@ func defaultWebhookAuthConfig() WebhookAuthConfig {
 	return WebhookAuthConfig{Mode: "none", Token: "", Username: "", Password: ""}
 }
 
-// MqttTlsConfigModel holds MQTT TLS/SSL configuration.
-type MqttTlsConfigModel struct {
+// MqttTLSConfigModel holds MQTT TLS/SSL configuration.
+type MqttTLSConfigModel struct {
 	Enabled    bool   `yaml:"enabled" json:"enabled"`
 	CACert     string `yaml:"ca_cert" json:"ca_cert"`
 	ClientCert string `yaml:"client_cert" json:"client_cert"`
@@ -421,8 +419,8 @@ type MqttTlsConfigModel struct {
 	CertReqs   string `yaml:"cert_reqs" json:"cert_reqs"`
 }
 
-func defaultMqttTlsConfig() MqttTlsConfigModel {
-	return MqttTlsConfigModel{Enabled: false, CACert: "", ClientCert: "", ClientKey: "", CertReqs: "required"}
+func defaultMqttTLSConfig() MqttTLSConfigModel {
+	return MqttTLSConfigModel{Enabled: false, CACert: "", ClientCert: "", ClientKey: "", CertReqs: "required"}
 }
 
 // McpServerConfig holds MCP Server configuration.
@@ -519,7 +517,7 @@ type AppConfig struct {
 	SerialBridge SerialBridgeConfig     `yaml:"serial_bridge" json:"serial_bridge"`
 	Preprocess   PreprocessGlobalConfig `yaml:"preprocess" json:"preprocess"`
 	WebhookAuth  WebhookAuthConfig      `yaml:"webhook_auth" json:"webhook_auth"`
-	MqttTLS      MqttTlsConfigModel     `yaml:"mqtt_tls" json:"mqtt_tls"`
+	MqttTLS      MqttTLSConfigModel     `yaml:"mqtt_tls" json:"mqtt_tls"`
 	McpServer    McpServerConfig        `yaml:"mcp_server" json:"mcp_server"`
 	Grafana      GrafanaConfig          `yaml:"grafana" json:"grafana"`
 	Drivers      DriversConfig          `yaml:"drivers" json:"drivers"`
@@ -550,7 +548,7 @@ func DefaultAppConfig() *AppConfig {
 		SerialBridge:  defaultSerialBridgeConfig(),
 		Preprocess:    defaultPreprocessGlobalConfig(),
 		WebhookAuth:   defaultWebhookAuthConfig(),
-		MqttTLS:       defaultMqttTlsConfig(),
+		MqttTLS:       defaultMqttTLSConfig(),
 		McpServer:     McpServerConfig{},
 		Grafana:       defaultGrafanaConfig(),
 		Drivers:       DriversConfig{},
@@ -782,25 +780,6 @@ func deepMerge(base, override map[string]interface{}) map[string]interface{} {
 }
 
 // deepCopyMap deeply copies a map.
-func deepCopyMap(d interface{}) interface{} {
-	switch v := d.(type) {
-	case map[string]interface{}:
-		result := make(map[string]interface{})
-		for k, val := range v {
-			result[k] = deepCopyMap(val)
-		}
-		return result
-	case []interface{}:
-		result := make([]interface{}, len(v))
-		for i, item := range v {
-			result[i] = deepCopyMap(item)
-		}
-		return result
-	default:
-		return d
-	}
-}
-
 // getNestedValue retrieves a value at a dot-separated path.
 func getNestedValue(d map[string]interface{}, path string) interface{} {
 	keys := strings.Split(path, ".")
@@ -844,16 +823,16 @@ func detectSensitiveChanges(oldDict, newDict map[string]interface{}) []string {
 	return changed
 }
 
-// ConfigChangeCallback is a function called when config changes.
-type ConfigChangeCallback func(changeInfo map[string]interface{})
+// ChangeCallback is a function called when config changes.
+type ChangeCallback func(changeInfo map[string]interface{})
 
 var (
-	configChangeCallbacks []ConfigChangeCallback
+	configChangeCallbacks []ChangeCallback
 	callbacksLock         sync.Mutex
 )
 
 // RegisterConfigChangeCallback registers a callback for config changes.
-func RegisterConfigChangeCallback(cb ConfigChangeCallback) {
+func RegisterConfigChangeCallback(cb ChangeCallback) {
 	callbacksLock.Lock()
 	defer callbacksLock.Unlock()
 	configChangeCallbacks = append(configChangeCallbacks, cb)
@@ -862,7 +841,7 @@ func RegisterConfigChangeCallback(cb ConfigChangeCallback) {
 // notifyConfigChange notifies all registered callbacks.
 func notifyConfigChange(changeInfo map[string]interface{}) {
 	callbacksLock.Lock()
-	cbs := make([]ConfigChangeCallback, len(configChangeCallbacks))
+	cbs := make([]ChangeCallback, len(configChangeCallbacks))
 	copy(cbs, configChangeCallbacks)
 	callbacksLock.Unlock()
 	for _, cb := range cbs {
@@ -888,12 +867,6 @@ func isDevMode() bool {
 }
 
 // generateTokenURLSafe generates a cryptographically random URL-safe string.
-func generateTokenURLSafe(nBytes int) string {
-	b := make([]byte, nBytes)
-	_, _ = rand.Read(b)
-	return hex.EncodeToString(b)
-}
-
 // Fixed development secrets used in DEV_MODE when none is configured.
 // Kept stable across boots so sessions/CSRF tokens survive restarts.
 // These are >=32 chars and intentionally NOT in InsecureDefaultValues.

@@ -23,50 +23,50 @@ import (
 type EventType string
 
 const (
-	EventTypeDataCollected    EventType = "data_collected"
-	EventTypeDataProcessed    EventType = "data_processed"
-	EventTypeAlarmTriggered   EventType = "alarm_triggered"
-	EventTypeAlarmRecovered   EventType = "alarm_recovered"
+	EventTypeDataCollected     EventType = "data_collected"
+	EventTypeDataProcessed     EventType = "data_processed"
+	EventTypeAlarmTriggered    EventType = "alarm_triggered"
+	EventTypeAlarmRecovered    EventType = "alarm_recovered"
 	EventTypeAlarmAcknowledged EventType = "alarm_acknowledged"
-	EventTypeDeviceOnline     EventType = "device_online"
-	EventTypeDeviceOffline    EventType = "device_offline"
-	EventTypeDeviceError      EventType = "device_error"
-	EventTypeDeviceCreated    EventType = "device_created"
-	EventTypeDeviceUpdated    EventType = "device_updated"
-	EventTypeDeviceDeleted    EventType = "device_deleted"
+	EventTypeDeviceOnline      EventType = "device_online"
+	EventTypeDeviceOffline     EventType = "device_offline"
+	EventTypeDeviceError       EventType = "device_error"
+	EventTypeDeviceCreated     EventType = "device_created"
+	EventTypeDeviceUpdated     EventType = "device_updated"
+	EventTypeDeviceDeleted     EventType = "device_deleted"
 	EventTypeRuleCreated       EventType = "rule_created"
-	EventTypeRuleUpdated      EventType = "rule_updated"
-	EventTypeRuleDeleted      EventType = "rule_deleted"
-	EventTypeMQTTConnected    EventType = "mqtt_connected"
-	EventTypeMQTTDisconnected EventType = "mqtt_disconnected"
-	EventTypeConfigChanged   EventType = "config_changed"
-	EventTypeBackpressure     EventType = "backpressure"
-	EventTypeCircuitBreaker   EventType = "circuit_breaker"
-	EventTypeAIInference      EventType = "ai_inference"
-	EventTypeStreamResult    EventType = "stream_result"
-	EventTypeSystemShutdown  EventType = "system_shutdown"
+	EventTypeRuleUpdated       EventType = "rule_updated"
+	EventTypeRuleDeleted       EventType = "rule_deleted"
+	EventTypeMQTTConnected     EventType = "mqtt_connected"
+	EventTypeMQTTDisconnected  EventType = "mqtt_disconnected"
+	EventTypeConfigChanged     EventType = "config_changed"
+	EventTypeBackpressure      EventType = "backpressure"
+	EventTypeCircuitBreaker    EventType = "circuit_breaker"
+	EventTypeAIInference       EventType = "ai_inference"
+	EventTypeStreamResult      EventType = "stream_result"
+	EventTypeSystemShutdown    EventType = "system_shutdown"
 )
 
 // Event is the core event structure passed through the bus.
 type Event struct {
-	Type      EventType             `json:"type"`
-	Source    string                `json:"source"`
-	DeviceID  string                `json:"device_id,omitempty"`
-	PointName string               `json:"point_name,omitempty"`
-	Data      interface{}           `json:"data,omitempty"`
-	Timestamp time.Time             `json:"timestamp"`
+	Type      EventType              `json:"type"`
+	Source    string                 `json:"source"`
+	DeviceID  string                 `json:"device_id,omitempty"`
+	PointName string                 `json:"point_name,omitempty"`
+	Data      interface{}            `json:"data,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
 	Metadata  map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // MarshalJSON implements custom JSON marshaling.
 func (e *Event) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Type      EventType             `json:"type"`
-		Source    string                `json:"source"`
-		DeviceID  string                `json:"device_id,omitempty"`
-		PointName string               `json:"point_name,omitempty"`
-		Data      interface{}           `json:"data,omitempty"`
-		Timestamp string                `json:"timestamp"`
+		Type      EventType              `json:"type"`
+		Source    string                 `json:"source"`
+		DeviceID  string                 `json:"device_id,omitempty"`
+		PointName string                 `json:"point_name,omitempty"`
+		Data      interface{}            `json:"data,omitempty"`
+		Timestamp string                 `json:"timestamp"`
 		Metadata  map[string]interface{} `json:"metadata,omitempty"`
 	}{
 		Type:      e.Type,
@@ -86,22 +86,22 @@ type EventHandler func(event Event)
 // It supports topic-based subscriptions and guarantees at-least-once delivery
 // within the queue capacity. When the queue is full, backpressure is applied.
 type EventBus struct {
-	mu          sync.RWMutex
+	mu           sync.RWMutex
 	subscribers  map[EventType][]EventHandler
 	wildcardSubs []EventHandler
-	queue       chan Event
-	wg          sync.WaitGroup
-	ctx         context.Context
-	cancel      context.CancelFunc
-	started     bool
+	queue        chan Event
+	wg           sync.WaitGroup
+	ctx          context.Context
+	cancel       context.CancelFunc
+	started      bool
 
 	// Metrics
-	muMetrics   sync.Mutex
-	published   int64
-	delivered   int64
-	dropped     int64
-	latencySum  float64
-	latencyCnt  int64
+	muMetrics  sync.Mutex
+	published  int64
+	delivered  int64
+	dropped    int64
+	latencySum float64
+	latencyCnt int64
 
 	// Backpressure callback
 	onBackpressure func(level string, queueLen, queueCap int)
@@ -114,7 +114,7 @@ func NewEventBus(queueCap int) *EventBus {
 	}
 	return &EventBus{
 		subscribers: make(map[EventType][]EventHandler),
-		queue:      make(chan Event, queueCap),
+		queue:       make(chan Event, queueCap),
 	}
 }
 
@@ -283,12 +283,12 @@ func (b *EventBus) Metrics() map[string]interface{} {
 		avgLatency = b.latencySum / float64(b.latencyCnt)
 	}
 	return map[string]interface{}{
-		"published":     b.published,
-		"delivered":     b.delivered,
-		"dropped":       b.dropped,
-		"queue_length":  len(b.queue),
+		"published":      b.published,
+		"delivered":      b.delivered,
+		"dropped":        b.dropped,
+		"queue_length":   len(b.queue),
 		"queue_capacity": cap(b.queue),
-		"avg_latency_s": avgLatency,
+		"avg_latency_s":  avgLatency,
 	}
 }
 
@@ -320,17 +320,17 @@ func (b *EventBus) IsStarted() bool {
 
 // DataCollectedEvent represents a data collection event payload.
 type DataCollectedEvent struct {
-	DeviceID string                      `json:"device_id"`
-	Points   []storage.PointData         `json:"points"`
-	Source   string                      `json:"source"`
+	DeviceID string              `json:"device_id"`
+	Points   []storage.PointData `json:"points"`
+	Source   string              `json:"source"`
 }
 
 // AlarmEventPayload represents an alarm event payload.
 type AlarmEventPayload struct {
-	AlarmID   string                 `json:"alarm_id"`
-	RuleID    string                 `json:"rule_id"`
-	DeviceID  string                 `json:"device_id"`
-	Severity  string                 `json:"severity"`
+	AlarmID  string                 `json:"alarm_id"`
+	RuleID   string                 `json:"rule_id"`
+	DeviceID string                 `json:"device_id"`
+	Severity string                 `json:"severity"`
 	Message  string                 `json:"message"`
 	Values   map[string]interface{} `json:"values,omitempty"`
 }

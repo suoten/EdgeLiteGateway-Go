@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // register sqlite driver (side-effect import)
 )
 
 // Staged restore. The gateway keeps the database open in WAL mode, so a backup

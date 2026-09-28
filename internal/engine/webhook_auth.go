@@ -22,11 +22,10 @@ const (
 
 // WebhookAuthMiddleware provides authentication for webhook endpoints.
 type WebhookAuthMiddleware struct {
-	mu       sync.Mutex
-	mode     WebhookAuthMode
-	token    string
-	username string
-	password string
+	mode        WebhookAuthMode
+	token       string
+	username    string
+	password    string
 	replayCache *ReplayCache
 }
 

@@ -158,13 +158,13 @@ func AuditLogMiddleware() echo.MiddlewareFunc {
 
 			userID, _ := c.Get("user_id").(string)
 			fields := logrus.Fields{
-				"method":   method,
-				"path":     c.Request().URL.Path,
-				"status":   c.Response().Status,
-				"latency":  time.Since(start).String(),
-				"ip":       c.RealIP(),
-				"user_id":  userID,
-				"req_id":   c.Get("request_id"),
+				"method":  method,
+				"path":    c.Request().URL.Path,
+				"status":  c.Response().Status,
+				"latency": time.Since(start).String(),
+				"ip":      c.RealIP(),
+				"user_id": userID,
+				"req_id":  c.Get("request_id"),
 			}
 
 			if err != nil {

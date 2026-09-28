@@ -23,9 +23,9 @@ func TestEventBusPublishSubscribeExtended(t *testing.T) {
 	})
 
 	bus.PublishSync(Event{
-		Type:    EventTypeDataCollected,
-		Source:  "test",
-		Data:    map[string]interface{}{"value": 1},
+		Type:   EventTypeDataCollected,
+		Source: "test",
+		Data:   map[string]interface{}{"value": 1},
 	})
 
 	if atomic.LoadInt32(&received) != 1 {
@@ -370,8 +370,7 @@ func TestExpressionEngineDivisionByZero(t *testing.T) {
 
 	result := engine.Evaluate("1 / 0", nil)
 	if result != nil {
-		// Division by zero should return nil (error path)
-		// Some implementations may return Inf, but our parser returns error
+		t.Logf("division by zero returned %v (parser error path returns nil)", result)
 	}
 }
 
@@ -992,11 +991,11 @@ func newTestStorageConfig(t *testing.T) *config.AppConfig {
 	// We need to import config
 	return &config.AppConfig{
 		Database: config.DatabaseConfig{
-			Backend:    "sqlite",
-			SQLitePath: filepath.Join(t.TempDir(), "rule_test.db"),
-			PoolSize:   5,
+			Backend:     "sqlite",
+			SQLitePath:  filepath.Join(t.TempDir(), "rule_test.db"),
+			PoolSize:    5,
 			MaxOverflow: 10,
-			BackupDir:  filepath.Join(t.TempDir(), "backups"),
+			BackupDir:   filepath.Join(t.TempDir(), "backups"),
 		},
 		InfluxDB: config.InfluxDBConfig{
 			SQLiteTSPath: filepath.Join(t.TempDir(), "rule_test_ts.db"),

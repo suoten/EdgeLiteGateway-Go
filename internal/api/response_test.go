@@ -27,7 +27,7 @@ func TestOK(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("Expected 200, got %d", rec.Code)
 	}
-	var resp APIResponse
+	var resp Response
 	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("Failed to unmarshal: %v", err)
 	}
@@ -83,7 +83,7 @@ func TestErrorMsg(t *testing.T) {
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("Expected 400, got %d", rec.Code)
 	}
-	var resp APIResponse
+	var resp Response
 	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("Failed to unmarshal: %v", err)
 	}
@@ -101,7 +101,7 @@ func TestErrorCode(t *testing.T) {
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("Expected 400, got %d", rec.Code)
 	}
-	var resp APIResponse
+	var resp Response
 	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("Failed to unmarshal: %v", err)
 	}
@@ -124,7 +124,7 @@ func TestNotFoundWithMessage(t *testing.T) {
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("Expected 404, got %d", rec.Code)
 	}
-	var resp APIResponse
+	var resp Response
 	json.Unmarshal(rec.Body.Bytes(), &resp)
 	if resp.Message != "Device not found" {
 		t.Fatalf("Expected 'Device not found', got %s", resp.Message)

@@ -276,13 +276,13 @@ func bridgeView(cont *ServiceContainer, rec bridgeRecord) map[string]interface{}
 	rules := make([]map[string]interface{}, 0, len(rec.Rules))
 	for _, r := range rec.Rules {
 		rules = append(rules, map[string]interface{}{
-			"rule_id":        r.RuleID,
-			"source_point":   r.SourcePoint,
-			"target_point":   r.TargetPoint,
+			"rule_id":         r.RuleID,
+			"source_point":    r.SourcePoint,
+			"target_point":    r.TargetPoint,
 			"conversion_type": r.ConversionType,
-			"scale":          r.Scale,
-			"offset":         r.Offset,
-			"enabled":        r.Enabled,
+			"scale":           r.Scale,
+			"offset":          r.Offset,
+			"enabled":         r.Enabled,
 		})
 	}
 	return map[string]interface{}{
@@ -575,9 +575,9 @@ func handleDeleteProtocolBridge(c echo.Context) error {
 	stillLive := cont.ProtocolBridge != nil && cont.ProtocolBridge.GetBridge(id) != nil
 	removed := wasLive && !stillLive
 	logrus.WithFields(logrus.Fields{
-		"bridge_id":             id,
-		"was_live":              wasLive,
-		"removed_from_manager":  removed,
+		"bridge_id":            id,
+		"was_live":             wasLive,
+		"removed_from_manager": removed,
 	}).Info("Protocol bridge deleted")
 	return OK(c, map[string]interface{}{"deleted": id, "was_live": wasLive, "removed_from_manager": removed})
 }

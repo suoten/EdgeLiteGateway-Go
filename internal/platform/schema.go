@@ -26,15 +26,15 @@ type ConfigSection struct {
 	Fields []ConfigField `json:"fields"`
 }
 
-// PlatformSchema is the full schema payload returned by the
+// Schema is the full schema payload returned by the
 // GET /platforms/config-schema/:name endpoint.
-type PlatformSchema struct {
+type Schema struct {
 	Fields   []ConfigField   `json:"fields"`
 	Sections []ConfigSection `json:"sections"`
 }
 
-// PlatformMeta describes a supported platform for the frontend card picker.
-type PlatformMeta struct {
+// Meta describes a supported platform for the frontend card picker.
+type Meta struct {
 	Name        string `json:"name"`
 	Label       string `json:"label"`
 	Description string `json:"description"`
@@ -43,7 +43,7 @@ type PlatformMeta struct {
 
 // PlatformCatalog lists all supported northbound platforms with display
 // metadata. Keys must match the handler names registered in RegisterAll.
-var PlatformCatalog = []PlatformMeta{
+var PlatformCatalog = []Meta{
 	{Name: "thingsboard", Label: "ThingsBoard", Description: "ThingsBoard 网关协议（遥测/属性/RPC），使用网关 Access Token 认证", Version: "1.0"},
 	{Name: "huawei_iotda", Label: "华为云 IoTDA", Description: "华为云 IoT 设备接入，使用设备 ID + 密钥认证，属性上报格式", Version: "1.0"},
 	{Name: "thingspanel", Label: "ThingsPanel", Description: "ThingsPanel 开源物联网平台，使用设备 Token 认证", Version: "1.0"},
@@ -53,21 +53,21 @@ var PlatformCatalog = []PlatformMeta{
 }
 
 // GetPlatformMeta returns display metadata for a platform name.
-func GetPlatformMeta(name string) (PlatformMeta, bool) {
+func GetPlatformMeta(name string) (Meta, bool) {
 	for _, m := range PlatformCatalog {
 		if m.Name == name {
 			return m, true
 		}
 	}
-	return PlatformMeta{}, false
+	return Meta{}, false
 }
 
 // secretFields are masked when exporting platform configurations.
 var secretFields = map[string]bool{
-	"token":       true,
-	"secret":      true,
-	"password":    true,
-	"access_key":  true,
+	"token":         true,
+	"secret":        true,
+	"password":      true,
+	"access_key":    true,
 	"access_secret": true,
 }
 
@@ -136,8 +136,8 @@ func baseFields(name string) []ConfigField {
 }
 
 // GetPlatformSchema returns the full config schema for a platform name.
-func GetPlatformSchema(name string) *PlatformSchema {
-	schema := &PlatformSchema{
+func GetPlatformSchema(name string) *Schema {
+	schema := &Schema{
 		Fields: baseFields(name),
 		Sections: []ConfigSection{
 			{

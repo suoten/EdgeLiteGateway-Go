@@ -50,25 +50,25 @@ type ServiceContainer struct {
 	AuditService     *services.AuditService
 	HistDataService  *services.HistoricalDataService
 
-	Scheduler         *engine.CollectScheduler
-	EventBus          *engine.EventBus
-	CBRegistry        *engine.CircuitBreakerRegistry
-	Evaluator         *engine.RuleEvaluator
-	AIInference       *engine.AIInferenceEngine
-	MqttForward       *engine.MQTTForwarder
+	Scheduler          *engine.CollectScheduler
+	EventBus           *engine.EventBus
+	CBRegistry         *engine.CircuitBreakerRegistry
+	Evaluator          *engine.RuleEvaluator
+	AIInference        *engine.AIInferenceEngine
+	MqttForward        *engine.MQTTForwarder
 	InferenceScheduler *engine.InferenceScheduler
-	DriverWatchdog    *engine.DriverWatchdog
-	AlarmOutbox       *engine.AlarmOutbox
-	StreamCompute     *engine.StreamComputeEngine
-	LogAggregator     *engine.LogAggregator
-	CascadeManager    *engine.CascadeManager
-	ProtocolBridge    *engine.ProtocolBridgeManager
+	DriverWatchdog     *engine.DriverWatchdog
+	AlarmOutbox        *engine.AlarmOutbox
+	StreamCompute      *engine.StreamComputeEngine
+	LogAggregator      *engine.LogAggregator
+	CascadeManager     *engine.CascadeManager
+	ProtocolBridge     *engine.ProtocolBridgeManager
 	// LinkageEvaluator actuates target devices when a source point crosses a
 	// configured threshold. Distinct from Evaluator, which only raises alarms.
 	LinkageEvaluator  *engine.LinkageEvaluator
 	OTAEngine         *engine.OTAManager
 	MqttServer        *engine.MqttServer
-	SerialBridge      *engine.SerialTcpBridge
+	SerialBridge      *engine.SerialTCPBridge
 	ModbusSlaveServer drivers.Driver
 	LifecycleMgr      *engine.LifecycleManager
 
@@ -85,7 +85,7 @@ type ServiceContainer struct {
 	PlatformMgr *northbound.Manager
 
 	ConfigVersionMgr *drivers.ConfigVersionManager
-	WSManager  *ws.Manager
+	WSManager        *ws.Manager
 
 	// ServiceEnabledMap tracks user-enabled state for services that are not
 	// always-on (e.g. grafana, mqtt_forwarder).  key=service name, val=true|false.

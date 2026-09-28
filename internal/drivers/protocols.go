@@ -8,7 +8,7 @@ import (
 
 // Helper: write bytes to TCP connection with timeout
 func tcpWrite(conn net.Conn, buf []byte, timeout time.Duration) error {
-	conn.SetWriteDeadline(time.Now().Add(timeout))
+	_ = conn.SetWriteDeadline(time.Now().Add(timeout))
 	_, err := conn.Write(buf)
 	return err
 }

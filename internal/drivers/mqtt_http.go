@@ -46,7 +46,6 @@ type MQTTClientDriver struct {
 	lastValues   map[string]interface{}
 	lastQuality  map[string]string
 	lastStamp    map[string]time.Time
-	lastStale    time.Time // last message that could not be mapped to a point
 	clientID     string
 	keepAlive    int // seconds
 	cleanSession bool
@@ -145,20 +144,20 @@ func NewMQTTClientDriver(deviceID string, config map[string]interface{}) (Driver
 		certReqs:   strings.ToLower(strings.TrimSpace(GetConfigString(config, "cert_reqs", "required"))),
 	}
 	d := &MQTTClientDriver{
-		broker:      GetConfigString(config, "broker", "localhost"),
-		port:        GetConfigInt(config, "port", 1883),
-		username:    GetConfigString(config, "username", ""),
-		password:    GetConfigString(config, "password", ""),
-		topicPrefix: GetConfigString(config, "topic_prefix", "edgelite"),
-		subTopic:    GetConfigString(config, "subscribe_topic", ""),
-		subQoS:      byte(qos),
-		timeout:     time.Duration(GetConfigFloat(config, "timeout", float64(constants.DeviceConnectTimeout)) * float64(time.Second)),
-		pointMap:    make(map[string]string),
-		lastValues:  make(map[string]interface{}),
-		lastQuality: make(map[string]string),
-		lastStamp:   make(map[string]time.Time),
-		clientID:    fmt.Sprintf("edgelite_%s", deviceID),
-		keepAlive:   GetConfigInt(config, "keepalive", 60),
+		broker:       GetConfigString(config, "broker", "localhost"),
+		port:         GetConfigInt(config, "port", 1883),
+		username:     GetConfigString(config, "username", ""),
+		password:     GetConfigString(config, "password", ""),
+		topicPrefix:  GetConfigString(config, "topic_prefix", "edgelite"),
+		subTopic:     GetConfigString(config, "subscribe_topic", ""),
+		subQoS:       byte(qos),
+		timeout:      time.Duration(GetConfigFloat(config, "timeout", float64(constants.DeviceConnectTimeout)) * float64(time.Second)),
+		pointMap:     make(map[string]string),
+		lastValues:   make(map[string]interface{}),
+		lastQuality:  make(map[string]string),
+		lastStamp:    make(map[string]time.Time),
+		clientID:     fmt.Sprintf("edgelite_%s", deviceID),
+		keepAlive:    GetConfigInt(config, "keepalive", 60),
 		cleanSession: GetConfigBool(config, "clean_session", true),
 	}
 	if d.keepAlive <= 0 {
@@ -367,7 +366,7 @@ func (d *MQTTClientDriver) sendMQTTSubscribe(topics []string, qos byte) error {
 	packet.Write(vh.Bytes())
 	packet.Write(payload.Bytes())
 
-	d.conn.SetWriteDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetWriteDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(packet.Bytes()); err != nil {
 		return fmt.Errorf("mqtt subscribe write: %w", err)
 	}
@@ -420,10 +419,10 @@ func (d *MQTTClientDriver) readLoop() {
 // mqttIncomingPacket is a decoded inbound MQTT control packet.
 type mqttIncomingPacket struct {
 	typ     byte
- qos     byte
- retain  bool
- topic   string
- payload []byte
+	qos     byte
+	retain  bool
+	topic   string
+	payload []byte
 }
 
 // readMQTTPacket decodes one MQTT control packet from a stream reader.
@@ -521,14 +520,14 @@ func (d *MQTTClientDriver) sendMQTTConnect() error {
 	packet.Write(vh.Bytes())
 	packet.Write(payload.Bytes())
 
-	d.conn.SetWriteDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetWriteDeadline(time.Now().Add(d.timeout))
 	_, err := d.conn.Write(packet.Bytes())
 	return err
 }
 
 // readMQTTConnAck reads and validates the MQTT CONNACK packet.
 func (d *MQTTClientDriver) readMQTTConnAck() error {
-	d.conn.SetReadDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetReadDeadline(time.Now().Add(d.timeout))
 	header := make([]byte, 4)
 	if _, err := readFull(d.conn, header); err != nil {
 		return fmt.Errorf("read connack: %w", err)
@@ -564,7 +563,7 @@ func (d *MQTTClientDriver) sendMQTTPublish(topic string, payload []byte, qos byt
 	packet.Write(vh.Bytes())
 	packet.Write(payload)
 
-	d.conn.SetWriteDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetWriteDeadline(time.Now().Add(d.timeout))
 	_, err := d.conn.Write(packet.Bytes())
 	return err
 }
@@ -597,8 +596,8 @@ func (d *MQTTClientDriver) Disconnect() error {
 	// Send MQTT DISCONNECT packet if connected to broker
 	if d.conn != nil {
 		// MQTT DISCONNECT: fixed header 0xE0, remaining length 0x00
-		d.conn.SetDeadline(time.Now().Add(d.timeout))
-		d.conn.Write([]byte{0xE0, 0x00})
+		_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
+		_, _ = d.conn.Write([]byte{0xE0, 0x00})
 		d.conn.Close()
 		d.conn = nil
 	}
@@ -861,12 +860,6 @@ func (d *MQTTClientDriver) learnPointTopics(points []models.PointDef) {
 }
 
 // rememberSeenPoint records a point name observed outside the payload path.
-func (d *MQTTClientDriver) rememberSeenPoint(name string) {
-	if _, exists := d.pointMap[name]; !exists {
-		d.pointMap[name] = d.TopicForPoint(models.PointDef{Name: name})
-	}
-}
-
 func (d *MQTTClientDriver) WritePoint(ctx context.Context, point string, value interface{}) error {
 	if !d.IsConnected() {
 		return fmt.Errorf("mqtt not connected")
@@ -940,7 +933,7 @@ func (d *MQTTClientDriver) HealthCheck(ctx context.Context) error {
 	// race the reader); a successful write proves the socket is alive, and a dead
 	// broker surfaces as a write error or via readLoop marking us disconnected.
 	if d.conn != nil {
-		d.conn.SetWriteDeadline(time.Now().Add(d.timeout))
+		_ = d.conn.SetWriteDeadline(time.Now().Add(d.timeout))
 		// MQTT PINGREQ: fixed header 0xC0, remaining length 0x00
 		if _, err := d.conn.Write([]byte{0xC0, 0x00}); err != nil {
 			d.RecordReadFailure()

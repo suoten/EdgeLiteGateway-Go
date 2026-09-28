@@ -77,6 +77,18 @@ jobs:
         run: |
           docker build -f docker/Dockerfile.sidecar -t edgelite-ai-sidecar:ci .
           docker run --rm -d --name sidecar-test -p 50052:50052 edgelite-ai-sidecar:ci
-          sleep 10
-          curl -s http://localhost:50052/health | grep -q '"healthy":true'
+          # Wait for startup (onnxruntime import is slow on cold runners)
+          ok=""
+          for i in $(seq 1 45); do
+            if curl -sf http://localhost:50052/health | grep -q '"healthy": *true'; then
+              ok=1
+              break
+            fi
+            sleep 2
+          done
+          if [ -z "$ok" ]; then
+            echo "::error::Sidecar health check failed"
+            docker logs sidecar-test || true
+            exit 1
+          fi
           docker stop sidecar-test

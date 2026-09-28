@@ -162,15 +162,15 @@ func handleSystemStatus(c echo.Context) error {
 	if cont.Database != nil {
 		status["database"] = map[string]interface{}{
 			"backend": "sqlite",
-			"healthy":  true,
+			"healthy": true,
 		}
 	}
 
 	if cont.TsStorage != nil {
 		status["influxdb"] = map[string]interface{}{
 			"backend":  "sqlite_fallback",
-			"healthy":   cont.TsStorage.CheckHealth(),
-			"fallback":  cont.TsStorage.IsUsingFallback(),
+			"healthy":  cont.TsStorage.CheckHealth(),
+			"fallback": cont.TsStorage.IsUsingFallback(),
 		}
 	}
 
@@ -327,7 +327,7 @@ func handleSystemHealth(c echo.Context) error {
 
 	return OK(c, map[string]interface{}{
 		"status":     status,
-		"components":  components,
+		"components": components,
 		"timestamp":  time.Now().Format(time.RFC3339),
 	})
 }
@@ -696,9 +696,9 @@ func handleRollbackConfig(c echo.Context) error {
 	}
 
 	return OK(c, map[string]interface{}{
-		"version":  version,
-		"config":   configJSON,
-		"message":  "Config rollback retrieved (apply manually)",
+		"version": version,
+		"config":  configJSON,
+		"message": "Config rollback retrieved (apply manually)",
 	})
 }
 
@@ -892,12 +892,12 @@ func handleRestoreBackup(c echo.Context) error {
 	}).Warn("Backup restore staged; it is applied on the next start")
 	recordAudit(c, "backup_restore", "backup", req.Filename, "staged", nil)
 	return OK(c, map[string]interface{}{
-		"filename":      req.Filename,
-		"staged":        true,
-		"applied":       false,
-		"effective_on":  "restart",
-		"checksum":      checksum,
-		"message":       "Restore staged. The gateway applies it while starting up and snapshots the current database first. Restart to take effect.",
+		"filename":     req.Filename,
+		"staged":       true,
+		"applied":      false,
+		"effective_on": "restart",
+		"checksum":     checksum,
+		"message":      "Restore staged. The gateway applies it while starting up and snapshots the current database first. Restart to take effect.",
 	})
 }
 
@@ -1056,7 +1056,7 @@ func handleNTPSync(c echo.Context) error {
 		return OK(c, payload)
 	}
 	defer conn.Close()
-	conn.SetDeadline(time.Now().Add(5 * time.Second))
+	_ = conn.SetDeadline(time.Now().Add(5 * time.Second))
 
 	// Send SNTP request (48 bytes, first byte = 0x1B for client mode)
 	req := make([]byte, 48)
@@ -1276,23 +1276,23 @@ func handleListServices(c echo.Context) error {
 		"use_cases":      []string{"dashboard_monitoring"},
 	})
 
-// Merge user-enabled state for services whose actual state is "disabled"
-// but the user has toggled them on via the UI (map first, then persisted).
-cont.ServiceEnabledMu.RLock()
-for i, svc := range services {
-	name, _ := svc["name"].(string)
-	enabled, ok := cont.ServiceEnabledMap[name]
-	if !ok {
-		enabled = serviceEnabled(cont, name)
-	}
-	if enabled {
-		curState, _ := svc["state"].(string)
-		if curState == "disabled" {
-			services[i]["state"] = "enabled"
+	// Merge user-enabled state for services whose actual state is "disabled"
+	// but the user has toggled them on via the UI (map first, then persisted).
+	cont.ServiceEnabledMu.RLock()
+	for i, svc := range services {
+		name, _ := svc["name"].(string)
+		enabled, ok := cont.ServiceEnabledMap[name]
+		if !ok {
+			enabled = serviceEnabled(cont, name)
+		}
+		if enabled {
+			curState, _ := svc["state"].(string)
+			if curState == "disabled" {
+				services[i]["state"] = "enabled"
+			}
 		}
 	}
-}
-cont.ServiceEnabledMu.RUnlock()
+	cont.ServiceEnabledMu.RUnlock()
 
 	return OK(c, map[string]interface{}{"services": services})
 }

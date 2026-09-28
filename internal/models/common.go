@@ -10,8 +10,8 @@ type PointValue struct {
 	Timestamp string      `json:"timestamp,omitempty"`
 }
 
-// ApiResponse represents a standard API response envelope.
-type ApiResponse struct {
+// APIResponse represents a standard API response envelope.
+type APIResponse struct {
 	Success   bool        `json:"success"`
 	Data      interface{} `json:"data,omitempty"`
 	Message   string      `json:"message,omitempty"`

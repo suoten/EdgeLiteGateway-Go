@@ -32,7 +32,7 @@ func TestParseModbusAddressProtoForgeContract(t *testing.T) {
 		{"0x50", "coil", 50},
 		{"DI12", "discrete", 12},
 		{"1x12", "discrete", 12},
-		{"100", "holding", 100}, // bare = absolute offset
+		{"100", "holding", 100},   // bare = absolute offset
 		{"400100", "holding", 99}, // 6-digit PLC: 400001 -> offset 0
 		{"300100", "input", 99},
 		{"000100", "coil", 99},

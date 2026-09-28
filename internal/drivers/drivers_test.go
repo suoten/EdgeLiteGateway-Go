@@ -261,9 +261,9 @@ func TestCircuitBreakerClosedState(t *testing.T) {
 
 func TestCircuitBreakerOpensAfterFailures(t *testing.T) {
 	config := CircuitBreakerConfig{
-		FailureThreshold:  3,
-		RecoveryTimeout:   100 * time.Millisecond,
-		HalfOpenMaxCalls:  2,
+		FailureThreshold: 3,
+		RecoveryTimeout:  100 * time.Millisecond,
+		HalfOpenMaxCalls: 2,
 	}
 	cb := NewCircuitBreaker(config)
 
@@ -287,9 +287,9 @@ func TestCircuitBreakerOpensAfterFailures(t *testing.T) {
 
 func TestCircuitBreakerHalfOpenRecovery(t *testing.T) {
 	config := CircuitBreakerConfig{
-		FailureThreshold:  2,
-		RecoveryTimeout:   50 * time.Millisecond,
-		HalfOpenMaxCalls:  2,
+		FailureThreshold: 2,
+		RecoveryTimeout:  50 * time.Millisecond,
+		HalfOpenMaxCalls: 2,
 	}
 	cb := NewCircuitBreaker(config)
 

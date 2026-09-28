@@ -32,9 +32,8 @@ func TestAlarmSilenceService(t *testing.T) {
 
 	// IsSilenced checks if deviceID matches OR ruleID matches
 	// Since rule.RuleID == "rule-1", checking with rule-1 will match regardless of deviceID
-	if svc.IsSilenced("device-2", "rule-1") {
-		// This matches because ruleID "rule-1" matches
-		// This is the expected behavior based on the OR logic
+	if !svc.IsSilenced("device-2", "rule-1") {
+		t.Error("Expected device-2/rule-1 to be silenced (ruleID OR match)")
 	}
 
 	silenced := svc.ListSilenced()
@@ -324,13 +323,13 @@ func TestCommandApprovalService(t *testing.T) {
 	svc := NewCommandApprovalService()
 
 	cmd := &CommandApproval{
-		ID:        "cmd-1",
-		DeviceID:  "device-1",
-		Point:     "setpoint",
-		Value:     42.5,
+		ID:          "cmd-1",
+		DeviceID:    "device-1",
+		Point:       "setpoint",
+		Value:       42.5,
 		RequestedBy: "admin",
 		RequestedAt: time.Now(),
-		Status:    "pending",
+		Status:      "pending",
 	}
 
 	svc.RequestApproval(cmd)
@@ -362,13 +361,13 @@ func TestCommandApprovalReject(t *testing.T) {
 	svc := NewCommandApprovalService()
 
 	cmd := &CommandApproval{
-		ID:         "cmd-2",
-		DeviceID:   "device-1",
-		Point:      "setpoint",
-		Value:      100,
+		ID:          "cmd-2",
+		DeviceID:    "device-1",
+		Point:       "setpoint",
+		Value:       100,
 		RequestedBy: "admin",
 		RequestedAt: time.Now(),
-		Status:     "pending",
+		Status:      "pending",
 	}
 
 	svc.RequestApproval(cmd)
@@ -788,7 +787,7 @@ func TestAuditServiceFilter(t *testing.T) {
 	}
 
 	// Filter by action
-	entries, total = svc.List(AuditFilter{Action: "delete"}, 1, 10)
+	_, total = svc.List(AuditFilter{Action: "delete"}, 1, 10)
 	if total != 1 {
 		t.Errorf("Expected 1 delete entry, got %d", total)
 	}

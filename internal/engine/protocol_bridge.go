@@ -14,15 +14,15 @@ import (
 
 // MappingRule defines a mapping between a source point and a target point.
 type MappingRule struct {
-	RuleID           string  `json:"rule_id"`
-	SourceDeviceID   string  `json:"source_device_id"`
-	SourcePoint      string  `json:"source_point"`
-	TargetDeviceID   string  `json:"target_device_id"`
-	TargetPoint      string  `json:"target_point"`
-	ConversionType   string  `json:"conversion_type"` // "linear", "scale", "bool_to_int", etc.
-	Scale            float64 `json:"scale"`
-	Offset           float64 `json:"offset"`
-	Enabled          bool    `json:"enabled"`
+	RuleID         string  `json:"rule_id"`
+	SourceDeviceID string  `json:"source_device_id"`
+	SourcePoint    string  `json:"source_point"`
+	TargetDeviceID string  `json:"target_device_id"`
+	TargetPoint    string  `json:"target_point"`
+	ConversionType string  `json:"conversion_type"` // "linear", "scale", "bool_to_int", etc.
+	Scale          float64 `json:"scale"`
+	Offset         float64 `json:"offset"`
+	Enabled        bool    `json:"enabled"`
 }
 
 // BridgeWriteSink delivers a converted value to a target device point. The API
@@ -396,7 +396,7 @@ func (m *ProtocolBridgeManager) UpdateSourceData(ctx context.Context, deviceID, 
 			if err := sink(ctx, target, targetPoint, converted); err != nil {
 				bridge.stats.recordError(fmt.Sprintf("write %s.%s: %s", target, targetPoint, err.Error()))
 				logrus.WithError(err).WithFields(logrus.Fields{
-					"bridge_id":    bridge.id,
+					"bridge_id":     bridge.id,
 					"target_device": target,
 					"target_point":  targetPoint,
 				}).Warn("Protocol bridge write failed")

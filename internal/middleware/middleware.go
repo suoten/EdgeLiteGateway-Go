@@ -134,8 +134,8 @@ type RateLimitEntry struct {
 
 // RateLimiter provides in-memory rate limiting.
 type RateLimiter struct {
-	mu               sync.Mutex
-	entries          map[string]*RateLimitEntry
+	mu                sync.Mutex
+	entries           map[string]*RateLimitEntry
 	requestsPerMinute int
 }
 

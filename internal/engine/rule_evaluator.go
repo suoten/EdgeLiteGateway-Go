@@ -18,18 +18,18 @@ import (
 // It supports threshold rules, AI inference rules, and script rules.
 // Duration-based rules require the condition to be true for N consecutive seconds.
 type RuleEvaluator struct {
-	mu            sync.RWMutex
-	rules          map[string]*activeRule
-	eventBus      *EventBus
-	ruleRepo      *storage.RuleRepo
+	mu           sync.RWMutex
+	rules        map[string]*activeRule
+	eventBus     *EventBus
+	ruleRepo     *storage.RuleRepo
 	alarmRepo    *storage.AlarmRepo
-	activeAlarms  map[string]string // ruleID -> alarmID (currently firing)
-	alarmHooks    AlarmHooks
+	activeAlarms map[string]string // ruleID -> alarmID (currently firing)
+	alarmHooks   AlarmHooks
 
 	// trackerMu protects durationTracker and pointCache to avoid lock upgrades
 	// from RLock (held during evaluateRulesForDevice) to Lock (in evaluateThresholdRule),
 	// which would cause a deadlock.
-	trackerMu       sync.Mutex
+	trackerMu sync.Mutex
 	// Duration tracking: ruleID -> consecutive true count
 	durationTracker map[string]int
 	// Last known point values per device: deviceID -> pointName -> value
@@ -38,8 +38,8 @@ type RuleEvaluator struct {
 
 // activeRule wraps a rule response with runtime state.
 type activeRule struct {
-	rule       *models.RuleResponse
-	loadedAt   time.Time
+	rule        *models.RuleResponse
+	loadedAt    time.Time
 	evaluations int64
 	errors      int64
 }
@@ -61,7 +61,7 @@ func NewRuleEvaluator(eventBus *EventBus, ruleRepo *storage.RuleRepo, alarmRepo 
 		rules:           make(map[string]*activeRule),
 		eventBus:        eventBus,
 		ruleRepo:        ruleRepo,
-		alarmRepo:      alarmRepo,
+		alarmRepo:       alarmRepo,
 		activeAlarms:    make(map[string]string),
 		durationTracker: make(map[string]int),
 		pointCache:      make(map[string]map[string]interface{}),
@@ -215,7 +215,7 @@ func (e *RuleEvaluator) evaluateRulesForDevice(deviceID string, points []storage
 		if err != nil {
 			ar.errors++
 			if e.ruleRepo != nil {
-				e.ruleRepo.IncrementErrorCount(rule.RuleID)
+				_ = e.ruleRepo.IncrementErrorCount(rule.RuleID)
 			}
 			logrus.WithField("rule_id", rule.RuleID).
 				WithField("error", err.Error()).
@@ -224,7 +224,7 @@ func (e *RuleEvaluator) evaluateRulesForDevice(deviceID string, points []storage
 		}
 
 		if e.ruleRepo != nil {
-			e.ruleRepo.IncrementInferenceCount(rule.RuleID)
+			_ = e.ruleRepo.IncrementInferenceCount(rule.RuleID)
 		}
 
 		results = append(results, evalResult{
@@ -393,7 +393,7 @@ func (e *RuleEvaluator) handleRuleTriggered(rule *models.RuleResponse, triggerVa
 	}
 
 	e.mu.Lock()
-	alarmID, alreadyFiring := e.activeAlarms[rule.RuleID]
+	_, alreadyFiring := e.activeAlarms[rule.RuleID]
 	e.mu.Unlock()
 
 	if alreadyFiring {
@@ -410,7 +410,7 @@ func (e *RuleEvaluator) handleRuleTriggered(rule *models.RuleResponse, triggerVa
 	}
 
 	// Create new alarm
-	alarmID = generateAlarmID()
+	alarmID := generateAlarmID()
 	alarm := &models.AlarmResponse{
 		AlarmID:      alarmID,
 		RuleID:       rule.RuleID,
@@ -422,7 +422,7 @@ func (e *RuleEvaluator) handleRuleTriggered(rule *models.RuleResponse, triggerVa
 		TriggerCount: 1,
 		FiredAt:      time.Now().Format(time.RFC3339),
 		RuleType:     rule.RuleType,
-		Version:     1,
+		Version:      1,
 	}
 
 	if e.alarmRepo != nil {
@@ -581,10 +581,10 @@ func (e *RuleEvaluator) Stats() map[string]interface{} {
 		totalErr += ar.errors
 	}
 	return map[string]interface{}{
-		"loaded_rules":   len(e.rules),
-		"active_alarms":  len(e.activeAlarms),
+		"loaded_rules":      len(e.rules),
+		"active_alarms":     len(e.activeAlarms),
 		"total_evaluations": totalEval,
-		"total_errors":   totalErr,
+		"total_errors":      totalErr,
 	}
 }
 

@@ -1185,8 +1185,8 @@ func TestLinkRedundancyRegisterDevice(t *testing.T) {
 	config := &RedundancyConfig{
 		PrimaryHost:         "host-a",
 		BackupHost:          "host-b",
-		SwitchThreshold:      3,
-		SwitchbackDelay:      10,
+		SwitchThreshold:     3,
+		SwitchbackDelay:     10,
 		HealthCheckInterval: 5,
 	}
 	mgr.RegisterDevice("device-1", config)
@@ -1205,8 +1205,8 @@ func TestLinkRedundancyRegisterDevice(t *testing.T) {
 func TestLinkRedundancyRecordSuccess(t *testing.T) {
 	mgr := NewLinkRedundancyManager()
 	config := &RedundancyConfig{
-		PrimaryHost:    "host-a",
-		BackupHost:     "host-b",
+		PrimaryHost:     "host-a",
+		BackupHost:      "host-b",
 		SwitchThreshold: 3,
 	}
 	mgr.RegisterDevice("device-1", config)
@@ -1228,8 +1228,8 @@ func TestLinkRedundancySwitchToBackup(t *testing.T) {
 	})
 
 	config := &RedundancyConfig{
-		PrimaryHost:    "host-a",
-		BackupHost:     "host-b",
+		PrimaryHost:     "host-a",
+		BackupHost:      "host-b",
 		SwitchThreshold: 2,
 	}
 	mgr.RegisterDevice("device-1", config)
@@ -1256,8 +1256,8 @@ func TestLinkRedundancySwitchToBackup(t *testing.T) {
 func TestLinkRedundancyMarkPrimaryHealthy(t *testing.T) {
 	mgr := NewLinkRedundancyManager()
 	config := &RedundancyConfig{
-		PrimaryHost:    "host-a",
-		BackupHost:     "host-b",
+		PrimaryHost:     "host-a",
+		BackupHost:      "host-b",
 		SwitchThreshold: 2,
 	}
 	mgr.RegisterDevice("device-1", config)
@@ -1278,8 +1278,8 @@ func TestLinkRedundancyMarkPrimaryHealthy(t *testing.T) {
 func TestLinkRedundancyUnregisterDevice(t *testing.T) {
 	mgr := NewLinkRedundancyManager()
 	config := &RedundancyConfig{
-		PrimaryHost:    "host-a",
-		BackupHost:     "host-b",
+		PrimaryHost:     "host-a",
+		BackupHost:      "host-b",
 		SwitchThreshold: 2,
 	}
 	mgr.RegisterDevice("device-1", config)
@@ -1307,8 +1307,8 @@ func TestLinkRedundancyGetStatusUnregistered(t *testing.T) {
 func TestLinkRedundancyStop(t *testing.T) {
 	mgr := NewLinkRedundancyManager()
 	config := &RedundancyConfig{
-		PrimaryHost:    "host-a",
-		BackupHost:     "host-b",
+		PrimaryHost:     "host-a",
+		BackupHost:      "host-b",
 		SwitchThreshold: 2,
 	}
 	mgr.RegisterDevice("device-1", config)
@@ -1831,9 +1831,9 @@ func TestLRUCacheConcurrentAccess(t *testing.T) {
 
 func TestCircuitBreakerConcurrentAccess(t *testing.T) {
 	cb := NewCircuitBreaker(CircuitBreakerConfig{
-		FailureThreshold:  100,
-		RecoveryTimeout:   1 * time.Second,
-		HalfOpenMaxCalls:  10,
+		FailureThreshold: 100,
+		RecoveryTimeout:  1 * time.Second,
+		HalfOpenMaxCalls: 10,
 	})
 
 	var wg sync.WaitGroup

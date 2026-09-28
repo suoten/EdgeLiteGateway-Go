@@ -8,20 +8,20 @@ import (
 
 // LinkageRuleRecord is one persisted device linkage rule.
 type LinkageRuleRecord struct {
-	ID              string   `json:"id"`
-	Name            string   `json:"name"`
-	SourceDeviceID  string   `json:"source_device_id"`
-	SourcePoint     string   `json:"source_point"`
-	ConditionOp     string   `json:"condition_op"`
-	Threshold       float64  `json:"threshold"`
-	TargetDeviceID  string   `json:"target_device_id"`
-	TargetPoint     string   `json:"target_point"`
-	TargetValue     string   `json:"target_value"`
-	Enabled         bool     `json:"enabled"`
-	TriggerCount    int      `json:"trigger_count"`
-	LastTriggeredAt string   `json:"last_triggered_at"`
-	CreatedAt       string   `json:"created_at"`
-	UpdatedAt       string   `json:"updated_at"`
+	ID              string  `json:"id"`
+	Name            string  `json:"name"`
+	SourceDeviceID  string  `json:"source_device_id"`
+	SourcePoint     string  `json:"source_point"`
+	ConditionOp     string  `json:"condition_op"`
+	Threshold       float64 `json:"threshold"`
+	TargetDeviceID  string  `json:"target_device_id"`
+	TargetPoint     string  `json:"target_point"`
+	TargetValue     string  `json:"target_value"`
+	Enabled         bool    `json:"enabled"`
+	TriggerCount    int     `json:"trigger_count"`
+	LastTriggeredAt string  `json:"last_triggered_at"`
+	CreatedAt       string  `json:"created_at"`
+	UpdatedAt       string  `json:"updated_at"`
 }
 
 // ListDeviceLinkages returns all linkage rules ordered by creation time.

@@ -40,13 +40,13 @@ import (
 
 // DeviceService handles device management operations.
 type DeviceService struct {
-	deviceRepo   *storage.DeviceRepo
-	templateRepo *storage.TemplateRepo
-	scheduler   *engine.CollectScheduler
-	cbRegistry   *engine.CircuitBreakerRegistry
+	deviceRepo     *storage.DeviceRepo
+	templateRepo   *storage.TemplateRepo
+	scheduler      *engine.CollectScheduler
+	cbRegistry     *engine.CircuitBreakerRegistry
 	driverRegistry *drivers.Registry
-	mu           sync.RWMutex
-	drivers      map[string]drivers.Driver // deviceID -> driver instance
+	mu             sync.RWMutex
+	drivers        map[string]drivers.Driver // deviceID -> driver instance
 
 	// writeMu guards lastWrite, the per-point timestamps that make
 	// config.write_rate_limit real. It is separate from mu so a throttled write
@@ -95,17 +95,17 @@ func (s *DeviceService) Create(req *models.DeviceCreate, createdBy string) (*mod
 
 	// Create device record
 	device := &models.DeviceResponse{
-		DeviceID:       deviceID,
-		Name:           req.Name,
-		Protocol:       protocol,
-		Status:         "offline",
-		Config:         req.Config,
-		Points:         req.Points,
+		DeviceID:        deviceID,
+		Name:            req.Name,
+		Protocol:        protocol,
+		Status:          "offline",
+		Config:          req.Config,
+		Points:          req.Points,
 		CollectInterval: req.CollectInterval,
-		CreatedBy:      createdBy,
-		CreatedAt:      time.Now().Format(time.RFC3339),
-		UpdatedAt:      time.Now().Format(time.RFC3339),
-		Version:        1,
+		CreatedBy:       createdBy,
+		CreatedAt:       time.Now().Format(time.RFC3339),
+		UpdatedAt:       time.Now().Format(time.RFC3339),
+		Version:         1,
 	}
 
 	if err := s.deviceRepo.Create(device, createdBy); err != nil {
@@ -173,7 +173,7 @@ func (s *DeviceService) setupDriver(device *models.DeviceResponse) error {
 		points, err := drv.ReadPoints(ctx, device.Points)
 		if err != nil {
 			cb.RecordFailure()
-			s.deviceRepo.UpdateStatus(device.DeviceID, "error")
+			_ = s.deviceRepo.UpdateStatus(device.DeviceID, "error")
 			return nil, err
 		}
 
@@ -185,7 +185,7 @@ func (s *DeviceService) setupDriver(device *models.DeviceResponse) error {
 		// simulator, instead of being silently dropped by every real driver.
 		applyPointScaling(device.Points, points)
 		// Update device status to online when collection succeeds
-		s.deviceRepo.UpdateStatus(device.DeviceID, "online")
+		_ = s.deviceRepo.UpdateStatus(device.DeviceID, "online")
 		return points, nil
 	})
 
@@ -354,7 +354,7 @@ func (s *DeviceService) Update(deviceID string, req *models.DeviceUpdate) (*mode
 				logrus.WithField("device_id", deviceID).
 					WithError(err).
 					Error("Failed to re-create driver after device update; device has no collector")
-				s.deviceRepo.UpdateStatus(deviceID, "error")
+				_ = s.deviceRepo.UpdateStatus(deviceID, "error")
 			}
 		}
 	}
@@ -395,7 +395,7 @@ func (s *DeviceService) Delete(deviceID string) error {
 
 	s.mu.Lock()
 	if drv, ok := s.drivers[deviceID]; ok {
-		drv.Disconnect()
+		_ = drv.Disconnect()
 		delete(s.drivers, deviceID)
 	}
 	s.mu.Unlock()
@@ -910,11 +910,11 @@ func (s *DeviceService) CreateFromTemplate(req *models.CreateFromTemplateRequest
 	}
 
 	createReq := &models.DeviceCreate{
-		DeviceID:       req.DeviceID,
-		Name:           req.Name,
-		Protocol:       template.Protocol,
-		Config:         config,
-		Points:         template.PointTemplates,
+		DeviceID:        req.DeviceID,
+		Name:            req.Name,
+		Protocol:        template.Protocol,
+		Config:          config,
+		Points:          template.PointTemplates,
 		CollectInterval: req.CollectInterval,
 	}
 
@@ -997,11 +997,11 @@ func (s *DeviceService) ImportDevices(req *models.ImportDevicesRequest, createdB
 		}
 
 		createReq := &models.DeviceCreate{
-			DeviceID:       deviceID,
-			Name:           name,
-			Protocol:       protocol,
-			Config:         config,
-			Points:         points,
+			DeviceID:        deviceID,
+			Name:            name,
+			Protocol:        protocol,
+			Config:          config,
+			Points:          points,
 			CollectInterval: collectInterval,
 		}
 
@@ -1022,8 +1022,8 @@ func (s *DeviceService) ImportDevices(req *models.ImportDevicesRequest, createdB
 
 // RuleService handles rule management operations.
 type RuleService struct {
-	ruleRepo     *storage.RuleRepo
-	evaluator    *engine.RuleEvaluator
+	ruleRepo  *storage.RuleRepo
+	evaluator *engine.RuleEvaluator
 }
 
 // NewRuleService creates a new RuleService.
@@ -1235,56 +1235,56 @@ type AlarmEscalationConfig struct {
 
 // AlarmStatistics holds aggregate alarm statistics.
 type AlarmStatistics struct {
-	TotalCount      int            `json:"total_count"`
-	FiringCount     int            `json:"firing_count"`
-	AckedCount      int            `json:"acknowledged_count"`
-	RecoveredCount  int            `json:"recovered_count"`
-	EscalatedCount  int            `json:"escalated_count"`
-	BySeverity      map[string]int `json:"by_severity"`
-	MTTRSeconds     float64        `json:"mttr_seconds"`
-	MTBFSeconds     float64        `json:"mtbf_seconds"`
+	TotalCount     int            `json:"total_count"`
+	FiringCount    int            `json:"firing_count"`
+	AckedCount     int            `json:"acknowledged_count"`
+	RecoveredCount int            `json:"recovered_count"`
+	EscalatedCount int            `json:"escalated_count"`
+	BySeverity     map[string]int `json:"by_severity"`
+	MTTRSeconds    float64        `json:"mttr_seconds"`
+	MTBFSeconds    float64        `json:"mtbf_seconds"`
 }
 
 // AlarmService handles alarm management operations.
 // This is a 1:1 port of Python's AlarmService, including escalation,
 // suppression, statistics, and notification integration.
 type AlarmService struct {
-	alarmRepo  *storage.AlarmRepo
-	evaluator  *engine.RuleEvaluator
-	notifySvc  *NotifyService
+	alarmRepo *storage.AlarmRepo
+	evaluator *engine.RuleEvaluator
+	notifySvc *NotifyService
 
-	mu                   sync.Mutex
-	escalationConfigs    map[string]AlarmEscalationConfig
-	suppressionRules     []AlarmSuppressionRule
-	stats                AlarmStatistics
-	alarmStartTimes      map[string]time.Time
-	lastFireTime         time.Time
-	firstAlarmTime       time.Time
-	originalSeverities   map[string]string
-	handledAlarmIDs     map[string]bool
+	mu                 sync.Mutex
+	escalationConfigs  map[string]AlarmEscalationConfig
+	suppressionRules   []AlarmSuppressionRule
+	stats              AlarmStatistics
+	alarmStartTimes    map[string]time.Time
+	lastFireTime       time.Time
+	firstAlarmTime     time.Time
+	originalSeverities map[string]string
+	handledAlarmIDs    map[string]bool
 }
 
 // AlarmSuppressionRule defines a rule for suppressing alarms.
 type AlarmSuppressionRule struct {
-	RuleID       string
-	Name         string
-	DeviceIDs    []string
-	RuleIDs      []string
-	Severities   []string
-	TimeStart    string
-	TimeEnd      string
-	Enabled      bool
-	ExpiresAt    time.Time
+	RuleID     string
+	Name       string
+	DeviceIDs  []string
+	RuleIDs    []string
+	Severities []string
+	TimeStart  string
+	TimeEnd    string
+	Enabled    bool
+	ExpiresAt  time.Time
 }
 
 // NewAlarmService creates a new AlarmService.
 func NewAlarmService(alarmRepo *storage.AlarmRepo, evaluator *engine.RuleEvaluator) *AlarmService {
 	s := &AlarmService{
-		alarmRepo:         alarmRepo,
-		evaluator:         evaluator,
-		alarmStartTimes:   make(map[string]time.Time),
+		alarmRepo:          alarmRepo,
+		evaluator:          evaluator,
+		alarmStartTimes:    make(map[string]time.Time),
 		originalSeverities: make(map[string]string),
-		handledAlarmIDs:   make(map[string]bool),
+		handledAlarmIDs:    make(map[string]bool),
 	}
 	s.escalationConfigs = map[string]AlarmEscalationConfig{
 		SeverityCritical: {Severity: SeverityCritical, ThresholdSecs: 300, EscalateTo: SeverityCritical},
@@ -1606,8 +1606,8 @@ func (s *DataService) GetCached() []storage.PointData {
 
 // SystemService handles system operations.
 type SystemService struct {
-	config      interface{} // *config.AppConfig
-	startTime   time.Time
+	config    interface{} // *config.AppConfig
+	startTime time.Time
 }
 
 // NewSystemService creates a new SystemService.
@@ -1621,10 +1621,10 @@ func NewSystemService(cfg interface{}) *SystemService {
 // GetSystemInfo returns system information.
 func (s *SystemService) GetSystemInfo() map[string]interface{} {
 	return map[string]interface{}{
-		"version":     "1.0.0-go",
+		"version":    "1.0.0-go",
 		"uptime_s":   time.Since(s.startTime).Seconds(),
-		"start_time":  s.startTime.Format(time.RFC3339),
-		"go_runtime":  true,
+		"start_time": s.startTime.Format(time.RFC3339),
+		"go_runtime": true,
 	}
 }
 
@@ -1634,9 +1634,9 @@ func (s *SystemService) GetSystemInfo() map[string]interface{} {
 // Supports DingTalk, WeCom, Email (SMTP), and custom Webhook channels.
 // This is a 1:1 port of Python's NotificationManager.
 type NotifyService struct {
-	mu          sync.Mutex
-	notifyCfg   interface{} // *config.NotifyConfig
-	httpClient  *http.Client
+	mu         sync.Mutex
+	notifyCfg  interface{} // *config.NotifyConfig
+	httpClient *http.Client
 	// throttles holds the per-channel storm state behind
 	// notify.<channel>.max_per_minute and cooldown_seconds.
 	throttles map[string]*channelThrottle
@@ -1658,19 +1658,19 @@ func (s *NotifyService) SetConfig(cfg interface{}) {
 
 // AlarmNotification represents a structured alarm notification payload.
 type AlarmNotification struct {
-	AlarmID         string                 `json:"alarm_id"`
-	RuleID          string                 `json:"rule_id"`
-	RuleName        string                 `json:"rule_name"`
-	DeviceID        string                 `json:"device_id"`
-	DeviceName      string                 `json:"device_name"`
-	Severity        string                 `json:"severity"`
-	Action          string                 `json:"action"`
-	Message         string                 `json:"message"`
-	TriggerValue    map[string]interface{} `json:"trigger_value"`
-	TriggerCount    int                    `json:"trigger_count"`
-	EscalationLevel int                    `json:"escalation_level"`
-	OriginalSeverity string               `json:"original_severity"`
-	Timestamp       string                 `json:"timestamp"`
+	AlarmID          string                 `json:"alarm_id"`
+	RuleID           string                 `json:"rule_id"`
+	RuleName         string                 `json:"rule_name"`
+	DeviceID         string                 `json:"device_id"`
+	DeviceName       string                 `json:"device_name"`
+	Severity         string                 `json:"severity"`
+	Action           string                 `json:"action"`
+	Message          string                 `json:"message"`
+	TriggerValue     map[string]interface{} `json:"trigger_value"`
+	TriggerCount     int                    `json:"trigger_count"`
+	EscalationLevel  int                    `json:"escalation_level"`
+	OriginalSeverity string                 `json:"original_severity"`
+	Timestamp        string                 `json:"timestamp"`
 }
 
 // ErrNotifyNotConfigured marks a channel that has no usable settings. A
@@ -2047,7 +2047,7 @@ func sendSMTPMail(e *config.NotifyEmailConfig, auth smtp.Auth, msg string) error
 	if err != nil {
 		return err
 	}
-	defer cli.Quit()
+	defer func() { _ = cli.Quit() }()
 
 	if !e.UseSSL && (e.UseTLS || e.UseStartTLS) {
 		if supported, _ := cli.Extension("STARTTLS"); !supported {

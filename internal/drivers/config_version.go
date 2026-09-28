@@ -21,10 +21,10 @@ type ConfigVersionSnapshot struct {
 
 // ConfigVersionManager manages configuration versioning and rollback.
 type ConfigVersionManager struct {
-	mu        sync.Mutex
-	dbPath    string
-	versions  map[string][]*ConfigVersionSnapshot // deviceID -> versions
-	nextVer   map[string]int                       // deviceID -> next version number
+	mu       sync.Mutex
+	dbPath   string
+	versions map[string][]*ConfigVersionSnapshot // deviceID -> versions
+	nextVer  map[string]int                      // deviceID -> next version number
 }
 
 // NewConfigVersionManager creates a new ConfigVersionManager.
@@ -124,11 +124,11 @@ func (m *ConfigVersionManager) DiffVersions(deviceID string, v1, v2 int) (map[st
 		return nil, err
 	}
 	diff := map[string]interface{}{
-		"v1":          v1,
-		"v2":          v2,
+		"v1":           v1,
+		"v2":           v2,
 		"v1_timestamp": snap1.Timestamp.Format(time.RFC3339),
 		"v2_timestamp": snap2.Timestamp.Format(time.RFC3339),
-		"changes":     deepDiffKeys(snap1.Config, snap2.Config),
+		"changes":      deepDiffKeys(snap1.Config, snap2.Config),
 	}
 	return diff, nil
 }
@@ -236,19 +236,19 @@ const (
 
 // RedundancyConfig holds configuration for link redundancy.
 type RedundancyConfig struct {
-	PrimaryHost      string
-	BackupHost       string
-	SwitchThreshold   int  // consecutive failures before switching
-	SwitchbackDelay  int  // seconds before switching back to primary
+	PrimaryHost         string
+	BackupHost          string
+	SwitchThreshold     int // consecutive failures before switching
+	SwitchbackDelay     int // seconds before switching back to primary
 	HealthCheckInterval int // seconds between health checks
 }
 
 // deviceRedundancyState tracks redundancy state for a device.
 type deviceRedundancyState struct {
-	mu                 sync.Mutex
-	activeRole         LinkRole
+	mu                  sync.Mutex
+	activeRole          LinkRole
 	consecutiveFailures int
-	switchbackTimer    *time.Timer
+	switchbackTimer     *time.Timer
 }
 
 // LinkRedundancyManager manages link redundancy for devices.
@@ -376,7 +376,7 @@ func (m *LinkRedundancyManager) GetStatus(deviceID string) map[string]interface{
 		"primary_host":         config.PrimaryHost,
 		"backup_host":          config.BackupHost,
 		"consecutive_failures": state.consecutiveFailures,
-		"switch_threshold":    config.SwitchThreshold,
+		"switch_threshold":     config.SwitchThreshold,
 	}
 }
 

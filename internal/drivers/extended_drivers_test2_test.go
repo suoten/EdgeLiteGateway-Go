@@ -50,13 +50,13 @@ func TestAlarmRecordToDict(t *testing.T) {
 func TestEdgeRuleEngineAddRemoveRule(t *testing.T) {
 	engine := NewEdgeRuleEngine()
 	rule := &EdgeRule{
-		RuleID:   "rule-1",
-		DeviceID: "device-1",
+		RuleID:    "rule-1",
+		DeviceID:  "device-1",
 		PointName: "temp",
-		RuleType: EdgeRuleThreshold,
-		Operator: OpGT,
+		RuleType:  EdgeRuleThreshold,
+		Operator:  OpGT,
 		Threshold: 100,
-		Enabled:  true,
+		Enabled:   true,
 	}
 	engine.AddRule(rule)
 	rules := engine.GetRules()
@@ -2041,7 +2041,7 @@ func TestComputeSoapDigestInvalidNonce(t *testing.T) {
 func TestMustNewRequest(t *testing.T) {
 	req := mustNewRequest("GET", "http://example.com", nil)
 	if req == nil {
-		t.Error("Expected non-nil request")
+		t.Fatal("Expected non-nil request")
 	}
 	if req.Method != "GET" {
 		t.Errorf("Expected GET, got %s", req.Method)
@@ -2098,10 +2098,7 @@ func TestModbusSlaveDriverReadPointsDisconnected(t *testing.T) {
 	}
 	driver, _ := NewModbusSlaveDriver("slave-2", config)
 	pts := []models.PointDef{{Name: "test", Address: "HR1", DataType: "uint16"}}
-	_, err := driver.ReadPoints(context.Background(), pts)
-	if err == nil {
-		// May or may not error depending on implementation, just verify no panic
-	}
+	_, _ = driver.ReadPoints(context.Background(), pts)
 }
 
 func TestModbusSlaveDriverHealthCheck(t *testing.T) {
@@ -2157,10 +2154,7 @@ func TestModbusRTUDriverConnect(t *testing.T) {
 		"timeout":  0.5,
 	}
 	driver, _ := NewModbusRTUDriver("rtu-2", config)
-	err := driver.Connect(context.Background())
-	if err == nil {
-		// Should fail to connect to non-existent server
-	}
+	_ = driver.Connect(context.Background())
 }
 
 // ==================== Modbus TCP Driver Tests ====================
@@ -2207,7 +2201,7 @@ func TestOPCUADriverCreate(t *testing.T) {
 
 func TestOPCDADriverCreate(t *testing.T) {
 	config := map[string]interface{}{
-		"host": "127.0.0.1",
+		"host":    "127.0.0.1",
 		"prog_id": "Matrikon.OPC.Simulation",
 	}
 	driver, err := NewOPCDADriver("opcda-1", config)
@@ -2247,11 +2241,11 @@ func TestONVIFDriverCreate(t *testing.T) {
 
 func TestS7DriverCreate(t *testing.T) {
 	config := map[string]interface{}{
-		"host":     "127.0.0.1",
-		"port":     102,
-		"rack":     0,
-		"slot":     1,
-		"timeout":  5.0,
+		"host":    "127.0.0.1",
+		"port":    102,
+		"rack":    0,
+		"slot":    1,
+		"timeout": 5.0,
 	}
 	driver, err := NewS7Driver("s7-1", config)
 	if err != nil {
@@ -2269,10 +2263,10 @@ func TestS7DriverCreate(t *testing.T) {
 
 func TestFINSDriverCreate(t *testing.T) {
 	config := map[string]interface{}{
-		"host":     "127.0.0.1",
-		"port":     9600,
-		"node":     1,
-		"timeout":  5.0,
+		"host":    "127.0.0.1",
+		"port":    9600,
+		"node":    1,
+		"timeout": 5.0,
 	}
 	driver, err := NewFINSDriver("fins-1", config)
 	if err != nil {
@@ -2290,9 +2284,9 @@ func TestFINSDriverCreate(t *testing.T) {
 
 func TestMCDriverCreate(t *testing.T) {
 	config := map[string]interface{}{
-		"host":     "127.0.0.1",
-		"port":     5007,
-		"timeout":  5.0,
+		"host":    "127.0.0.1",
+		"port":    5007,
+		"timeout": 5.0,
 	}
 	driver, err := NewMCDriver("mc-1", config)
 	if err != nil {
@@ -2310,9 +2304,9 @@ func TestMCDriverCreate(t *testing.T) {
 
 func TestABDriverCreate(t *testing.T) {
 	config := map[string]interface{}{
-		"host":     "127.0.0.1",
-		"port":     44818,
-		"timeout":  5.0,
+		"host":    "127.0.0.1",
+		"port":    44818,
+		"timeout": 5.0,
 	}
 	driver, err := NewABDriver("ab-1", config)
 	if err != nil {
@@ -2330,10 +2324,10 @@ func TestABDriverCreate(t *testing.T) {
 
 func TestMQTTClientDriverCreate(t *testing.T) {
 	config := map[string]interface{}{
-		"host":     "127.0.0.1",
-		"port":     1883,
-		"topic":    "test/topic",
-		"timeout":  5.0,
+		"host":    "127.0.0.1",
+		"port":    1883,
+		"topic":   "test/topic",
+		"timeout": 5.0,
 	}
 	driver, err := NewMQTTClientDriver("mqtt-1", config)
 	if err != nil {
@@ -2349,8 +2343,8 @@ func TestMQTTClientDriverCreate(t *testing.T) {
 
 func TestHTTPWebhookDriverCreate(t *testing.T) {
 	config := map[string]interface{}{
-		"url":      "http://127.0.0.1:8080/webhook",
-		"timeout":  5.0,
+		"url":     "http://127.0.0.1:8080/webhook",
+		"timeout": 5.0,
 	}
 	driver, err := NewHTTPWebhookDriver("http-1", config)
 	if err != nil {

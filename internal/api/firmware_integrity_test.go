@@ -263,7 +263,7 @@ func TestFirmwareIntegrityAcceptsMultipartUpload(t *testing.T) {
 
 	// The UI sends signature + key + algorithm next to the file; a matching
 	// artefact has to read as valid and say which bytes it checked.
-	code, data, errCode := callFirmwareMultipart(t, handleVerifyFirmwareSignatureReal,
+	code, _, errCode := callFirmwareMultipart(t, handleVerifyFirmwareSignatureReal,
 		map[string]string{"signature": "", "public_key": "key-1", "algorithm": "hmac256"}, "ui.bin", []byte(payload))
 	// No signature was sent, so there is genuinely nothing to check.
 	if code != http.StatusBadRequest || !strings.HasPrefix(errCode, "ERR_FW_SIGNATURE_MISSING") {
@@ -272,7 +272,7 @@ func TestFirmwareIntegrityAcceptsMultipartUpload(t *testing.T) {
 
 	id := signTestFirmware(t, "ui.bin", payload, "key-1")
 	sig := firmwareSignatureOf(t, id)
-	code, data, errCode = callFirmwareMultipart(t, handleVerifyFirmwareSignatureReal,
+	code, data, errCode := callFirmwareMultipart(t, handleVerifyFirmwareSignatureReal,
 		map[string]string{"signature": sig, "public_key": "key-1", "algorithm": "hmac256"}, "renamed.bin", []byte(payload))
 	if code != http.StatusOK || errCode != "" {
 		t.Fatalf("signed upload returned %d/%s, want 200", code, errCode)

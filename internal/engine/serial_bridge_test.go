@@ -49,11 +49,11 @@ func withFakeSerial(t *testing.T, f *fakeSerial) {
 
 // startBridge starts a bridge on a free loopback port and returns it with the
 // address clients should dial.
-func startBridge(t *testing.T, f *fakeSerial, cfg SerialBridgeConfig) (*SerialTcpBridge, string) {
+func startBridge(t *testing.T, f *fakeSerial, cfg SerialBridgeConfig) (*SerialTCPBridge, string) {
 	t.Helper()
 	withFakeSerial(t, f)
 	cfg.ListenAddr = "127.0.0.1:0"
-	bridge := NewSerialTcpBridgeWithOpener(f.open)
+	bridge := NewSerialTCPBridgeWithOpener(f.open)
 	if err := bridge.Start(t.Context(), cfg); err != nil {
 		t.Fatalf("Start: %v", err)
 	}
@@ -179,7 +179,7 @@ func TestSerialBridgeStartFailsWhenTheDeviceCannotBeOpened(t *testing.T) {
 	f.openErr = errors.New("open COM7: The system cannot find the file specified.")
 	withFakeSerial(t, f)
 
-	bridge := NewSerialTcpBridgeWithOpener(f.open)
+	bridge := NewSerialTCPBridgeWithOpener(f.open)
 	err := bridge.Start(t.Context(), SerialBridgeConfig{SerialPort: "COM7", BaudRate: 9600, ListenAddr: "127.0.0.1:0"})
 	if err == nil {
 		_ = bridge.Stop()
@@ -192,7 +192,7 @@ func TestSerialBridgeStartFailsWhenTheDeviceCannotBeOpened(t *testing.T) {
 		t.Error("status reports started after a failed Start")
 	}
 
-	empty := NewSerialTcpBridgeWithOpener(f.open)
+	empty := NewSerialTCPBridgeWithOpener(f.open)
 	if err := empty.Start(t.Context(), SerialBridgeConfig{BaudRate: 9600, ListenAddr: "127.0.0.1:0"}); err == nil {
 		_ = empty.Stop()
 		t.Error("Start succeeded with no serial port configured")
@@ -226,7 +226,7 @@ func TestSerialBridgeRejectsClientsOutsideTheWhitelist(t *testing.T) {
 
 	f2 := newFakeSerial()
 	withFakeSerial(t, f2)
-	bad := NewSerialTcpBridge()
+	bad := NewSerialTCPBridge()
 	if err := bad.Start(t.Context(), SerialBridgeConfig{SerialPort: "COM9", BaudRate: 9600, ListenAddr: "127.0.0.1:0", IPWhitelist: []string{"not-an-ip"}}); err == nil {
 		_ = bad.Stop()
 		t.Error("Start accepted a whitelist entry that is neither an IP nor a CIDR")

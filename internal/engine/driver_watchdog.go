@@ -19,35 +19,35 @@ import (
 
 const (
 	watchdogCheckInterval    = 30 * time.Second
-	watchdogStallThreshold   = 60 // seconds without data
+	watchdogStallThreshold   = 60  // seconds without data
 	watchdogRestartThreshold = 180 // seconds, force restart
 )
 
 // DriverHealth represents the health status of a driver.
 type DriverHealth struct {
 	DeviceID          string    `json:"device_id"`
-	Protocol         string    `json:"protocol"`
-	Status           string    `json:"status"` // healthy, degraded, stalled, restarted
-	LastDataAt       time.Time `json:"last_data_at"`
-	LastCheckAt      time.Time `json:"last_check_at"`
-	ConsecutiveStalls int      `json:"consecutive_stalls"`
-	RestartCount     int      `json:"restart_count"`
+	Protocol          string    `json:"protocol"`
+	Status            string    `json:"status"` // healthy, degraded, stalled, restarted
+	LastDataAt        time.Time `json:"last_data_at"`
+	LastCheckAt       time.Time `json:"last_check_at"`
+	ConsecutiveStalls int       `json:"consecutive_stalls"`
+	RestartCount      int       `json:"restart_count"`
 }
 
 // DriverWatchdog monitors driver health.
 type DriverWatchdog struct {
-	mu           sync.RWMutex
-	health       map[string]*DriverHealth
-	restartFunc   func(deviceID string) error
-	started      bool
-	cancelFunc   context.CancelFunc
+	mu          sync.RWMutex
+	health      map[string]*DriverHealth
+	restartFunc func(deviceID string) error
+	started     bool
+	cancelFunc  context.CancelFunc
 }
 
 // NewDriverWatchdog creates a new DriverWatchdog.
 func NewDriverWatchdog(restartFunc func(deviceID string) error) *DriverWatchdog {
 	return &DriverWatchdog{
 		health:      make(map[string]*DriverHealth),
-		restartFunc:  restartFunc,
+		restartFunc: restartFunc,
 	}
 }
 
@@ -56,9 +56,9 @@ func (w *DriverWatchdog) RegisterDriver(deviceID, protocol string) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	w.health[deviceID] = &DriverHealth{
-		DeviceID:  deviceID,
-		Protocol:  protocol,
-		Status:    "healthy",
+		DeviceID: deviceID,
+		Protocol: protocol,
+		Status:   "healthy",
 	}
 }
 
@@ -141,16 +141,16 @@ func (w *DriverWatchdog) checkAll() {
 			h.Status = "stalled"
 			h.ConsecutiveStalls++
 			logrus.WithFields(logrus.Fields{
-				"device_id":    h.DeviceID,
-				"protocol":     h.Protocol,
+				"device_id":          h.DeviceID,
+				"protocol":           h.Protocol,
 				"seconds_since_data": sinceData,
 			}).Error("Driver severely stalled, attempting restart")
 			w.restartDriver(h)
 		} else if sinceData > float64(watchdogStallThreshold) {
 			h.Status = "degraded"
 			logrus.WithFields(logrus.Fields{
-				"device_id":    h.DeviceID,
-				"protocol":     h.Protocol,
+				"device_id":          h.DeviceID,
+				"protocol":           h.Protocol,
 				"seconds_since_data": sinceData,
 			}).Warn("Driver appears degraded (no recent data)")
 		} else {

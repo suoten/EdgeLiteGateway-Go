@@ -22,27 +22,27 @@ const (
 
 // CircuitBreakerConfig holds configuration for a circuit breaker.
 type CircuitBreakerConfig struct {
-	FailureThreshold  int           // Number of consecutive failures before opening
-	RecoveryTimeout   time.Duration // How long to wait before trying half-open
-	HalfOpenMaxCalls  int           // Max allowed calls in half-open state
+	FailureThreshold int           // Number of consecutive failures before opening
+	RecoveryTimeout  time.Duration // How long to wait before trying half-open
+	HalfOpenMaxCalls int           // Max allowed calls in half-open state
 }
 
 // DefaultCircuitBreakerConfig returns default configuration.
 func DefaultCircuitBreakerConfig() CircuitBreakerConfig {
 	return CircuitBreakerConfig{
-		FailureThreshold:  5,
-		RecoveryTimeout:   30 * time.Second,
-		HalfOpenMaxCalls:  3,
+		FailureThreshold: 5,
+		RecoveryTimeout:  30 * time.Second,
+		HalfOpenMaxCalls: 3,
 	}
 }
 
 // CircuitBreaker implements a device-level circuit breaker.
 type CircuitBreaker struct {
-	mu               sync.Mutex
-	states           map[string]CircuitState
-	openSince        map[string]*time.Time
-	halfOpenCalls    map[string]int
-	config           CircuitBreakerConfig
+	mu            sync.Mutex
+	states        map[string]CircuitState
+	openSince     map[string]*time.Time
+	halfOpenCalls map[string]int
+	config        CircuitBreakerConfig
 }
 
 // NewCircuitBreaker creates a new circuit breaker.
@@ -128,8 +128,8 @@ func (cb *CircuitBreaker) RecordFailure(deviceID string, consecutiveFailures int
 		now := time.Now()
 		cb.openSince[deviceID] = &now
 		logrus.WithFields(logrus.Fields{
-			"device_id":           deviceID,
-			"failure_threshold":   cb.config.FailureThreshold,
+			"device_id":         deviceID,
+			"failure_threshold": cb.config.FailureThreshold,
 		}).Warn("Circuit breaker opened")
 	}
 }
@@ -507,15 +507,15 @@ func abs(f float64) float64 {
 
 // RateLimiter implements a simple rate limiter for write operations.
 type RateLimiter struct {
-	mu         sync.Mutex
-	lastTimes  map[string]time.Time
+	mu          sync.Mutex
+	lastTimes   map[string]time.Time
 	minInterval time.Duration
 }
 
 // NewRateLimiter creates a new rate limiter.
 func NewRateLimiter(minIntervalMs float64) *RateLimiter {
 	return &RateLimiter{
-		lastTimes:  make(map[string]time.Time),
+		lastTimes:   make(map[string]time.Time),
 		minInterval: time.Duration(minIntervalMs * float64(time.Millisecond)),
 	}
 }

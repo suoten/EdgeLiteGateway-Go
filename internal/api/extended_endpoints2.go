@@ -1406,10 +1406,6 @@ func handlePostShadowReported(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return BadRequest(c, "Invalid request body")
 	}
-	quality := c.QueryParam("quality")
-	if quality == "" {
-		quality = "good"
-	}
 	// Frontend sends {reported: {...}, quality: "..."}; accept a flat map as well.
 	reported, ok := req["reported"].(map[string]interface{})
 	if !ok {
@@ -1664,8 +1660,8 @@ func handleDeleteSCADAProject(c echo.Context) error {
 func RegisterIntegrationExtendedRoutes(g *echo.Group) {
 	g.POST("/push-device", handlePushDevice, requirePermission(security.PermIntegrationManage))
 	g.POST("/handshake", handleHandshake, requirePermission(security.PermIntegrationManage))
-	g.POST("/rpc/execute", handleRpcExecute, requirePermission(security.PermIntegrationManage))
-	g.GET("/rpc/history", handleGetRpcHistory, requirePermission(security.PermIntegrationManage))
+	g.POST("/rpc/execute", handleRPCExecute, requirePermission(security.PermIntegrationManage))
+	g.GET("/rpc/history", handleGetRPCHistory, requirePermission(security.PermIntegrationManage))
 	g.GET("/health", handleGetIntegrationHealth, requirePermission(security.PermIntegrationManage))
 }
 
@@ -1958,7 +1954,7 @@ func appendRPCHistory(entry rpcHistoryEntry) {
 	}
 }
 
-func handleRpcExecute(c echo.Context) error {
+func handleRPCExecute(c echo.Context) error {
 	var req struct {
 		Method   string                 `json:"method"`
 		DeviceID string                 `json:"device_id"`
@@ -2045,7 +2041,7 @@ func handleRpcExecute(c echo.Context) error {
 	})
 }
 
-func handleGetRpcHistory(c echo.Context) error {
+func handleGetRPCHistory(c echo.Context) error {
 	limit := 50
 	if v := c.QueryParam("limit"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 500 {

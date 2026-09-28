@@ -12,49 +12,49 @@ type RuleCondition struct {
 
 // RuleCreate represents a create rule request.
 type RuleCreate struct {
-	Name           string           `json:"name"`
-	DeviceID       string           `json:"device_id,omitempty"`
-	Conditions     []RuleCondition  `json:"conditions"`
-	Logic          string           `json:"logic"` // AND, OR, NOT
-	Duration       int              `json:"duration"`
-	Severity       string           `json:"severity"` // critical, major, warning, minor, info
-	NotifyChannels []string         `json:"notify_channels"`
-	Script         string           `json:"script,omitempty"`
-	RuleType       string           `json:"rule_type,omitempty"`
+	Name           string          `json:"name"`
+	DeviceID       string          `json:"device_id,omitempty"`
+	Conditions     []RuleCondition `json:"conditions"`
+	Logic          string          `json:"logic"` // AND, OR, NOT
+	Duration       int             `json:"duration"`
+	Severity       string          `json:"severity"` // critical, major, warning, minor, info
+	NotifyChannels []string        `json:"notify_channels"`
+	Script         string          `json:"script,omitempty"`
+	RuleType       string          `json:"rule_type,omitempty"`
 }
 
 // RuleUpdate represents an update rule request.
 type RuleUpdate struct {
-	Name           *string           `json:"name,omitempty"`
-	DeviceID       *string           `json:"device_id,omitempty"`
-	Conditions     *[]RuleCondition  `json:"conditions,omitempty"`
-	Logic          *string           `json:"logic,omitempty"`
-	Duration       *int              `json:"duration,omitempty"`
-	Severity       *string           `json:"severity,omitempty"`
-	NotifyChannels *[]string         `json:"notify_channels,omitempty"`
-	Script         *string           `json:"script,omitempty"`
-	RuleType       *string           `json:"rule_type,omitempty"`
+	Name           *string          `json:"name,omitempty"`
+	DeviceID       *string          `json:"device_id,omitempty"`
+	Conditions     *[]RuleCondition `json:"conditions,omitempty"`
+	Logic          *string          `json:"logic,omitempty"`
+	Duration       *int             `json:"duration,omitempty"`
+	Severity       *string          `json:"severity,omitempty"`
+	NotifyChannels *[]string        `json:"notify_channels,omitempty"`
+	Script         *string          `json:"script,omitempty"`
+	RuleType       *string          `json:"rule_type,omitempty"`
 }
 
 // RuleResponse represents a rule response.
 type RuleResponse struct {
-	RuleID         string           `json:"rule_id"`
-	Name           string           `json:"name"`
-	DeviceID       string           `json:"device_id,omitempty"`
-	Conditions     []RuleCondition  `json:"conditions"`
-	Logic          string           `json:"logic"`
-	Duration       int              `json:"duration"`
-	Severity       string           `json:"severity"`
-	Enabled        bool             `json:"enabled"`
-	NotifyChannels []string         `json:"notify_channels"`
-	Script         string           `json:"script,omitempty"`
-	RuleType       string           `json:"rule_type,omitempty"`
-	CreatedAt      string           `json:"created_at"`
-	UpdatedAt      string           `json:"updated_at,omitempty"`
-	CreatedBy      string           `json:"created_by,omitempty"`
-	Version        int              `json:"version"`
-	InferenceCount int              `json:"inference_count"`
-	ErrorCount     int              `json:"error_count"`
+	RuleID         string          `json:"rule_id"`
+	Name           string          `json:"name"`
+	DeviceID       string          `json:"device_id,omitempty"`
+	Conditions     []RuleCondition `json:"conditions"`
+	Logic          string          `json:"logic"`
+	Duration       int             `json:"duration"`
+	Severity       string          `json:"severity"`
+	Enabled        bool            `json:"enabled"`
+	NotifyChannels []string        `json:"notify_channels"`
+	Script         string          `json:"script,omitempty"`
+	RuleType       string          `json:"rule_type,omitempty"`
+	CreatedAt      string          `json:"created_at"`
+	UpdatedAt      string          `json:"updated_at,omitempty"`
+	CreatedBy      string          `json:"created_by,omitempty"`
+	Version        int             `json:"version"`
+	InferenceCount int             `json:"inference_count"`
+	ErrorCount     int             `json:"error_count"`
 }
 
 // RuleTestRequest represents a rule test request.

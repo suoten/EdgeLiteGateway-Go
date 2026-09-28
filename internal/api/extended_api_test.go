@@ -43,7 +43,7 @@ func TestServiceUnavailableWithMessageExt(t *testing.T) {
 	if rec.Code != http.StatusServiceUnavailable {
 		t.Fatalf("Expected 503, got %d", rec.Code)
 	}
-	var resp APIResponse
+	var resp Response
 	json.Unmarshal(rec.Body.Bytes(), &resp)
 	if resp.Message != "Service down" {
 		t.Fatalf("Expected 'Service down', got '%s'", resp.Message)

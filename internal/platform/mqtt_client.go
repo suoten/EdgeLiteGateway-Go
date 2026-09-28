@@ -17,23 +17,23 @@ import (
 // CONNECT, PUBLISH, SUBSCRIBE, PINGREQ and DISCONNECT.
 // It does not require any third-party dependencies.
 type LightweightMQTTClient struct {
-	mu         sync.Mutex
-	conn       net.Conn
-	reader     *bufio.Reader
-	broker     string
-	port       int
-	clientID   string
-	username   string
-	password   string
-	keepAlive  int // seconds
-	connected  bool
-	packetID   uint16
-	stopCh     chan struct{}
-	pingDone   chan struct{}
-	wg         sync.WaitGroup
-	onMessage  func(topic string, payload []byte)
-	onDrop     func() // invoked when the connection is lost unexpectedly
-	reading    bool   // readLoop running guard
+	mu        sync.Mutex
+	conn      net.Conn
+	reader    *bufio.Reader
+	broker    string
+	port      int
+	clientID  string
+	username  string
+	password  string
+	keepAlive int // seconds
+	connected bool
+	packetID  uint16
+	stopCh    chan struct{}
+	pingDone  chan struct{}
+	wg        sync.WaitGroup
+	onMessage func(topic string, payload []byte)
+	onDrop    func() // invoked when the connection is lost unexpectedly
+	reading   bool   // readLoop running guard
 }
 
 // SetDisconnectHandler registers a callback invoked when the connection is
@@ -143,7 +143,7 @@ func (c *LightweightMQTTClient) Disconnect() {
 	close(c.stopCh)
 	// Send DISCONNECT
 	if c.conn != nil {
-		c.conn.Write([]byte{0xE0, 0x00}) // DISCONNECT packet
+		_, _ = c.conn.Write([]byte{0xE0, 0x00}) // DISCONNECT packet
 		c.conn.Close()
 		c.conn = nil
 	}
@@ -234,7 +234,7 @@ func (c *LightweightMQTTClient) publish(topic string, qos int, payload []byte, d
 	packet := append([]byte{fixedHeader}, encodeRemainingLength(len(remainingPayload))...)
 	packet = append(packet, remainingPayload...)
 
-	c.conn.SetWriteDeadline(deadline)
+	_ = c.conn.SetWriteDeadline(deadline)
 	_, err := c.conn.Write(packet)
 	if err != nil {
 		// The TCP write failed — treat the connection as lost so the handler
@@ -271,7 +271,7 @@ func (c *LightweightMQTTClient) Subscribe(topic string, qos int) error {
 	packet := append([]byte{fixedHeader}, encodeRemainingLength(len(payload))...)
 	packet = append(packet, payload...)
 
-	c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 	if _, err := c.conn.Write(packet); err != nil {
 		return err
 	}
@@ -332,14 +332,14 @@ func (c *LightweightMQTTClient) sendConnect() error {
 	packet := append([]byte{0x10}, encodeRemainingLength(len(remaining))...) // CONNECT
 	packet = append(packet, remaining...)
 
-	c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 	_, err := c.conn.Write(packet)
 	return err
 }
 
 // readConnack reads the CONNACK packet.
 func (c *LightweightMQTTClient) readConnack() error {
-	c.conn.SetReadDeadline(time.Now().Add(10 * time.Second))
+	_ = c.conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 	// Read fixed header
 	header := make([]byte, 1)
 	if _, err := io.ReadFull(c.reader, header); err != nil {
@@ -387,7 +387,7 @@ func (c *LightweightMQTTClient) pingLoop() {
 				c.mu.Unlock()
 				return
 			}
-			c.conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
+			_ = c.conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
 			_, err := c.conn.Write([]byte{0xC0, 0x00}) // PINGREQ
 			c.mu.Unlock()
 			if err != nil {

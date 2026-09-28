@@ -46,7 +46,7 @@ type AlarmFilter struct {
 	// what a reconnecting client asks for when it wants the events it missed.
 	Since string `query:"since,omitempty" json:"since,omitempty"`
 	// UnackOvertimeMinutes: only unacknowledged firing alarms older than N minutes.
-	UnackOvertimeMinutes int `query:"unack_overtime_minutes,omitempty" json:"unack_overtime_minutes,omitempty"`
+	UnackOvertimeMinutes int    `query:"unack_overtime_minutes,omitempty" json:"unack_overtime_minutes,omitempty"`
 	SortBy               string `query:"sort_by,omitempty" json:"sort_by,omitempty"`
 	SortOrder            string `query:"sort_order,omitempty" json:"sort_order,omitempty"`
 }

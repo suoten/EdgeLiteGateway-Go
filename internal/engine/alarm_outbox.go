@@ -18,11 +18,11 @@ import (
 //   - Rate limiting to prevent alarm storms
 
 const (
-	outboxMaxRetries       = 5
-	outboxBaseRetryDelay   = 5 * time.Second
-	outboxMaxRetryDelay    = 300 * time.Second
-	outboxRateLimitPerMin  = 100
-	outboxDLQMaxSize       = 10000
+	outboxMaxRetries      = 5
+	outboxBaseRetryDelay  = 5 * time.Second
+	outboxMaxRetryDelay   = 300 * time.Second
+	outboxRateLimitPerMin = 100
+	outboxDLQMaxSize      = 10000
 )
 
 // OutboxMessage represents an alarm message in the outbox.
@@ -42,15 +42,14 @@ type OutboxMessage struct {
 
 // AlarmOutbox manages reliable alarm delivery.
 type AlarmOutbox struct {
-	mu           sync.Mutex
-	queue        []*OutboxMessage
-	deadLetters  []*OutboxMessage
-	notifyFunc   func(msg *OutboxMessage) error
-	rateLimit    *time.Ticker
-	sentCount    int64
-	failedCount  int64
-	started      bool
-	cancelFunc   context.CancelFunc
+	mu          sync.Mutex
+	queue       []*OutboxMessage
+	deadLetters []*OutboxMessage
+	notifyFunc  func(msg *OutboxMessage) error
+	sentCount   int64
+	failedCount int64
+	started     bool
+	cancelFunc  context.CancelFunc
 }
 
 // NewAlarmOutbox creates a new AlarmOutbox.
@@ -170,8 +169,8 @@ func (a *AlarmOutbox) deliver(msg *OutboxMessage) {
 		}
 		a.mu.Unlock()
 		logrus.WithFields(logrus.Fields{
-			"alarm_id":     msg.AlarmID,
-			"retry_count":  msg.RetryCount,
+			"alarm_id":    msg.AlarmID,
+			"retry_count": msg.RetryCount,
 		}).Error("Alarm moved to dead letter queue")
 		return
 	}
@@ -199,10 +198,10 @@ func (a *AlarmOutbox) GetStats() map[string]interface{} {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	return map[string]interface{}{
-		"queue_size":       len(a.queue),
+		"queue_size":        len(a.queue),
 		"dead_letter_count": len(a.deadLetters),
-		"sent_count":       a.sentCount,
-		"failed_count":     a.failedCount,
+		"sent_count":        a.sentCount,
+		"failed_count":      a.failedCount,
 	}
 }
 

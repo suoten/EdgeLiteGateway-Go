@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
+	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	paho "github.com/eclipse/paho.mqtt.golang"
 
 	"edgelite/internal/config"
 	"edgelite/internal/constants"
@@ -20,26 +20,26 @@ import (
 // MQTTForwarder forwards collected data points to an external MQTT broker.
 // It supports offline queueing, retry logic, and automatic reconnection.
 type MQTTForwarder struct {
-	mu              sync.Mutex
-	cfg             *config.MQTTConfig
-	eventBus        *EventBus
-	offlineQueue    *storage.OfflineQueue
-	cache           *storage.CacheManager
+	mu           sync.Mutex
+	cfg          *config.MQTTConfig
+	eventBus     *EventBus
+	offlineQueue *storage.OfflineQueue
+	cache        *storage.CacheManager
 
 	// Connection state
-	connected      bool
-	connecting     bool
-	lastConnectAt  time.Time
-	lastError      string
-	mqttClient     paho.Client
+	connected     bool
+	connecting    bool
+	lastConnectAt time.Time
+	lastError     string
+	mqttClient    paho.Client
 
 	// Publishing queue
-	publishQueue   chan mqttMessage
-	wg             sync.WaitGroup
-	ctx            context.Context
-	cancel         context.CancelFunc
-	started        bool
-	unsubscribe    func()
+	publishQueue chan mqttMessage
+	wg           sync.WaitGroup
+	ctx          context.Context
+	cancel       context.CancelFunc
+	started      bool
+	unsubscribe  func()
 
 	// Statistics
 	muStats        sync.Mutex
@@ -61,9 +61,9 @@ type mqttMessage struct {
 func NewMQTTForwarder(cfg *config.MQTTConfig, eventBus *EventBus, offlineQueue *storage.OfflineQueue, cache *storage.CacheManager) *MQTTForwarder {
 	return &MQTTForwarder{
 		cfg:          cfg,
-		eventBus:    eventBus,
+		eventBus:     eventBus,
 		offlineQueue: offlineQueue,
-		cache:       cache,
+		cache:        cache,
 		publishQueue: make(chan mqttMessage, cfg.MaxQueueSize),
 	}
 }

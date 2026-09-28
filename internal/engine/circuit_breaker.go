@@ -34,13 +34,13 @@ type CircuitBreaker struct {
 	openedAt        time.Time
 
 	// Configuration
-	failureThreshold  int
-	errorRateThreshold float64
-	windowSeconds      float64
-	initialOpenDuration float64
-	maxOpenDuration    float64
-	multiplier         float64
-	halfOpenProbeInterval float64
+	failureThreshold         int
+	errorRateThreshold       float64
+	windowSeconds            float64
+	initialOpenDuration      float64
+	maxOpenDuration          float64
+	multiplier               float64
+	halfOpenProbeInterval    float64
 	halfOpenSuccessThreshold int
 
 	// Current open duration (exponential backoff)
@@ -54,18 +54,18 @@ type CircuitBreaker struct {
 // NewCircuitBreaker creates a new CircuitBreaker for a device.
 func NewCircuitBreaker(deviceID string, eventBus *EventBus) *CircuitBreaker {
 	return &CircuitBreaker{
-		state:               CBStateClosed,
-		failureThreshold:    constants.CBFailureThreshold,
-		errorRateThreshold:  constants.CBErrorRateThreshold,
-		windowSeconds:       constants.CBErrorRateWindowSeconds,
-		initialOpenDuration: constants.CBInitialOpenDuration,
-		maxOpenDuration:     constants.CBMaxOpenDuration,
-		multiplier:          constants.CBOpenDurationMultiplier,
-		halfOpenProbeInterval: constants.CBHalfOpenProbeInterval,
+		state:                    CBStateClosed,
+		failureThreshold:         constants.CBFailureThreshold,
+		errorRateThreshold:       constants.CBErrorRateThreshold,
+		windowSeconds:            constants.CBErrorRateWindowSeconds,
+		initialOpenDuration:      constants.CBInitialOpenDuration,
+		maxOpenDuration:          constants.CBMaxOpenDuration,
+		multiplier:               constants.CBOpenDurationMultiplier,
+		halfOpenProbeInterval:    constants.CBHalfOpenProbeInterval,
 		halfOpenSuccessThreshold: constants.CBHalfOpenSuccessThreshold,
-		currentOpenDuration: constants.CBInitialOpenDuration,
-		eventBus:            eventBus,
-		deviceID:            deviceID,
+		currentOpenDuration:      constants.CBInitialOpenDuration,
+		eventBus:                 eventBus,
+		deviceID:                 deviceID,
 	}
 }
 
@@ -187,10 +187,10 @@ func (cb *CircuitBreaker) transitionTo(newState CircuitBreakerState) {
 			Source:   "circuit_breaker",
 			DeviceID: cb.deviceID,
 			Data: map[string]interface{}{
-				"old_state": string(oldState),
-				"new_state": string(newState),
+				"old_state":     string(oldState),
+				"new_state":     string(newState),
 				"failure_count": cb.failureCount,
-				"error_count": cb.errorCount,
+				"error_count":   cb.errorCount,
 			},
 		})
 	}
@@ -209,12 +209,12 @@ func (cb *CircuitBreaker) GetStats() map[string]interface{} {
 	defer cb.mu.Unlock()
 	return map[string]interface{}{
 		"state":                 string(cb.state),
-		"failure_count":        cb.failureCount,
-		"success_count":        cb.successCount,
-		"request_count":       cb.requestCount,
-		"error_count":         cb.errorCount,
+		"failure_count":         cb.failureCount,
+		"success_count":         cb.successCount,
+		"request_count":         cb.requestCount,
+		"error_count":           cb.errorCount,
 		"current_open_duration": cb.currentOpenDuration,
-		"device_id":           cb.deviceID,
+		"device_id":             cb.deviceID,
 	}
 }
 
@@ -233,16 +233,16 @@ func (cb *CircuitBreaker) String() string {
 
 // CircuitBreakerRegistry manages circuit breakers per device.
 type CircuitBreakerRegistry struct {
-	mu        sync.RWMutex
-	breakers   map[string]*CircuitBreaker
-	eventBus  *EventBus
+	mu       sync.RWMutex
+	breakers map[string]*CircuitBreaker
+	eventBus *EventBus
 }
 
 // NewCircuitBreakerRegistry creates a new registry.
 func NewCircuitBreakerRegistry(eventBus *EventBus) *CircuitBreakerRegistry {
 	return &CircuitBreakerRegistry{
-		breakers:  make(map[string]*CircuitBreaker),
-		eventBus:  eventBus,
+		breakers: make(map[string]*CircuitBreaker),
+		eventBus: eventBus,
 	}
 }
 
@@ -298,8 +298,8 @@ func (r *CircuitBreakerRegistry) GetStats() map[string]interface{} {
 		}
 	}
 	return map[string]interface{}{
-		"total":     len(r.breakers),
+		"total":      len(r.breakers),
 		"open_count": openCount,
-		"breakers":  breakers,
+		"breakers":   breakers,
 	}
 }

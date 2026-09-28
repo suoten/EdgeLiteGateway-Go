@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // register sqlite driver (side-effect import)
 
 	"github.com/sirupsen/logrus"
 
@@ -100,7 +100,7 @@ func (t *TimeSeriesStorage) WritePoints(points []PointData) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 	stmt, err := tx.Prepare(`INSERT INTO time_series (device_id, point_name, value, value_str, quality, timestamp) VALUES (?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		return err
@@ -682,7 +682,7 @@ func (q *OfflineQueue) Dequeue() (*OfflineItem, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	var item OfflineItem
 	err = tx.QueryRow(`SELECT id, payload, retries FROM offline_queue

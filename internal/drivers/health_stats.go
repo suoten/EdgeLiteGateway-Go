@@ -12,13 +12,13 @@ import (
 type ConnectionState string
 
 const (
-	StateDisconnected  ConnectionState = "disconnected"
-	StateConnecting   ConnectionState = "connecting"
+	StateDisconnected   ConnectionState = "disconnected"
+	StateConnecting     ConnectionState = "connecting"
 	StatePDUNegotiating ConnectionState = "pdu_negotiating"
 	StateCIPNegotiating ConnectionState = "cip_negotiating"
-	StateConnected    ConnectionState = "connected"
-	StateDegraded     ConnectionState = "degraded"
-	StateOffline      ConnectionState = "offline"
+	StateConnected      ConnectionState = "connected"
+	StateDegraded       ConnectionState = "degraded"
+	StateOffline        ConnectionState = "offline"
 )
 
 // validStateTransitions defines allowed state transitions.
@@ -70,20 +70,20 @@ var validStateTransitions = map[ConnectionState]map[ConnectionState]bool{
 
 // DriverHealthStats tracks health statistics for a device.
 type DriverHealthStats struct {
-	mu                      sync.Mutex
-	DeviceID                string
-	TotalReads              int64
-	FailedReads             int64
-	TotalWrites             int64
-	FailedWrites            int64
-	TotalFailures           int64
-	LastSuccessRead         *time.Time
-	LastFailedRead          *time.Time
-	ConsecutiveFailures     int64
-	TotalDowntimeSeconds    float64
-	LastOnlineAt            *time.Time
+	mu                     sync.Mutex
+	DeviceID               string
+	TotalReads             int64
+	FailedReads            int64
+	TotalWrites            int64
+	FailedWrites           int64
+	TotalFailures          int64
+	LastSuccessRead        *time.Time
+	LastFailedRead         *time.Time
+	ConsecutiveFailures    int64
+	TotalDowntimeSeconds   float64
+	LastOnlineAt           *time.Time
 	LastOfflineAt          *time.Time
-	ConnectionQualityScore  float64
+	ConnectionQualityScore float64
 	TotalReconnects        int64
 	AvgLatencyMs           float64
 	DegradationReason      string
@@ -321,8 +321,8 @@ type DriverCapabilities struct {
 
 // ConfigValidationResult holds config validation results.
 type ConfigValidationResult struct {
-	Valid   bool
-	Errors  []string
+	Valid    bool
+	Errors   []string
 	Warnings []string
 }
 
@@ -337,10 +337,10 @@ type PointValue struct {
 
 // HealthStatsManager manages health stats for multiple devices.
 type HealthStatsManager struct {
-	mu          sync.RWMutex
-	stats       map[string]*DriverHealthStats
+	mu           sync.RWMutex
+	stats        map[string]*DriverHealthStats
 	offlineSince map[string]time.Time
-	connStates  map[string]*ConnectionStatus
+	connStates   map[string]*ConnectionStatus
 }
 
 // NewHealthStatsManager creates a new HealthStatsManager.
@@ -565,9 +565,9 @@ func (m *HealthStatsManager) SetConnectionState(deviceID string, state Connectio
 		if exists {
 			if !allowed[state] {
 				logrus.WithFields(logrus.Fields{
-					"device_id":    deviceID,
-					"from_state":   existing.State,
-					"to_state":     state,
+					"device_id":  deviceID,
+					"from_state": existing.State,
+					"to_state":   state,
 				}).Warn("Invalid state transition, rejected")
 				return false
 			}

@@ -223,7 +223,7 @@ func (d *ModbusTCPDriver) sendRequest(functionCode uint8, data []byte) ([]byte, 
 	mbap[6] = byte(d.slaveID)                                  // Unit ID
 	copy(mbap[7:], pdu)
 
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(mbap); err != nil {
 		d.SetConnected(false)
 		return nil, fmt.Errorf("write: %w", err)
@@ -1546,7 +1546,7 @@ func (d *ModbusRTUDriver) sendRTURequest(functionCode uint8, data []byte) ([]byt
 	pdu = append(pdu, byte(crc>>8))   // CRC high byte
 
 	// Send frame
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(pdu); err != nil {
 		d.SetConnected(false)
 		return nil, fmt.Errorf("rtu write: %w", err)
@@ -1856,14 +1856,15 @@ func verifyCRC(frame []byte) bool {
 // external SCADA/HMI systems.
 //
 // Supported function codes:
-//   0x03 - Read Holding Registers
-//   0x04 - Read Input Registers
-//   0x01 - Read Coils
-//   0x02 - Read Discrete Inputs
-//   0x05 - Write Single Coil
-//   0x06 - Write Single Register
-//   0x0F - Write Multiple Coils
-//   0x10 - Write Multiple Registers
+//
+//	0x03 - Read Holding Registers
+//	0x04 - Read Input Registers
+//	0x01 - Read Coils
+//	0x02 - Read Discrete Inputs
+//	0x05 - Write Single Coil
+//	0x06 - Write Single Register
+//	0x0F - Write Multiple Coils
+//	0x10 - Write Multiple Registers
 type ModbusSlaveDriver struct {
 	BaseDriver
 	host         string
@@ -2370,8 +2371,8 @@ func (d *ModbusSlaveDriver) handleConnection(conn net.Conn, peer string) {
 		binary.BigEndian.PutUint16(respMBAP[2:4], 0) // Protocol ID
 		binary.BigEndian.PutUint16(respMBAP[4:6], uint16(respLen))
 		respMBAP[6] = unitID
-
-		conn.SetDeadline(time.Now().Add(10 * time.Second))
+		_ =
+			conn.SetDeadline(time.Now().Add(10 * time.Second))
 		if _, err := conn.Write(append(respMBAP, response...)); err != nil {
 			return
 		}

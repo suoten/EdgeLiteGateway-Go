@@ -74,13 +74,13 @@ func handleStartProfiler(c echo.Context) error {
 	}
 	profileRunning = true
 	rec := &profileRecord{
-		ID:        fmt.Sprintf("prof-%d", time.Now().UnixMilli()),
-		Type:      req.Type,
-		Duration:  req.Duration,
-		Status:    "running",
-		StartedAt: time.Now(),
-		CPU:       []map[string]interface{}{},
-		Memory:    []map[string]interface{}{},
+		ID:         fmt.Sprintf("prof-%d", time.Now().UnixMilli()),
+		Type:       req.Type,
+		Duration:   req.Duration,
+		Status:     "running",
+		StartedAt:  time.Now(),
+		CPU:        []map[string]interface{}{},
+		Memory:     []map[string]interface{}{},
 		Goroutines: []map[string]interface{}{},
 	}
 	profileRecords[rec.ID] = rec
@@ -346,10 +346,10 @@ func aggregateGoroutineProfile(data []byte) []map[string]interface{} {
 	for sig, a := range bySig {
 		_ = sig
 		rows = append(rows, map[string]interface{}{
-			"state":     goroutineState(sig),
-			"function":  a.leaf,
-			"count":     a.count,
-			"duration":  "-",
+			"state":    goroutineState(sig),
+			"function": a.leaf,
+			"count":    a.count,
+			"duration": "-",
 		})
 	}
 	sort.Slice(rows, func(i, j int) bool {

@@ -43,12 +43,12 @@ func (l LogLevel) String() string {
 // StructuredLogger provides structured logging with context support.
 // It supports JSON-formatted log output with optional context fields.
 type StructuredLogger struct {
-	mu             sync.Mutex
-	output         *os.File
-	level          LogLevel
-	includeContext bool
+	mu               sync.Mutex
+	output           *os.File
+	level            LogLevel
+	includeContext   bool
 	includeTraceback bool
-	context        map[string]interface{}
+	context          map[string]interface{}
 }
 
 // NewStructuredLogger creates a new StructuredLogger.
@@ -59,7 +59,7 @@ func NewStructuredLogger(output *os.File, level LogLevel, includeContext, includ
 	return &StructuredLogger{
 		output:           output,
 		level:            level,
-		includeContext:  includeContext,
+		includeContext:   includeContext,
 		includeTraceback: includeTraceback,
 		context:          make(map[string]interface{}),
 	}
@@ -96,7 +96,7 @@ func (l *StructuredLogger) LogWithData(level LogLevel, msg string, data map[stri
 	entry := map[string]interface{}{
 		"timestamp": time.Now().Format(time.RFC3339Nano),
 		"level":     level.String(),
-		"message":    msg,
+		"message":   msg,
 	}
 
 	// Add context fields

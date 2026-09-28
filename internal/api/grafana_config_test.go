@@ -52,7 +52,7 @@ func TestGrafanaConfigMasksKeyAndKeepsItOnRoundTrip(t *testing.T) {
 
 	// What the page posts after only changing the datasource: the mask it was
 	// shown comes back as the credential.
-	c, rec = setupWithAdmin(echo.PUT, "/api/v1/grafana/config",
+	c, _ = setupWithAdmin(echo.PUT, "/api/v1/grafana/config",
 		`{"url":"http://grafana:3001","api_key":"g***1","datasource":"EdgeLite"}`)
 	if err := handleUpdateGrafanaConfig(c); err != nil {
 		t.Fatalf("PUT handler error: %v", err)
@@ -75,7 +75,7 @@ func TestGrafanaConfigMasksKeyAndKeepsItOnRoundTrip(t *testing.T) {
 	}
 
 	// A key the operator did type has to replace the stored one.
-	c, rec = setupWithAdmin(echo.PUT, "/api/v1/grafana/config",
+	c, _ = setupWithAdmin(echo.PUT, "/api/v1/grafana/config",
 		`{"url":"http://grafana:3001","api_key":"brand-new-key","datasource":"EdgeLite"}`)
 	if err := handleUpdateGrafanaConfig(c); err != nil {
 		t.Fatalf("PUT with a new key: %v", err)

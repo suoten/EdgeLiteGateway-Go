@@ -1031,7 +1031,7 @@ func handleUploadAIModel(c echo.Context) error {
 	n, _ := src.Read(buf)
 	detectedType := http.DetectContentType(buf[:n])
 	// Rewind by seeking back to start
-	src.Seek(0, io.SeekStart)
+	_, _ = src.Seek(0, io.SeekStart)
 
 	// Reject obviously malicious content types
 	maliciousTypes := map[string]bool{
@@ -1070,7 +1070,7 @@ func handleUploadAIModel(c echo.Context) error {
 	}
 	defer dst.Close()
 
-	src.Seek(0, io.SeekStart)
+	_, _ = src.Seek(0, io.SeekStart)
 	written, err := io.Copy(dst, src)
 	if err != nil {
 		return InternalError(c, "ERR_AI_MODEL_SAVE_FAILED")

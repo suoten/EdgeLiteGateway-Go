@@ -426,8 +426,8 @@ func bootstrap(cfg *config.AppConfig) (*api.ServiceContainer, error) {
 	// MqttServer — built-in MQTT broker
 	mqttServer := engine.NewMqttServer()
 
-	// SerialTcpBridge — bridges serial devices over TCP
-	serialBridge := engine.NewSerialTcpBridge()
+	// SerialTCPBridge — bridges serial devices over TCP
+	serialBridge := engine.NewSerialTCPBridge()
 
 	// LifecycleManager — manages device lifecycle states
 	lifecycleMgr := engine.NewLifecycleManager()
@@ -755,7 +755,7 @@ func startEngine(ctx context.Context, c *api.ServiceContainer, cfg *config.AppCo
 		}
 	}
 
-	// Start SerialTcpBridge (if enabled in config)
+	// Start SerialTCPBridge (if enabled in config)
 	if c.SerialBridge != nil && cfg.SerialBridge.Enabled {
 		serialCfg := engine.SerialBridgeConfig{
 			SerialPort: cfg.SerialBridge.SerialPort,
@@ -768,7 +768,7 @@ func startEngine(ctx context.Context, c *api.ServiceContainer, cfg *config.AppCo
 		if err := c.SerialBridge.Start(ctx, serialCfg); err != nil {
 			logrus.WithError(err).Warn("Serial bridge start failed")
 		} else {
-			logrus.Info("SerialTcpBridge started")
+			logrus.Info("SerialTCPBridge started")
 		}
 	}
 

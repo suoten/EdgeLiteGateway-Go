@@ -17,11 +17,11 @@ func newTestDB(t *testing.T) (*Database, func()) {
 	t.Helper()
 	cfg := &config.AppConfig{
 		Database: config.DatabaseConfig{
-			Backend:    "sqlite",
-			SQLitePath: filepath.Join(t.TempDir(), "test.db"),
-			PoolSize:   5,
+			Backend:     "sqlite",
+			SQLitePath:  filepath.Join(t.TempDir(), "test.db"),
+			PoolSize:    5,
 			MaxOverflow: 10,
-			BackupDir:  filepath.Join(t.TempDir(), "backups"),
+			BackupDir:   filepath.Join(t.TempDir(), "backups"),
 		},
 		InfluxDB: config.InfluxDBConfig{
 			SQLiteTSPath: filepath.Join(t.TempDir(), "test_ts.db"),
@@ -647,8 +647,8 @@ func TestTemplateRepoCRUD(t *testing.T) {
 
 	repo := NewTemplateRepo(db)
 	tpl := &models.TemplateResponse{
-		Name:         "tpl-test",
-		Protocol:     "modbus",
+		Name:           "tpl-test",
+		Protocol:       "modbus",
 		ConfigTemplate: map[string]interface{}{"host": "127.0.0.1"},
 		PointTemplates: []models.PointDef{{Name: "temp", Address: "400001", DataType: "float32"}},
 	}
@@ -1095,11 +1095,11 @@ func TestDatabaseHealthCheckAfterClose(t *testing.T) {
 func TestDatabaseFileExistsExt(t *testing.T) {
 	cfg := &config.AppConfig{
 		Database: config.DatabaseConfig{
-			Backend:    "sqlite",
-			SQLitePath: filepath.Join(t.TempDir(), "exists_test.db"),
-			PoolSize:   5,
+			Backend:     "sqlite",
+			SQLitePath:  filepath.Join(t.TempDir(), "exists_test.db"),
+			PoolSize:    5,
 			MaxOverflow: 10,
-			BackupDir:  filepath.Join(t.TempDir(), "backups"),
+			BackupDir:   filepath.Join(t.TempDir(), "backups"),
 		},
 	}
 

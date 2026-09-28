@@ -17,10 +17,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// PlatformHandler is the abstract base for all north-bound platform handlers.
+// Handler is the abstract base for all north-bound platform handlers.
 // All platform implementations must embed this struct and implement the
 // Connect, Disconnect, PublishTelemetry, PublishAttributes methods.
-type PlatformHandler interface {
+type Handler interface {
 	// Name returns the platform name.
 	Name() string
 	// Connect connects to the platform.
@@ -44,13 +44,13 @@ type RPCCallback func(deviceID string, method string, params map[string]interfac
 
 // BasePlatform provides common functionality for all platform handlers.
 type BasePlatform struct {
-	mu             sync.Mutex
-	connected      bool
-	offlineQueue   []OfflineMessage
-	offlineQueueMax int
+	mu               sync.Mutex
+	connected        bool
+	offlineQueue     []OfflineMessage
+	offlineQueueMax  int
 	reconnectBackoff float64
-	config         map[string]interface{}
-	rpcCallback    RPCCallback
+	config           map[string]interface{}
+	rpcCallback      RPCCallback
 }
 
 // OfflineMessage represents a message buffered when the platform is offline.
@@ -64,8 +64,8 @@ type OfflineMessage struct {
 // NewBasePlatform creates a new BasePlatform with defaults.
 func NewBasePlatform() BasePlatform {
 	return BasePlatform{
-		offlineQueue:    make([]OfflineMessage, 0),
-		offlineQueueMax: 10000,
+		offlineQueue:     make([]OfflineMessage, 0),
+		offlineQueueMax:  10000,
 		reconnectBackoff: 1.0,
 	}
 }
@@ -145,26 +145,26 @@ func configInt(config map[string]interface{}, key string, def int) int {
 	return def
 }
 
-// PlatformRegistry manages all registered platform handlers.
-type PlatformRegistry struct {
+// Registry manages all registered platform handlers.
+type Registry struct {
 	mu       sync.RWMutex
-	handlers map[string]PlatformHandlerFactory
+	handlers map[string]HandlerFactory
 }
 
-// PlatformHandlerFactory creates a new platform handler instance.
-type PlatformHandlerFactory func() PlatformHandler
+// HandlerFactory creates a new platform handler instance.
+type HandlerFactory func() Handler
 
-var globalPlatformRegistry = &PlatformRegistry{
-	handlers: make(map[string]PlatformHandlerFactory),
+var globalPlatformRegistry = &Registry{
+	handlers: make(map[string]HandlerFactory),
 }
 
 // GetPlatformRegistry returns the global platform registry.
-func GetPlatformRegistry() *PlatformRegistry {
+func GetPlatformRegistry() *Registry {
 	return globalPlatformRegistry
 }
 
 // Register registers a platform handler factory.
-func (r *PlatformRegistry) Register(name string, factory PlatformHandlerFactory) {
+func (r *Registry) Register(name string, factory HandlerFactory) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.handlers[name] = factory
@@ -172,7 +172,7 @@ func (r *PlatformRegistry) Register(name string, factory PlatformHandlerFactory)
 }
 
 // Create creates a platform handler instance.
-func (r *PlatformRegistry) Create(name string) (PlatformHandler, error) {
+func (r *Registry) Create(name string) (Handler, error) {
 	r.mu.RLock()
 	factory, ok := r.handlers[name]
 	r.mu.RUnlock()
@@ -183,7 +183,7 @@ func (r *PlatformRegistry) Create(name string) (PlatformHandler, error) {
 }
 
 // SupportedPlatforms returns a list of registered platform names.
-func (r *PlatformRegistry) SupportedPlatforms() []string {
+func (r *Registry) SupportedPlatforms() []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	result := make([]string, 0, len(r.handlers))

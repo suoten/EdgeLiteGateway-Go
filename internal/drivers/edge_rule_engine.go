@@ -12,10 +12,10 @@ import (
 type EdgeRuleType string
 
 const (
-	EdgeRuleThreshold     EdgeRuleType = "threshold"
-	EdgeRuleRateOfChange  EdgeRuleType = "rate_of_change"
-	EdgeRuleState         EdgeRuleType = "state"
-	EdgeRuleExpression    EdgeRuleType = "expression"
+	EdgeRuleThreshold    EdgeRuleType = "threshold"
+	EdgeRuleRateOfChange EdgeRuleType = "rate_of_change"
+	EdgeRuleState        EdgeRuleType = "state"
+	EdgeRuleExpression   EdgeRuleType = "expression"
 )
 
 // EdgeRuleOperator defines comparison operators for edge rules.
@@ -41,7 +41,7 @@ type EdgeRule struct {
 	Severity   string           `json:"severity"`
 	Enabled    bool             `json:"enabled"`
 	CooldownMs float64          `json:"cooldown_ms"`
-	DurationMs float64         `json:"duration_ms"`
+	DurationMs float64          `json:"duration_ms"`
 	Deadband   float64          `json:"deadband"`
 	Actions    []EdgeRuleAction `json:"actions"`
 }
@@ -81,13 +81,13 @@ func (a *AlarmRecord) ToDict() map[string]interface{} {
 
 // EdgeRuleEngine provides lightweight, in-process rule evaluation for drivers.
 type EdgeRuleEngine struct {
-	mu            sync.Mutex
-	rules         map[string]*EdgeRule        // rule_id -> rule
-	alarmHistory  []AlarmRecord
-	lastTriggered map[string]time.Time        // rule_id -> last trigger time
-	conditionSince map[string]time.Time       // rule_id -> condition start time
-	eventBus      interface{}                 // EventBus interface (avoid circular import)
-	maxHistory    int
+	mu             sync.Mutex
+	rules          map[string]*EdgeRule // rule_id -> rule
+	alarmHistory   []AlarmRecord
+	lastTriggered  map[string]time.Time // rule_id -> last trigger time
+	conditionSince map[string]time.Time // rule_id -> condition start time
+	eventBus       interface{}          // EventBus interface (avoid circular import)
+	maxHistory     int
 }
 
 // NewEdgeRuleEngine creates a new EdgeRuleEngine.
@@ -224,12 +224,6 @@ func (e *EdgeRuleEngine) checkRule(rule *EdgeRule, value float64, now time.Time)
 		if elapsed < rule.CooldownMs {
 			return false // Still in cooldown
 		}
-	}
-
-	// Check deadband
-	if rule.Deadband > 0 && triggered {
-		// Only trigger if value moved outside deadband of last trigger value
-		// This is a simplification; full deadband logic would track last trigger value
 	}
 
 	// Update last triggered time

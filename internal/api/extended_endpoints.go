@@ -411,7 +411,7 @@ func handleDebugProtocolRead(c echo.Context) error {
 	if err := driver.Connect(ctx); err != nil {
 		return BadRequest(c, err.Error())
 	}
-	defer driver.Disconnect()
+	defer func() { _ = driver.Disconnect() }()
 
 	start := time.Now()
 	data, err := driver.ReadPoints(ctx, points)
@@ -491,7 +491,7 @@ func handleDebugProtocolWrite(c echo.Context) error {
 	if err := driver.Connect(ctx); err != nil {
 		return BadRequest(c, err.Error())
 	}
-	defer driver.Disconnect()
+	defer func() { _ = driver.Disconnect() }()
 
 	start := time.Now()
 	if err := driver.WritePoint(ctx, addrStr, writeValue); err != nil {

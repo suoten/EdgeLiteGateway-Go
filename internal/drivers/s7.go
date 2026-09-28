@@ -857,7 +857,7 @@ func parseS7TypeAndOffset(s string, area int, dbNum int) (int, int, byte, int, i
 // tcpReadExact reads exactly n bytes from a TCP connection with timeout.
 func tcpReadExact(conn net.Conn, n int, timeout time.Duration) ([]byte, error) {
 	buf := make([]byte, n)
-	conn.SetReadDeadline(time.Now().Add(timeout))
+	_ = conn.SetReadDeadline(time.Now().Add(timeout))
 	total := 0
 	for total < n {
 		nread, err := conn.Read(buf[total:])

@@ -24,7 +24,7 @@ import (
 
 const (
 	otaMaxConcurrentTasks = 5
-	otaDownloadTimeout     = 300 * time.Second
+	otaDownloadTimeout    = 300 * time.Second
 	otaDefaultChunkSize   = 65536
 )
 
@@ -32,28 +32,28 @@ const (
 type OTATaskStatus string
 
 const (
-	OTATaskPending   OTATaskStatus = "pending"
+	OTATaskPending     OTATaskStatus = "pending"
 	OTATaskDownloading OTATaskStatus = "downloading"
-	OTATaskInstalling OTATaskStatus = "installing"
-	OTATaskVerifying  OTATaskStatus = "verifying"
-	OTATaskCompleted  OTATaskStatus = "completed"
-	OTATaskFailed     OTATaskStatus = "failed"
-	OTATaskCancelled  OTATaskStatus = "cancelled"
-	OTATaskRolledBack OTATaskStatus = "rolled_back"
+	OTATaskInstalling  OTATaskStatus = "installing"
+	OTATaskVerifying   OTATaskStatus = "verifying"
+	OTATaskCompleted   OTATaskStatus = "completed"
+	OTATaskFailed      OTATaskStatus = "failed"
+	OTATaskCancelled   OTATaskStatus = "cancelled"
+	OTATaskRolledBack  OTATaskStatus = "rolled_back"
 )
 
 // OTATask represents a single OTA update task.
 type OTATask struct {
-	TaskID      string         `json:"task_id"`
-	DeviceID    string         `json:"device_id"`
-	FirmwareURL string         `json:"firmware_url"`
-	FirmwareVer  string         `json:"firmware_version"`
-	Status      OTATaskStatus  `json:"status"`
-	Progress    float64        `json:"progress"`
-	Error       string          `json:"error,omitempty"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	CompletedAt *time.Time     `json:"completed_at,omitempty"`
+	TaskID      string        `json:"task_id"`
+	DeviceID    string        `json:"device_id"`
+	FirmwareURL string        `json:"firmware_url"`
+	FirmwareVer string        `json:"firmware_version"`
+	Status      OTATaskStatus `json:"status"`
+	Progress    float64       `json:"progress"`
+	Error       string        `json:"error,omitempty"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	CompletedAt *time.Time    `json:"completed_at,omitempty"`
 }
 
 // OTAManager manages OTA firmware updates.
@@ -117,7 +117,7 @@ func (m *OTAManager) CreateTask(deviceID, firmwareURL, firmwareVer string) *OTAT
 		TaskID:      taskID,
 		DeviceID:    deviceID,
 		FirmwareURL: firmwareURL,
-		FirmwareVer:  firmwareVer,
+		FirmwareVer: firmwareVer,
 		Status:      OTATaskPending,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
@@ -228,7 +228,7 @@ func (m *OTAManager) GetStats() map[string]interface{} {
 	}
 	return map[string]interface{}{
 		"total_tasks":   total,
-		"status_counts":  statusCounts,
-		"firmware_dir":   m.firmwareDir,
+		"status_counts": statusCounts,
+		"firmware_dir":  m.firmwareDir,
 	}
 }

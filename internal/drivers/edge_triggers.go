@@ -11,9 +11,9 @@ import (
 // EdgeTriggerExecutor executes actions from edge rule alarms.
 // It handles write, MQTT publish, and webhook actions.
 type EdgeTriggerExecutor struct {
-	writeFn    func(deviceID, point string, value interface{}) error
-	mqttFn     func(topic string, payload []byte) error
-	webhookFn  func(url string, payload []byte) error
+	writeFn   func(deviceID, point string, value interface{}) error
+	mqttFn    func(topic string, payload []byte) error
+	webhookFn func(url string, payload []byte) error
 }
 
 // NewEdgeTriggerExecutor creates a new EdgeTriggerExecutor.
@@ -45,7 +45,7 @@ func (e *EdgeTriggerExecutor) ExecuteActions(alarm *AlarmRecord, rule *EdgeRule)
 	for _, action := range rule.Actions {
 		if err := e.executeAction(action, alarm); err != nil {
 			logrus.WithError(err).WithFields(logrus.Fields{
-				"rule_id":    rule.RuleID,
+				"rule_id":     rule.RuleID,
 				"action_type": action.Type,
 			}).Warn("Edge trigger action failed")
 		}
@@ -63,7 +63,7 @@ func (e *EdgeTriggerExecutor) executeAction(action EdgeRuleAction, alarm *AlarmR
 		return e.executeWebhookAction(action, alarm)
 	case "log":
 		logrus.WithFields(logrus.Fields{
-			"alarm": alarm.ToDict(),
+			"alarm":  alarm.ToDict(),
 			"params": action.Params,
 		}).Info("Edge trigger log action")
 		return nil
@@ -274,7 +274,7 @@ func parsePrimary(tokens []string, pos int, vars map[string]float64) (float64, i
 	// Number
 	if token[0] >= '0' && token[0] <= '9' || token[0] == '.' {
 		var num float64
-		fmt.Sscanf(token, "%f", &num)
+		_, _ = fmt.Sscanf(token, "%f", &num)
 		return num, pos + 1, nil
 	}
 
@@ -292,7 +292,6 @@ func parsePrimary(tokens []string, pos int, vars map[string]float64) (float64, i
 			if pos >= len(tokens) || tokens[pos] != ")" {
 				return 0, pos, fmt.Errorf("expected closing parenthesis for function %s", token)
 			}
-			pos++
 			return evalMathFunc(token, arg)
 		}
 		// Variable

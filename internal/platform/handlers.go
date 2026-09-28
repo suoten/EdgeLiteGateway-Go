@@ -17,15 +17,15 @@ import (
 
 type ThingsBoardHandler struct {
 	BasePlatform
-	broker      string
-	port        int
-	token       string
+	broker     string
+	port       int
+	token      string
 	password   string
-	mqttClient  *LightweightMQTTClient
-	mu          sync.Mutex
+	mqttClient *LightweightMQTTClient
+	mu         sync.Mutex
 }
 
-func NewThingsBoardHandler() PlatformHandler {
+func NewThingsBoardHandler() Handler {
 	return &ThingsBoardHandler{
 		BasePlatform: NewBasePlatform(),
 	}
@@ -86,8 +86,8 @@ func (h *ThingsBoardHandler) PublishTelemetry(ctx context.Context, deviceID stri
 		payload := marshalPayload(map[string]interface{}{
 			deviceID: []map[string]interface{}{
 				{
-					"ts":       time.Now().UnixMilli(),
-					"values":   data,
+					"ts":     time.Now().UnixMilli(),
+					"values": data,
 				},
 			},
 		})
@@ -113,7 +113,7 @@ func (h *ThingsBoardHandler) PublishTelemetry(ctx context.Context, deviceID stri
 		},
 	}
 	payloadBytes := marshalPayload(payload)
-	if err := h.mqttClient.PublishCtx(ctx,"v1/gateway/telemetry", 1, payloadBytes); err != nil {
+	if err := h.mqttClient.PublishCtx(ctx, "v1/gateway/telemetry", 1, payloadBytes); err != nil {
 		h.SetConnected(false)
 		return fmt.Errorf("publish telemetry: %w", err)
 	}
@@ -131,7 +131,7 @@ func (h *ThingsBoardHandler) PublishAttributes(ctx context.Context, deviceID str
 	payload := marshalPayload(map[string]interface{}{
 		deviceID: attrs,
 	})
-	if err := h.mqttClient.PublishCtx(ctx,"v1/gateway/attributes", 1, payload); err != nil {
+	if err := h.mqttClient.PublishCtx(ctx, "v1/gateway/attributes", 1, payload); err != nil {
 		return fmt.Errorf("publish attributes: %w", err)
 	}
 	logrus.WithField("device_id", deviceID).
@@ -148,7 +148,7 @@ func (h *ThingsBoardHandler) PublishDeviceStatus(ctx context.Context, deviceID s
 		topic = "v1/gateway/disconnect"
 	}
 	payload := marshalPayload(map[string]interface{}{"device": deviceID})
-	if err := h.mqttClient.PublishCtx(ctx,topic, 1, payload); err != nil {
+	if err := h.mqttClient.PublishCtx(ctx, topic, 1, payload); err != nil {
 		return fmt.Errorf("publish device status: %w", err)
 	}
 	logrus.WithField("device_id", deviceID).
@@ -175,7 +175,7 @@ type HuaweiIoTDAHandler struct {
 	mu         sync.Mutex
 }
 
-func NewHuaweiIoTDAHandler() PlatformHandler {
+func NewHuaweiIoTDAHandler() Handler {
 	return &HuaweiIoTDAHandler{
 		BasePlatform: NewBasePlatform(),
 	}
@@ -236,7 +236,7 @@ func (h *HuaweiIoTDAHandler) PublishTelemetry(ctx context.Context, deviceID stri
 			},
 		},
 	})
-	if err := h.mqttClient.PublishCtx(ctx,topic, 1, payload); err != nil {
+	if err := h.mqttClient.PublishCtx(ctx, topic, 1, payload); err != nil {
 		return fmt.Errorf("publish telemetry: %w", err)
 	}
 	logrus.WithField("device_id", deviceID).
@@ -251,7 +251,7 @@ func (h *HuaweiIoTDAHandler) PublishAttributes(ctx context.Context, deviceID str
 	}
 	topic := fmt.Sprintf("$oc/devices/%s/sys/shadow/data/report", deviceID)
 	payload := marshalPayload(attrs)
-	if err := h.mqttClient.PublishCtx(ctx,topic, 1, payload); err != nil {
+	if err := h.mqttClient.PublishCtx(ctx, topic, 1, payload); err != nil {
 		return fmt.Errorf("publish attributes: %w", err)
 	}
 	logrus.WithField("device_id", deviceID).
@@ -273,7 +273,7 @@ func (h *HuaweiIoTDAHandler) PublishDeviceStatus(ctx context.Context, deviceID s
 		"status":    status,
 		"timestamp": time.Now().UnixMilli(),
 	})
-	if err := h.mqttClient.PublishCtx(ctx,topic, 1, payload); err != nil {
+	if err := h.mqttClient.PublishCtx(ctx, topic, 1, payload); err != nil {
 		return fmt.Errorf("publish device status: %w", err)
 	}
 	return nil
@@ -295,7 +295,7 @@ type IoTSharpHandler struct {
 	mu         sync.Mutex
 }
 
-func NewIoTSharpHandler() PlatformHandler {
+func NewIoTSharpHandler() Handler {
 	return &IoTSharpHandler{
 		BasePlatform: NewBasePlatform(),
 	}
@@ -344,7 +344,7 @@ func (h *IoTSharpHandler) PublishTelemetry(ctx context.Context, deviceID string,
 	}
 	topic := fmt.Sprintf("devices/telemetry/%s", deviceID)
 	payload := marshalPayload(data)
-	return h.mqttClient.PublishCtx(ctx,topic, 1, payload)
+	return h.mqttClient.PublishCtx(ctx, topic, 1, payload)
 }
 
 func (h *IoTSharpHandler) PublishAttributes(ctx context.Context, deviceID string, attrs map[string]interface{}) error {
@@ -353,7 +353,7 @@ func (h *IoTSharpHandler) PublishAttributes(ctx context.Context, deviceID string
 	}
 	topic := fmt.Sprintf("devices/attributes/%s", deviceID)
 	payload := marshalPayload(attrs)
-	return h.mqttClient.PublishCtx(ctx,topic, 1, payload)
+	return h.mqttClient.PublishCtx(ctx, topic, 1, payload)
 }
 
 func (h *IoTSharpHandler) PublishDeviceStatus(ctx context.Context, deviceID string, online bool) error {
@@ -377,7 +377,7 @@ type ThingsPanelHandler struct {
 	mu         sync.Mutex
 }
 
-func NewThingsPanelHandler() PlatformHandler {
+func NewThingsPanelHandler() Handler {
 	return &ThingsPanelHandler{
 		BasePlatform: NewBasePlatform(),
 	}
@@ -426,7 +426,7 @@ func (h *ThingsPanelHandler) PublishTelemetry(ctx context.Context, deviceID stri
 	}
 	topic := fmt.Sprintf("device/%s/telemetry", deviceID)
 	payload := marshalPayload(data)
-	return h.mqttClient.PublishCtx(ctx,topic, 1, payload)
+	return h.mqttClient.PublishCtx(ctx, topic, 1, payload)
 }
 
 func (h *ThingsPanelHandler) PublishAttributes(ctx context.Context, deviceID string, attrs map[string]interface{}) error {
@@ -435,7 +435,7 @@ func (h *ThingsPanelHandler) PublishAttributes(ctx context.Context, deviceID str
 	}
 	topic := fmt.Sprintf("device/%s/attributes", deviceID)
 	payload := marshalPayload(attrs)
-	return h.mqttClient.PublishCtx(ctx,topic, 1, payload)
+	return h.mqttClient.PublishCtx(ctx, topic, 1, payload)
 }
 
 func (h *ThingsPanelHandler) PublishDeviceStatus(ctx context.Context, deviceID string, online bool) error {
@@ -459,7 +459,7 @@ type ThingsCloudHandler struct {
 	mu         sync.Mutex
 }
 
-func NewThingsCloudHandler() PlatformHandler {
+func NewThingsCloudHandler() Handler {
 	return &ThingsCloudHandler{
 		BasePlatform: NewBasePlatform(),
 	}
@@ -508,7 +508,7 @@ func (h *ThingsCloudHandler) PublishTelemetry(ctx context.Context, deviceID stri
 	}
 	topic := fmt.Sprintf("thingscloud/%s/telemetry", deviceID)
 	payload := marshalPayload(data)
-	return h.mqttClient.PublishCtx(ctx,topic, 1, payload)
+	return h.mqttClient.PublishCtx(ctx, topic, 1, payload)
 }
 
 func (h *ThingsCloudHandler) PublishAttributes(ctx context.Context, deviceID string, attrs map[string]interface{}) error {
@@ -517,7 +517,7 @@ func (h *ThingsCloudHandler) PublishAttributes(ctx context.Context, deviceID str
 	}
 	topic := fmt.Sprintf("thingscloud/%s/attributes", deviceID)
 	payload := marshalPayload(attrs)
-	return h.mqttClient.PublishCtx(ctx,topic, 1, payload)
+	return h.mqttClient.PublishCtx(ctx, topic, 1, payload)
 }
 
 func (h *ThingsCloudHandler) PublishDeviceStatus(ctx context.Context, deviceID string, online bool) error {
@@ -544,7 +544,7 @@ type CustomMQTTHandler struct {
 	mu             sync.Mutex
 }
 
-func NewCustomMQTTHandler() PlatformHandler {
+func NewCustomMQTTHandler() Handler {
 	return &CustomMQTTHandler{
 		BasePlatform: NewBasePlatform(),
 	}
@@ -605,7 +605,7 @@ func (h *CustomMQTTHandler) PublishTelemetry(ctx context.Context, deviceID strin
 	}
 	topic := fmt.Sprintf("%s/%s", h.telemetryTopic, deviceID)
 	payload := marshalPayload(data)
-	if err := h.mqttClient.PublishCtx(ctx,topic, 1, payload); err != nil {
+	if err := h.mqttClient.PublishCtx(ctx, topic, 1, payload); err != nil {
 		return fmt.Errorf("publish telemetry: %w", err)
 	}
 	return nil
@@ -617,7 +617,7 @@ func (h *CustomMQTTHandler) PublishAttributes(ctx context.Context, deviceID stri
 	}
 	topic := fmt.Sprintf("%s/%s", h.attrsTopic, deviceID)
 	payload := marshalPayload(attrs)
-	if err := h.mqttClient.PublishCtx(ctx,topic, 1, payload); err != nil {
+	if err := h.mqttClient.PublishCtx(ctx, topic, 1, payload); err != nil {
 		return fmt.Errorf("publish attributes: %w", err)
 	}
 	return nil

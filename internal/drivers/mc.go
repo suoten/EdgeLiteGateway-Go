@@ -260,7 +260,7 @@ func (d *MCDriver) mcReadWords(device string, startAddr int, count int) ([]uint1
 		return nil, fmt.Errorf("unknown device: %s", device)
 	}
 	frame := mcBuildRequestSeries(0x0401, 0x0000, deviceCode, startAddr, count, nil, d.mcIsWideDevice())
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(frame); err != nil {
 		d.SetConnected(false)
 		return nil, fmt.Errorf("mc write: %w", err)
@@ -295,7 +295,7 @@ func (d *MCDriver) mcReadBit(device string, startAddr int) (bool, error) {
 		return false, fmt.Errorf("unknown device: %s", device)
 	}
 	frame := mcBuildRequestSeries(0x0401, 0x0001, deviceCode, startAddr, 1, nil, d.mcIsWideDevice())
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(frame); err != nil {
 		d.SetConnected(false)
 		return false, fmt.Errorf("mc write bit: %w", err)
@@ -332,7 +332,7 @@ func (d *MCDriver) mcWriteWords(device string, startAddr int, values []uint16) e
 		payload = append(payload, byte(v&0xFF), byte((v>>8)&0xFF))
 	}
 	frame := mcBuildRequestSeries(0x1401, 0x0000, deviceCode, startAddr, count, payload, d.mcIsWideDevice())
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(frame); err != nil {
 		d.SetConnected(false)
 		return fmt.Errorf("mc write: %w", err)
@@ -364,7 +364,7 @@ func (d *MCDriver) mcWriteBit(device string, startAddr int, on bool) error {
 		payload[0] = 0x10 // first point of the packed byte lives in the high nibble
 	}
 	frame := mcBuildRequestSeries(0x1401, 0x0001, deviceCode, startAddr, 1, payload, d.mcIsWideDevice())
-	d.conn.SetDeadline(time.Now().Add(d.timeout))
+	_ = d.conn.SetDeadline(time.Now().Add(d.timeout))
 	if _, err := d.conn.Write(frame); err != nil {
 		d.SetConnected(false)
 		return fmt.Errorf("mc write bit: %w", err)

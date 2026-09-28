@@ -15,7 +15,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // register sqlite driver (side-effect import)
 
 	"edgelite/internal/config"
 

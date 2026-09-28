@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	preprocessRuleKeyPrefix = "preprocess_rule_"
+	preprocessRuleKeyPrefix   = "preprocess_rule_"
 	expressionConfigKeyPrefix = "expression_config_"
 )
 

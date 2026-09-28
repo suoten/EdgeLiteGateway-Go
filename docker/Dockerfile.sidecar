@@ -12,9 +12,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc g++ && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies (layer-cached)
+# Install Python dependencies (layer-cached, system-wide so any user can read)
 COPY ai_sidecar/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # ── Runtime stage ──────────────────────────────────────────────────
 FROM python:3.11-slim AS runtime
@@ -24,9 +24,9 @@ LABEL description="EdgeLite AI Sidecar - Python ONNX inference HTTP API"
 
 WORKDIR /app
 
-# Copy installed packages from builder
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
+# Copy installed packages from builder (system site-packages, world-readable)
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application source
 COPY ai_sidecar/server.py /app/server.py

@@ -91,13 +91,13 @@ type AlarmSilenceService struct {
 }
 
 type SilenceRule struct {
-	ID          string
-	DeviceID    string
-	RuleID      string
-	Reason      string
-	StartTime   time.Time
-	EndTime     time.Time
-	CreatedBy   string
+	ID        string
+	DeviceID  string
+	RuleID    string
+	Reason    string
+	StartTime time.Time
+	EndTime   time.Time
+	CreatedBy string
 }
 
 func NewAlarmSilenceService() *AlarmSilenceService {
@@ -493,21 +493,21 @@ func (s *DataImportExportService) ExportData(deviceID, pointName string, startTi
 // ============================================================================
 
 type CommandApprovalService struct {
-	mu        sync.Mutex
-	pending   map[string]*CommandApproval
-	approved  map[string]bool
+	mu       sync.Mutex
+	pending  map[string]*CommandApproval
+	approved map[string]bool
 }
 
 type CommandApproval struct {
-	ID         string
-	DeviceID   string
-	Point      string
-	Value      interface{}
+	ID          string
+	DeviceID    string
+	Point       string
+	Value       interface{}
 	RequestedBy string
 	RequestedAt time.Time
-	Status     string // pending, approved, rejected
-	ApprovedBy string
-	ApprovedAt time.Time
+	Status      string // pending, approved, rejected
+	ApprovedBy  string
+	ApprovedAt  time.Time
 }
 
 func NewCommandApprovalService() *CommandApprovalService {
@@ -688,9 +688,9 @@ func equalValues(a, b interface{}) bool {
 // ============================================================================
 
 type DBMonitorService struct {
-	mu         sync.Mutex
-	dataPath   string
-	lastCheck  time.Time
+	mu            sync.Mutex
+	dataPath      string
+	lastCheck     time.Time
 	checkInterval time.Duration
 }
 
@@ -948,8 +948,8 @@ func (m *DBMonitorService) Reindex() error {
 // ============================================================================
 
 type MCPService struct {
-	mu      sync.Mutex
-	tools   map[string]MCPTool
+	mu    sync.Mutex
+	tools map[string]MCPTool
 }
 
 type MCPTool struct {
@@ -1073,24 +1073,24 @@ func NewI18nService() *I18nService {
 	}
 	// Default messages
 	s.messages["zh-CN"] = map[string]string{
-		"device.created":       "设备创建成功",
-		"device.updated":       "设备更新成功",
-		"device.deleted":       "设备删除成功",
-		"rule.created":         "规则创建成功",
-		"rule.updated":         "规则更新成功",
-		"alarm.triggered":      "告警触发",
-		"alarm.acknowledged":   "告警已确认",
-		"system.error":         "系统错误",
+		"device.created":     "设备创建成功",
+		"device.updated":     "设备更新成功",
+		"device.deleted":     "设备删除成功",
+		"rule.created":       "规则创建成功",
+		"rule.updated":       "规则更新成功",
+		"alarm.triggered":    "告警触发",
+		"alarm.acknowledged": "告警已确认",
+		"system.error":       "系统错误",
 	}
 	s.messages["en-US"] = map[string]string{
-		"device.created":       "Device created successfully",
-		"device.updated":       "Device updated successfully",
-		"device.deleted":       "Device deleted successfully",
-		"rule.created":         "Rule created successfully",
-		"rule.updated":         "Rule updated successfully",
-		"alarm.triggered":      "Alarm triggered",
-		"alarm.acknowledged":   "Alarm acknowledged",
-		"system.error":         "System error",
+		"device.created":     "Device created successfully",
+		"device.updated":     "Device updated successfully",
+		"device.deleted":     "Device deleted successfully",
+		"rule.created":       "Rule created successfully",
+		"rule.updated":       "Rule updated successfully",
+		"alarm.triggered":    "Alarm triggered",
+		"alarm.acknowledged": "Alarm acknowledged",
+		"system.error":       "System error",
 	}
 	return s
 }
@@ -1528,10 +1528,5 @@ func toFloat64(v interface{}) float64 {
 }
 
 // JSON helper for marshal/unmarshal
-func mustMarshal(v interface{}) []byte {
-	b, _ := json.Marshal(v)
-	return b
-}
-
 // Ensure strings package is used
 var _ = strings.TrimSpace

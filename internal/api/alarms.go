@@ -740,7 +740,6 @@ func buildAlarmCorrelationGroups(c echo.Context) ([]map[string]interface{}, int,
 						}
 					}
 				}
-				split = true
 			}
 			cluster := list[clusterStart:i]
 			clusterStart = i
@@ -1006,18 +1005,6 @@ func queryDevicePoint(deviceID, pointName string, start, end time.Time) ([]stora
 
 // strideSample keeps at most maxChartSamples entries, evenly spaced and always
 // including the newest one, so a long window still renders as a trend line.
-func strideSample[T any](items []T) []T {
-	if len(items) <= maxChartSamples {
-		return items
-	}
-	step := float64(len(items)) / float64(maxChartSamples)
-	out := make([]T, 0, maxChartSamples)
-	for i := 0; i < maxChartSamples; i++ {
-		out = append(out, items[int(float64(i)*step)])
-	}
-	return out
-}
-
 // alignToTimeline projects samples onto grid timestamps with last-known-value
 // semantics. Grid slots earlier than the first sample keep a nil Value.
 func alignToTimeline(grid []time.Time, samples []storage.PointData) []storage.PointData {

@@ -25,13 +25,13 @@ type Claims struct {
 
 // JWTManager handles JWT token generation and verification.
 type JWTManager struct {
-	secretKey        []byte
-	algorithm        string
-	accessExpiration time.Duration
+	secretKey         []byte
+	algorithm         string
+	accessExpiration  time.Duration
 	refreshExpiration time.Duration
-	keyID            string
-	previousKey      []byte
-	previousKeyID    string
+	keyID             string
+	previousKey       []byte
+	previousKeyID     string
 }
 
 var (
@@ -54,8 +54,8 @@ func GetJWTManager() *JWTManager {
 	jwtManagerOnce.Do(func() {
 		cfg := config.GetConfig()
 		jwtManager = &JWTManager{
-			secretKey:        []byte(cfg.Security.SecretKey),
-			algorithm:        cfg.Security.Algorithm,
+			secretKey:         []byte(cfg.Security.SecretKey),
+			algorithm:         cfg.Security.Algorithm,
 			accessExpiration:  time.Duration(cfg.Security.AccessTokenExpireMinutes) * time.Minute,
 			refreshExpiration: time.Duration(cfg.Security.RefreshTokenExpireDays) * 24 * time.Hour,
 			keyID:             cfg.Security.KeyID,
@@ -169,11 +169,11 @@ type Permission string
 
 const (
 	// Device permissions
-	PermDeviceCreate Permission = "device:create"
-	PermDeviceRead   Permission = "device:read"
-	PermDeviceUpdate Permission = "device:update"
-	PermDeviceDelete Permission = "device:delete"
-	PermDeviceWrite  Permission = "device:write"
+	PermDeviceCreate          Permission = "device:create"
+	PermDeviceRead            Permission = "device:read"
+	PermDeviceUpdate          Permission = "device:update"
+	PermDeviceDelete          Permission = "device:delete"
+	PermDeviceWrite           Permission = "device:write"
 	PermDeviceWritePolicyEdit Permission = "device:write_policy_edit"
 
 	// Rule permissions
@@ -184,10 +184,10 @@ const (
 
 	// Alarm permissions
 	PermAlarmRead Permission = "alarm:read"
-	PermAlarmAck Permission = "alarm:ack"
+	PermAlarmAck  Permission = "alarm:ack"
 
 	// Data permissions
-	PermDataRead  Permission = "data:read"
+	PermDataRead   Permission = "data:read"
 	PermDataExport Permission = "data:export"
 	PermDataImport Permission = "data:import"
 

@@ -52,12 +52,12 @@ type StreamConfig struct {
 
 // StreamResult is the output of a stream computation.
 type StreamResult struct {
-	DeviceID  string      `json:"device_id"`
-	PointName string      `json:"point_name"`
-	Value     float64     `json:"value"`
-	Timestamp time.Time   `json:"timestamp"`
-	Count     int         `json:"count"`
-	WindowEnd time.Time   `json:"window_end"`
+	DeviceID  string    `json:"device_id"`
+	PointName string    `json:"point_name"`
+	Value     float64   `json:"value"`
+	Timestamp time.Time `json:"timestamp"`
+	Count     int       `json:"count"`
+	WindowEnd time.Time `json:"window_end"`
 }
 
 // StreamComputeEngine processes real-time data streams.

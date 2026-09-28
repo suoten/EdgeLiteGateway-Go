@@ -1190,7 +1190,7 @@ func handleDisableService(c echo.Context) error {
 	switch name {
 	case "mqtt_forwarder":
 		if cont.MqttForward != nil {
-			cont.MqttForward.Stop()
+			_ = cont.MqttForward.Stop()
 			logrus.WithField("service", name).Info("MQTT forwarder stopped")
 		}
 	case "mqtt_server", "modbus_slave", "serial_bridge":

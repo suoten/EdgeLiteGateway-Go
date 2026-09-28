@@ -93,7 +93,7 @@ type AISelfLearningStats struct {
 	Ewma         float64 `json:"ewma"`
 	AnomalyCount int64   `json:"anomaly_count"`
 	LastAnomaly  string  `json:"last_anomaly"`
-	Confidence   float64  `json:"confidence"`
+	Confidence   float64 `json:"confidence"`
 	// A pointer because a sidecar built before this field existed answers without
 	// it; a zeroed float64 would then render as "threshold is 0", a value no
 	// operator ever set. nil keeps it visibly unknown.

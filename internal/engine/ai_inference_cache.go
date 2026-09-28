@@ -11,12 +11,12 @@ import (
 // InferenceCache provides TTL-based caching for AI inference results.
 // This prevents redundant inference calls for the same input data.
 type InferenceCache struct {
-	mu       sync.Mutex
-	items    map[string]*cacheItem
-	ttl      time.Duration
-	maxSize  int
-	hits     int64
-	misses   int64
+	mu        sync.Mutex
+	items     map[string]*cacheItem
+	ttl       time.Duration
+	maxSize   int
+	hits      int64
+	misses    int64
 	evictions int64
 }
 
@@ -120,12 +120,12 @@ func (c *InferenceCache) GetStats() map[string]interface{} {
 		hitRate = float64(c.hits) / float64(total)
 	}
 	return map[string]interface{}{
-		"size":      len(c.items),
-		"max_size":  c.maxSize,
-		"hits":      c.hits,
-		"misses":    c.misses,
-		"evictions": c.evictions,
-		"hit_rate":  hitRate,
+		"size":        len(c.items),
+		"max_size":    c.maxSize,
+		"hits":        c.hits,
+		"misses":      c.misses,
+		"evictions":   c.evictions,
+		"hit_rate":    hitRate,
 		"ttl_seconds": c.ttl.Seconds(),
 	}
 }

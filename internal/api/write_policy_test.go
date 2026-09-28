@@ -213,8 +213,8 @@ func TestRPCCommandHonoursRateLimit(t *testing.T) {
 
 	c, rec := setupWithAdmin(http.MethodPost, "/api/v1/integration/rpc/execute",
 		`{"device_id":"rpc-throttled","method":"setpoint","params":{"value":2}}`)
-	if err := handleRpcExecute(c); err != nil {
-		t.Fatalf("handleRpcExecute returned an error: %v", err)
+	if err := handleRPCExecute(c); err != nil {
+		t.Fatalf("handleRPCExecute returned an error: %v", err)
 	}
 	var env struct {
 		Data struct {

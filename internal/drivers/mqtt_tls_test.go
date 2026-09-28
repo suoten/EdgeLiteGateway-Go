@@ -158,13 +158,15 @@ func connectTLSDriver(t *testing.T, port int, cfg map[string]interface{}) (*MQTT
 	t.Helper()
 	cfg["broker"] = "127.0.0.1"
 	cfg["port"] = port
-	cfg["timeout"] = 3
+	if _, ok := cfg["timeout"]; !ok {
+		cfg["timeout"] = 3
+	}
 	d, err := NewMQTTClientDriver("mqtttls", cfg)
 	if err != nil {
 		return nil, err
 	}
 	md := d.(*MQTTClientDriver)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	return md, md.Connect(ctx)
 }
@@ -246,7 +248,7 @@ func TestMQTTClientTLSRejectsUntrustedBroker(t *testing.T) {
 	broker, port := newTLSPFMockBroker(t, ca.serverConfig())
 	defer broker.ln.Close()
 
-	md, err := connectTLSDriver(t, port, map[string]interface{}{"tls_enabled": true})
+	md, err := connectTLSDriver(t, port, map[string]interface{}{"tls_enabled": true, "timeout": 10})
 	if err == nil {
 		md.Disconnect()
 		t.Fatal("Connect accepted an untrusted broker certificate")

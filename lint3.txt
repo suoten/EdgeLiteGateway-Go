@@ -1,0 +1,120 @@
+internal\engine\serial_bridge.go:77:6: var-naming: func NewSerialTcpBridge should be NewSerialTCPBridge (revive)
+func NewSerialTcpBridge() *SerialTCPBridge {
+     ^
+internal\engine\serial_bridge.go:85:6: var-naming: func NewSerialTcpBridgeWithOpener should be NewSerialTCPBridgeWithOpener (revive)
+func NewSerialTcpBridgeWithOpener(opener func(SerialBridgeConfig) (io.ReadWriteCloser, error)) *SerialTCPBridge {
+     ^
+internal\api\modules.go:2859:3: S1005: unnecessary assignment to the blank identifier (gosimple)
+		sn, _ := names[r.SourceDeviceID]
+		^
+internal\api\modules.go:2860:3: S1005: unnecessary assignment to the blank identifier (gosimple)
+		tn, _ := names[r.TargetDeviceID]
+		^
+internal\engine\sandbox.go:143:5: S1009: should omit nil check; len() for nil maps is defined as zero (gosimple)
+	if s.config.AllowedVars == nil || len(s.config.AllowedVars) == 0 {
+	   ^
+internal\drivers\opc_onvif.go:1229:3: S1011: should replace loop with `out = append(out, strings.Fields(rest[startIdx:startIdx+endIdx])...)` (gosimple)
+		for _, addr := range strings.Fields(rest[startIdx : startIdx+endIdx]) {
+		^
+internal\api\alarms.go:743:5: ineffectual assignment to split (ineffassign)
+				split = true
+				^
+internal\api\extended_endpoints2.go:1411:3: ineffectual assignment to quality (ineffassign)
+		quality = "good"
+		^
+internal\api\preprocess_real.go:391:17: ineffectual assignment to hasGlobal (ineffassign)
+		globalObject, hasGlobal = raw, true
+		              ^
+internal\api\firmware_integrity_test.go:266:8: ineffectual assignment to data (ineffassign)
+	code, data, errCode := callFirmwareMultipart(t, handleVerifyFirmwareSignatureReal,
+	      ^
+internal\drivers\edge_triggers.go:295:4: ineffectual assignment to pos (ineffassign)
+			pos++
+			^
+internal\drivers\opc_onvif.go:963:2: ineffectual assignment to action (ineffassign)
+	action := "http://www.onvif.org/ver10/device/wsdl/Get"
+	^
+internal\drivers\joint_debug_pf_test.go:407:2: ineffectual assignment to v (ineffassign)
+	v, q = webhookRow(t, d, "p")
+	^
+internal\engine\rule_evaluator.go:396:2: ineffectual assignment to alarmID (ineffassign)
+	alarmID, alreadyFiring := e.activeAlarms[rule.RuleID]
+	^
+internal\services\extended_services_test.go:791:2: ineffectual assignment to entries (ineffassign)
+	entries, total = svc.List(AuditFilter{Action: "delete"}, 1, 10)
+	^
+tests\e2e\inprocess_smoke_test.go:405:8: ineffectual assignment to resp (ineffassign)
+	code, resp = doRequest(t, "GET", app.baseURL()+"/api/v1/devices", nil, headers)
+	      ^
+internal\drivers\extended_drivers_test3_test.go:342:35: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	result, err := driver.ReadPoints(nil, pts)
+	                                 ^
+internal\drivers\extended_drivers_test3_test.go:359:35: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	result, err := driver.ReadPoints(nil, pts)
+	                                 ^
+internal\drivers\extended_drivers_test3_test.go:373:35: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	result, err := driver.ReadPoints(nil, pts)
+	                                 ^
+internal\drivers\extended_drivers_test3_test.go:389:27: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	err := driver.WritePoint(nil, "hr0", uint16(555))
+	                         ^
+internal\drivers\extended_drivers_test3_test.go:402:27: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	err := driver.WritePoint(nil, "coil0", true)
+	                         ^
+internal\drivers\extended_drivers_test3_test.go:415:27: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	err := driver.WritePoint(nil, "coil0", 1)
+	                         ^
+internal\drivers\extended_drivers_test3_test.go:428:27: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	err := driver.WritePoint(nil, "hr0.2", []uint16{100, 200})
+	                         ^
+internal\drivers\extended_drivers_test3_test.go:441:27: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	err := driver.WritePoint(nil, "INVALID", 42)
+	                         ^
+internal\drivers\extended_drivers_test3_test.go:453:27: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	err := driver.WritePoint(nil, "ir1", 42)
+	                         ^
+internal\drivers\extended_drivers_test3_test.go:468:35: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	result, err := driver.ReadPoints(nil, pts)
+	                                 ^
+internal\drivers\extended_drivers_test3_test.go:485:35: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	result, err := driver.ReadPoints(nil, pts)
+	                                 ^
+internal\drivers\extended_drivers_test3_test.go:498:28: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	err := driver.HealthCheck(nil)
+	                          ^
+internal\drivers\extended_drivers_test3_test.go:510:33: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	result, err := driver.Discover(nil, nil)
+	                               ^
+internal\api\grafana_config_test.go:78:2: SA4006: this value of `rec` is never used (staticcheck)
+	c, rec = setupWithAdmin(echo.PUT, "/api/v1/grafana/config",
+	^
+tests\integration\api_integration_test.go:759:2: SA4006: this value of `rec` is never used (staticcheck)
+	rec, resp := makeRequest(env, "GET", "/health/live", nil, "")
+	^
+tests\integration\api_integration_test.go:762:5: SA4006: this value of `ok` is never used (staticcheck)
+	if _, ok := resp["status"]; !ok {
+	   ^
+internal\drivers\extended_drivers_test2_test.go:2046:9: SA5011: possible nil pointer dereference (staticcheck)
+	if req.Method != "GET" {
+	       ^
+internal\drivers\extended_drivers_test2_test.go:2043:5: SA5011(related information): this check suggests that the pointer can be nil (staticcheck)
+	if req == nil {
+	   ^
+internal\drivers\edge_rule_engine.go:230:2: SA9003: empty branch (staticcheck)
+	if rule.Deadband > 0 && triggered {
+	^
+internal\drivers\extended_drivers_test2_test.go:2102:2: SA9003: empty branch (staticcheck)
+	if err == nil {
+	^
+internal\drivers\extended_drivers_test2_test.go:2161:2: SA9003: empty branch (staticcheck)
+	if err == nil {
+	^
+internal\engine\extended_engine_test.go:372:2: SA9003: empty branch (staticcheck)
+	if result != nil {
+	^
+internal\services\extended_services_test.go:35:2: SA9003: empty branch (staticcheck)
+	if svc.IsSilenced("device-2", "rule-1") {
+	^
+tests\e2e\inprocess_smoke_test.go:475:2: SA9003: empty branch (staticcheck)
+	if err == nil {
+	^

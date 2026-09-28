@@ -18,7 +18,7 @@ import (
 // The scheduler includes a watchdog that detects stalled collectors and restarts them.
 type CollectScheduler struct {
 	mu             sync.RWMutex
-	collectors      map[string]*collectorEntry
+	collectors     map[string]*collectorEntry
 	eventBus       *EventBus
 	tsStorage      *storage.TimeSeriesStorage
 	cache          *storage.CacheManager
@@ -36,7 +36,7 @@ type CollectScheduler struct {
 	expressions *PreprocessorExpressionEngine
 
 	// Statistics
-	muStats   sync.Mutex
+	muStats       sync.Mutex
 	totalCollects int64
 	totalErrors   int64
 	totalPoints   int64
@@ -99,12 +99,12 @@ func NewCollectScheduler(eventBus *EventBus, tsStorage *storage.TimeSeriesStorag
 		maxConc = 50
 	}
 	return &CollectScheduler{
-		collectors:     make(map[string]*collectorEntry),
-		eventBus:       eventBus,
-		tsStorage:      tsStorage,
-		cache:          cache,
-		maxConcurrent:  maxConc,
-		watchdogStop:   make(chan struct{}, 1),
+		collectors:    make(map[string]*collectorEntry),
+		eventBus:      eventBus,
+		tsStorage:     tsStorage,
+		cache:         cache,
+		maxConcurrent: maxConc,
+		watchdogStop:  make(chan struct{}, 1),
 	}
 }
 
@@ -594,12 +594,10 @@ func (s *CollectScheduler) Stats() map[string]interface{} {
 	s.muStats.Lock()
 	defer s.muStats.Unlock()
 	return map[string]interface{}{
-		"total_collects": s.totalCollects,
-		"total_errors":   s.totalErrors,
-		"total_points":   s.totalPoints,
+		"total_collects":    s.totalCollects,
+		"total_errors":      s.totalErrors,
+		"total_points":      s.totalPoints,
 		"active_collectors": collectorCount,
-		"started":         s.started.Load(),
+		"started":           s.started.Load(),
 	}
 }
-
-

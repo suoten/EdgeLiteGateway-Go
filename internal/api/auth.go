@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -412,7 +411,7 @@ func handleChangePassword(c echo.Context) error {
 		return ServiceUnavailable(c, "Database not ready")
 	}
 
-		// Verify old password
+	// Verify old password
 	dbUser, err := cont.UserRepo.GetByUsernameWithPassword(user.Username)
 	if err != nil || dbUser == nil {
 		return NotFound(c, "ERR_AUTH_USER_NOT_FOUND")
@@ -557,12 +556,3 @@ func isDevMode() bool {
 }
 
 // formatDuration returns a human-readable duration string.
-func formatDuration(d time.Duration) string {
-	if d < time.Minute {
-		return fmt.Sprintf("%.0fs", d.Seconds())
-	}
-	if d < time.Hour {
-		return fmt.Sprintf("%.0fm", d.Minutes())
-	}
-	return fmt.Sprintf("%.0fh", d.Hours())
-}

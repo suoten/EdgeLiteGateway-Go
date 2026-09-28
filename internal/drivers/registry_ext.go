@@ -11,23 +11,23 @@ import (
 
 // DriverDisplayNames holds display names for drivers in multiple languages.
 var DriverDisplayNames = map[string]map[string]string{
-	"modbus_tcp":      {"en": "Modbus TCP", "zh": "Modbus TCP"},
-	"modbus_rtu":      {"en": "Modbus RTU", "zh": "Modbus RTU"},
-	"simulator":       {"en": "Simulator", "zh": "模拟器"},
-	"mqtt_client":     {"en": "MQTT Client", "zh": "MQTT客户端"},
-	"http_webhook":    {"en": "HTTP Webhook", "zh": "HTTP Webhook"},
-	"opc_ua":          {"en": "OPC UA Client", "zh": "OPC UA客户端"},
-	"opc_da":          {"en": "OPC DA Client", "zh": "OPC DA客户端"},
-	"siemens_s7":      {"en": "Siemens S7", "zh": "西门子S7"},
-	"s7":              {"en": "Siemens S7", "zh": "西门子S7"},
-	"mitsubishi_mc":   {"en": "Mitsubishi MC", "zh": "三菱MC"},
-	"mc":              {"en": "Mitsubishi MC", "zh": "三菱MC"},
-	"omron_fins":      {"en": "Omron FINS", "zh": "欧姆龙FINS"},
-	"fins":            {"en": "Omron FINS", "zh": "欧姆龙FINS"},
-	"allen_bradley":   {"en": "Allen-Bradley", "zh": "Allen-Bradley"},
-	"ab":              {"en": "Allen-Bradley", "zh": "Allen-Bradley"},
-	"onvif":           {"en": "ONVIF Camera", "zh": "ONVIF摄像头"},
-	"modbus_slave":    {"en": "Modbus Slave", "zh": "Modbus从站"},
+	"modbus_tcp":    {"en": "Modbus TCP", "zh": "Modbus TCP"},
+	"modbus_rtu":    {"en": "Modbus RTU", "zh": "Modbus RTU"},
+	"simulator":     {"en": "Simulator", "zh": "模拟器"},
+	"mqtt_client":   {"en": "MQTT Client", "zh": "MQTT客户端"},
+	"http_webhook":  {"en": "HTTP Webhook", "zh": "HTTP Webhook"},
+	"opc_ua":        {"en": "OPC UA Client", "zh": "OPC UA客户端"},
+	"opc_da":        {"en": "OPC DA Client", "zh": "OPC DA客户端"},
+	"siemens_s7":    {"en": "Siemens S7", "zh": "西门子S7"},
+	"s7":            {"en": "Siemens S7", "zh": "西门子S7"},
+	"mitsubishi_mc": {"en": "Mitsubishi MC", "zh": "三菱MC"},
+	"mc":            {"en": "Mitsubishi MC", "zh": "三菱MC"},
+	"omron_fins":    {"en": "Omron FINS", "zh": "欧姆龙FINS"},
+	"fins":          {"en": "Omron FINS", "zh": "欧姆龙FINS"},
+	"allen_bradley": {"en": "Allen-Bradley", "zh": "Allen-Bradley"},
+	"ab":            {"en": "Allen-Bradley", "zh": "Allen-Bradley"},
+	"onvif":         {"en": "ONVIF Camera", "zh": "ONVIF摄像头"},
+	"modbus_slave":  {"en": "Modbus Slave", "zh": "Modbus从站"},
 }
 
 // builtinProtocols is the set of built-in protocols that cannot be overridden by custom drivers.
@@ -68,25 +68,25 @@ func GetDriverDisplayName(pluginName, language string) string {
 
 // DriverLoadStatus tracks the load status of a driver.
 type DriverLoadStatus struct {
-	Loaded   bool
-	Error    string
-	Module   string
-	Class    string
+	Loaded bool
+	Error  string
+	Module string
+	Class  string
 }
 
 // ExtendedRegistry extends the base Registry with additional tracking.
 type ExtendedRegistry struct {
 	*Registry
-	mu             sync.RWMutex
-	loadStatus     map[string]*DriverLoadStatus
+	mu                sync.RWMutex
+	loadStatus        map[string]*DriverLoadStatus
 	dependencyResults map[string]map[string]interface{}
 }
 
 // NewExtendedRegistry creates a new ExtendedRegistry.
 func NewExtendedRegistry() *ExtendedRegistry {
 	return &ExtendedRegistry{
-		Registry:         GetRegistry(),
-		loadStatus:       make(map[string]*DriverLoadStatus),
+		Registry:          GetRegistry(),
+		loadStatus:        make(map[string]*DriverLoadStatus),
 		dependencyResults: make(map[string]map[string]interface{}),
 	}
 }
@@ -127,8 +127,8 @@ func IsBuiltinProtocol(protocol string) bool {
 
 // OTAManager manages Over-The-Air firmware updates for devices.
 type OTAManager struct {
-	mu      sync.Mutex
-	jobs    map[string]*OTAJob
+	mu   sync.Mutex
+	jobs map[string]*OTAJob
 }
 
 // OTAJob represents an OTA firmware update job.
@@ -137,12 +137,12 @@ type OTAJob struct {
 	DeviceID    string                 `json:"device_id"`
 	FirmwareURL string                 `json:"firmware_url"`
 	Version     string                 `json:"version"`
-	Status      string                 `json:"status"` // pending, downloading, verifying, applying, rebooting, success, failed
-	Progress    float64               `json:"progress"` // 0-100
+	Status      string                 `json:"status"`   // pending, downloading, verifying, applying, rebooting, success, failed
+	Progress    float64                `json:"progress"` // 0-100
 	StartedAt   *time.Time             `json:"started_at"`
 	CompletedAt *time.Time             `json:"completed_at"`
-	Error      string                 `json:"error"`
-	Metadata   map[string]interface{} `json:"metadata"`
+	Error       string                 `json:"error"`
+	Metadata    map[string]interface{} `json:"metadata"`
 }
 
 // NewOTAManager creates a new OTAManager.
@@ -240,44 +240,44 @@ func (m *OTAManager) ExecuteUpdate(ctx context.Context, jobID string, downloadFn
 	}
 
 	// Download phase
-	m.UpdateJobStatus(jobID, "downloading", 10, "")
+	_ = m.UpdateJobStatus(jobID, "downloading", 10, "")
 	data, err := downloadFn(ctx, job.FirmwareURL)
 	if err != nil {
-		m.UpdateJobStatus(jobID, "failed", 10, fmt.Sprintf("download failed: %v", err))
+		_ = m.UpdateJobStatus(jobID, "failed", 10, fmt.Sprintf("download failed: %v", err))
 		return err
 	}
-	m.UpdateJobStatus(jobID, "downloading", 50, "")
+	_ = m.UpdateJobStatus(jobID, "downloading", 50, "")
 
 	// Verify phase
-	m.UpdateJobStatus(jobID, "verifying", 60, "")
+	_ = m.UpdateJobStatus(jobID, "verifying", 60, "")
 	if err := verifyFn(data); err != nil {
-		m.UpdateJobStatus(jobID, "failed", 60, fmt.Sprintf("verification failed: %v", err))
+		_ = m.UpdateJobStatus(jobID, "failed", 60, fmt.Sprintf("verification failed: %v", err))
 		return err
 	}
 
 	// Apply phase
-	m.UpdateJobStatus(jobID, "applying", 80, "")
+	_ = m.UpdateJobStatus(jobID, "applying", 80, "")
 	if err := applyFn(data); err != nil {
-		m.UpdateJobStatus(jobID, "failed", 80, fmt.Sprintf("apply failed: %v", err))
+		_ = m.UpdateJobStatus(jobID, "failed", 80, fmt.Sprintf("apply failed: %v", err))
 		return err
 	}
 
 	// Reboot phase
-	m.UpdateJobStatus(jobID, "rebooting", 90, "")
+	_ = m.UpdateJobStatus(jobID, "rebooting", 90, "")
 	// In a real implementation, this would trigger a device reboot
 
 	// Success
-	m.UpdateJobStatus(jobID, "success", 100, "")
+	_ = m.UpdateJobStatus(jobID, "success", 100, "")
 	logrus.WithField("job_id", jobID).Info("OTA update completed successfully")
 	return nil
 }
 
 // TimeSeriesStore provides time-series data storage for driver measurements.
 type TimeSeriesStore struct {
-	mu           sync.Mutex
-	data         map[string][]TimeSeriesEntry // "device:point" -> entries
+	mu            sync.Mutex
+	data          map[string][]TimeSeriesEntry // "device:point" -> entries
 	retentionDays int
-	maxEntries   int
+	maxEntries    int
 }
 
 // TimeSeriesEntry represents a single time-series data point.
@@ -293,9 +293,9 @@ func NewTimeSeriesStore(retentionDays int) *TimeSeriesStore {
 		retentionDays = 7
 	}
 	return &TimeSeriesStore{
-		data:         make(map[string][]TimeSeriesEntry),
+		data:          make(map[string][]TimeSeriesEntry),
 		retentionDays: retentionDays,
-		maxEntries:   100000, // Max entries per point
+		maxEntries:    100000, // Max entries per point
 	}
 }
 

@@ -404,7 +404,7 @@ func TestJointDebug_WebhookQualityHonesty(t *testing.T) {
 	if err := d.HandleWebhook([]byte(`{"point":"p","value":null}`)); err != nil {
 		t.Fatalf("HandleWebhook: %v", err)
 	}
-	v, q = webhookRow(t, d, "p")
+	_, q = webhookRow(t, d, "p")
 	if q == "good" {
 		t.Fatalf("null value with no quality reported good — fabricated")
 	}

@@ -23,10 +23,10 @@ import (
 	"edgelite/internal/config"
 	"edgelite/internal/drivers"
 	"edgelite/internal/engine"
+	elware "edgelite/internal/middleware"
 	"edgelite/internal/security"
 	"edgelite/internal/services"
 	"edgelite/internal/storage"
-	elware "edgelite/internal/middleware"
 )
 
 // TestMain registers the built-in driver factories the same way cmd/edgelite
@@ -40,11 +40,11 @@ func TestMain(m *testing.M) {
 
 // testEnv holds the integration test environment.
 type testEnv struct {
-	echo      *echo.Echo
-	db        *storage.Database
-	container *api.ServiceContainer
-	cfg       *config.AppConfig
-	adminToken string
+	echo        *echo.Echo
+	db          *storage.Database
+	container   *api.ServiceContainer
+	cfg         *config.AppConfig
+	adminToken  string
 	viewerToken string
 }
 
@@ -206,11 +206,11 @@ func setupTestEnv(t *testing.T) *testEnv {
 	})
 
 	return &testEnv{
-		echo:       e,
-		db:         db,
-		container:  container,
-		cfg:        cfg,
-		adminToken: adminToken,
+		echo:        e,
+		db:          db,
+		container:   container,
+		cfg:         cfg,
+		adminToken:  adminToken,
 		viewerToken: viewerToken,
 	}
 }
@@ -656,9 +656,9 @@ func TestRuleCreateAndList(t *testing.T) {
 				"threshold": 80,
 			},
 		},
-		"logic":      "AND",
-		"severity":   "critical",
-		"enabled":    true,
+		"logic":           "AND",
+		"severity":        "critical",
+		"enabled":         true,
 		"notify_channels": []string{"dingtalk"},
 	}
 	rec, resp := makeRequest(env, "POST", "/api/v1/rules", ruleBody, env.adminToken)
@@ -756,16 +756,8 @@ func TestAPIResponseFormat(t *testing.T) {
 	env := setupTestEnv(t)
 	defer teardownTestEnv(env)
 
-	rec, resp := makeRequest(env, "GET", "/health/live", nil, "")
-
-	// All API responses should have code and message fields
-	if _, ok := resp["status"]; !ok {
-		// Health endpoint returns simple map, not APIResponse format
-		// This is expected — health is a special endpoint
-	}
-
 	// Test a standard API endpoint
-	rec, resp = makeRequest(env, "GET", "/api/v1/devices", nil, env.adminToken)
+	rec, resp := makeRequest(env, "GET", "/api/v1/devices", nil, env.adminToken)
 	if rec.Code != http.StatusOK {
 		t.Fatalf("Expected 200, got %d", rec.Code)
 	}

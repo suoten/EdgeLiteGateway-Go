@@ -12,9 +12,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// APIResponse is the standard JSON response format for all API endpoints.
-// It mirrors the Python ApiResponse model: {code, message, data, error_code}.
-type APIResponse struct {
+// Response is the standard JSON response format for all API endpoints.
+// It mirrors the Python APIResponse model: {code, message, data, error_code}.
+type Response struct {
 	Code      int         `json:"code"`
 	Message   string      `json:"message"`
 	Data      interface{} `json:"data"`
@@ -32,7 +32,7 @@ type PagedResponse struct {
 
 // OK returns a successful API response with data.
 func OK(c echo.Context, data interface{}) error {
-	return c.JSON(http.StatusOK, APIResponse{
+	return c.JSON(http.StatusOK, Response{
 		Code:    0,
 		Message: "success",
 		Data:    data,
@@ -52,7 +52,7 @@ func OKPaged(c echo.Context, data interface{}, total, page, size int) error {
 
 // Created returns a 201 Created response.
 func Created(c echo.Context, data interface{}) error {
-	return c.JSON(http.StatusCreated, APIResponse{
+	return c.JSON(http.StatusCreated, Response{
 		Code:    0,
 		Message: "created",
 		Data:    data,
@@ -61,7 +61,7 @@ func Created(c echo.Context, data interface{}) error {
 
 // ErrorMsg returns an error response with a specific status code and message.
 func ErrorMsg(c echo.Context, status int, message string) error {
-	return c.JSON(status, APIResponse{
+	return c.JSON(status, Response{
 		Code:    status,
 		Message: message,
 		Data:    nil,
@@ -70,7 +70,7 @@ func ErrorMsg(c echo.Context, status int, message string) error {
 
 // ErrorCode returns an error response with an error code.
 func ErrorCode(c echo.Context, status int, errorCode string, message string) error {
-	return c.JSON(status, APIResponse{
+	return c.JSON(status, Response{
 		Code:      status,
 		Message:   message,
 		Data:      nil,

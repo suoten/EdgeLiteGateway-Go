@@ -23,29 +23,29 @@ const (
 // when the system is overloaded. It uses a token bucket algorithm to rate-limit
 // incoming requests and prevents cascading failures.
 type BackpressureController struct {
-	mu               sync.Mutex
-	level            BackpressureLevel
-	previousLevel    BackpressureLevel
+	mu            sync.Mutex
+	level         BackpressureLevel
+	previousLevel BackpressureLevel
 
 	// Token bucket
-	tokens           float64
-	maxTokens        float64
-	refillRate       float64 // tokens per second
-	lastRefill       time.Time
+	tokens     float64
+	maxTokens  float64
+	refillRate float64 // tokens per second
+	lastRefill time.Time
 
 	// Thresholds
 	thresholdWarning  float64
 	thresholdDanger   float64
 	thresholdCritical float64
-	resumeThreshold    float64
+	resumeThreshold   float64
 	resumeHoldSeconds float64
 
 	// History
-	history         []bpEvent
-	historyMaxSize  int
+	history        []bpEvent
+	historyMaxSize int
 
 	// Resume hold timer
-	resumeAt        time.Time
+	resumeAt time.Time
 
 	// Callbacks
 	onLevelChange func(oldLevel, newLevel BackpressureLevel)
@@ -68,17 +68,17 @@ type bpEvent struct {
 // NewBackpressureController creates a new BackpressureController.
 func NewBackpressureController(eventBus *EventBus) *BackpressureController {
 	return &BackpressureController{
-		level:            BPLevelNormal,
-		previousLevel:    BPLevelNormal,
-		tokens:           constants.BPTokenBucketBurst,
-		maxTokens:        constants.BPTokenBucketBurst,
-		refillRate:       constants.BPTokenBucketRate,
-		lastRefill:       time.Now(),
+		level:             BPLevelNormal,
+		previousLevel:     BPLevelNormal,
+		tokens:            constants.BPTokenBucketBurst,
+		maxTokens:         constants.BPTokenBucketBurst,
+		refillRate:        constants.BPTokenBucketRate,
+		lastRefill:        time.Now(),
 		thresholdWarning:  constants.BPThresholdWarning,
 		thresholdDanger:   constants.BPThresholdDanger,
 		thresholdCritical: constants.BPThresholdCritical,
-		resumeThreshold:    constants.BPResumeThreshold,
-		resumeHoldSeconds:  constants.BPResumeHoldSeconds,
+		resumeThreshold:   constants.BPResumeThreshold,
+		resumeHoldSeconds: constants.BPResumeHoldSeconds,
 		historyMaxSize:    constants.BPHistoryMaxEvents,
 		eventBus:          eventBus,
 	}

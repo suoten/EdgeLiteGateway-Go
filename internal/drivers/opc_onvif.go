@@ -52,7 +52,6 @@ type OPCUADriver struct {
 	nsIndex         uint16            // namespace used for synthesised "<deviceID>.<point>" node ids
 	resolved        map[string]string // point name -> NodeId text the server accepted
 	dataTypes       map[string]string // point name -> declared data type, used to type writes
-	lastStatus      uint32            // OPC UA status code of the last failed service call
 }
 
 func NewOPCUADriver(deviceID string, config map[string]interface{}) (Driver, error) {
@@ -961,7 +960,7 @@ func (d *ONVIFDriver) readONVIFPoint(pt models.PointDef) (interface{}, error) {
 	}
 
 	// Build SOAP action URL
-	action := "http://www.onvif.org/ver10/device/wsdl/Get"
+	var action string
 	soapBody := ""
 
 	switch {
@@ -1227,9 +1226,7 @@ func parseONVIFDeviceAddresses(soapResponse string) []string {
 			rest = rest[startIdx:]
 			continue
 		}
-		for _, addr := range strings.Fields(rest[startIdx : startIdx+endIdx]) {
-			out = append(out, addr)
-		}
+		out = append(out, strings.Fields(rest[startIdx:startIdx+endIdx])...)
 		rest = rest[startIdx+endIdx:]
 	}
 }
@@ -1345,7 +1342,7 @@ func mathSin(x float64) float64 {
 // generateNonce generates a random nonce for WS-Security.
 func generateNonce() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	return base64.StdEncoding.EncodeToString(b)
 }
 
