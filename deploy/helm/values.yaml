@@ -1,0 +1,211 @@
+# Default values for EdgeLite Gateway Helm Chart
+# This is a YAML-formatted file.
+
+replicaCount: 1
+
+image:
+  repository: edgelite/gateway
+  tag: "1.0.0-go"
+  pullPolicy: IfNotPresent
+  # pullSecrets:
+  #   - name: regcred
+
+# Gateway configuration
+gateway:
+  # Server settings
+  host: "0.0.0.0"
+  port: 8080
+
+  # Security — MUST override in production via --set or values.yaml
+  security:
+    secretKey: ""  # Set via: --set gateway.security.secretKey=<your-32+char-key>
+    csrfSecret: ""
+    accessTokenExpireMinutes: 30
+    refreshTokenExpireDays: 7
+    rateLimitRequestsPerMinute: 120
+
+  # Database
+  database:
+    sqlitePath: "/data/edgelite.db"
+    poolSize: 5
+    maxOverflow: 10
+    backupDir: "/data/backups"
+
+  # Time-series storage
+  influxdb:
+    url: ""  # Set to InfluxDB URL for production
+    token: ""
+    org: "edgelite"
+    bucket: "edgelite"
+    sqliteTSPath: "/data/edgelite_ts.db"
+    retentionDays: 30
+
+  # MQTT
+  mqtt:
+    broker: ""  # Set to MQTT broker URL
+    port: 1883
+    topicPrefix: "edgelite"
+    offlineCacheEnabled: true
+    offlineDBPath: "/data/mqtt_offline_queue.db"
+
+  # AI Inference Sidecar
+  aiSidecar:
+    enabled: true
+    sidecarURL: "http://ai-sidecar:50052"
+    modelsDir: "/models"
+    maxConcurrentInferences: 4
+    inferenceTimeout: 10
+
+  # Logging
+  logging:
+    level: "INFO"
+    jsonFormat: true
+    logDir: "/data/logs"
+
+  # Simulator (auto-create demo devices)
+  simulator:
+    autoCreate: false
+
+# AI Sidecar deployment
+aiSidecar:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: edgelite/ai-sidecar
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+  # Model storage
+  modelStorage:
+    size: 1Gi
+    storageClass: ""
+
+# Persistence
+persistence:
+  enabled: true
+  storageClass: ""  # Set to your storage class, e.g. "nfs-client"
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  # existingClaim: ""  # Use existing PVC if set
+
+# Service
+service:
+  type: ClusterIP
+  port: 8080
+  # nodePort: 30080  # Set if service.type is NodePort
+  annotations: {}
+
+# Ingress
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+  hosts:
+    - host: edgelite.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: edgelite-tls
+      hosts:
+        - edgelite.local
+
+# Resource limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# Pod disruption budget
+pdb:
+  enabled: true
+  minAvailable: 1
+
+# Horizontal Pod Autoscaler
+hpa:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Probes
+livenessProbe:
+  enabled: true
+  path: /health/live
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  path: /health/ready
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false  # SQLite needs write access
+  capabilities:
+    drop:
+      - ALL
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Extra environment variables
+extraEnv: []
+  # - name: EDGELITE_SERVER__DEBUG_API_ENABLED
+  #   value: "false"
+
+# Extra volumes
+extraVolumes: []
+  # - name: custom-config
+  #   configMap:
+  #     name: edgelite-custom-config
+
+# Extra volume mounts
+extraVolumeMounts: []
+  # - name: custom-config
+  #   mountPath: /app/configs/custom.yaml
+  #   subPath: custom.yaml
+
+# Service Account
+serviceAccount:
+  create: true
+  name: ""
+  automount: false
+  annotations: {}
+
+# Network Policy
+networkPolicy:
+  enabled: false  # Enable for production hardening

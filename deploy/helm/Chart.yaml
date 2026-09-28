@@ -1,0 +1,19 @@
+apiVersion: v2
+name: edgelite-gateway
+description: EdgeLite Gateway - Industrial Edge Computing Platform (Go Edition)
+type: application
+version: 1.0.0
+appVersion: "1.0.0-go"
+keywords:
+  - edge-computing
+  - iot
+  - industrial-gateway
+  - modbus
+  - opc-ua
+  - ai-inference
+home: https://github.com/edgelite/edgelite-gateway
+sources:
+  - https://github.com/edgelite/edgelite-gateway
+maintainers:
+  - name: EdgeLite Team
+icon: https://raw.githubusercontent.com/edgelite/edgelite-gateway/main/frontend/public/logo.svg

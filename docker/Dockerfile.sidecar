@@ -1,0 +1,58 @@
+# ── AI Sidecar: Python HTTP JSON server with ONNX Runtime ──────────
+# Multi-stage build for smaller image
+FROM python:3.11-slim AS builder
+
+LABEL maintainer="EdgeLite Team"
+LABEL description="EdgeLite AI Sidecar - Python ONNX inference HTTP API"
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies (layer-cached)
+COPY ai_sidecar/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# ── Runtime stage ──────────────────────────────────────────────────
+FROM python:3.11-slim AS runtime
+
+LABEL maintainer="EdgeLite Team"
+LABEL description="EdgeLite AI Sidecar - Python ONNX inference HTTP API"
+
+WORKDIR /app
+
+# Copy installed packages from builder
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+
+# Copy application source
+COPY ai_sidecar/server.py /app/server.py
+
+# Create models directory and non-root user
+RUN mkdir -p /app/models && \
+    addgroup --system sidecar && \
+    adduser --system --ingroup sidecar sidecar && \
+    chown -R sidecar:sidecar /app
+
+USER sidecar
+
+# Environment configuration
+ENV AI_SIDECAR_HOST=0.0.0.0
+ENV AI_SIDECAR_PORT=50052
+ENV AI_MODELS_DIR=/app/models
+ENV AI_SIDECAR_LOG_LEVEL=INFO
+ENV AI_SIDECAR_JSON_LOGS=0
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+EXPOSE 50052
+
+# Health check using readiness endpoint (checks model availability)
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=15s \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:50052/health/live')" || exit 1
+
+ENTRYPOINT ["python", "server.py"]
+CMD ["--host", "0.0.0.0", "--port", "50052", "--models-dir", "/app/models"]

@@ -1,0 +1,36 @@
+EdgeLite Gateway has been deployed!
+
+1. Get the application URL by running these commands:
+{{- if .Values.ingress.enabled }}
+  export HOSTNAME=$(kubectl get ingress -n {{ .Release.Namespace }} -o jsonpath='{.items[0].spec.rules[0].host}')
+  echo "Access the gateway at: http://$HOSTNAME"
+{{- else }}
+  export POD_NAME=$(kubectl get pods -n {{ .Release.Namespace }} -l "{{ include "edgelite.selectorLabels" . }}" -o jsonpath='{.items[0].metadata.name}')
+  export CONTAINER_PORT={{ .Values.gateway.port }}
+  kubectl port-forward pod/$POD_NAME $CONTAINER_PORT:$CONTAINER_PORT -n {{ .Release.Namespace }}
+  echo "Access the gateway at: http://127.0.0.1:$CONTAINER_PORT"
+{{- end }}
+
+2. Login with default credentials:
+  Username: admin
+  Password: (check the secret or set via values.yaml)
+  ⚠️  Please change the admin password immediately after first login!
+
+3. Health check endpoints:
+  Liveness:  /health/live
+  Readiness: /health/ready
+  Metrics:   /metrics
+
+4. Important security notes:
+  - Ensure secretKey and csrfSecret are set in production
+  - Review NetworkPolicy settings if enabled
+  - Consider enabling Ingress TLS for production
+
+5. AI Sidecar status:
+{{- if .Values.aiSidecar.enabled }}
+  ✅ AI Sidecar is deployed and ready at port 50052
+{{- else }}
+  ⚪ AI Sidecar is disabled
+{{- end }}
+
+Thank you for using EdgeLite Gateway!

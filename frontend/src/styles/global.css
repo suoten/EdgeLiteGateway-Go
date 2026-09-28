@@ -1,0 +1,27 @@
+/* 弹窗内部滚动：标题与右上角关闭按钮固定，仅内容区滚动。
+   preset="card" 的 n-modal 渲染为 .n-modal.n-card，内容过长时若整体滚动
+   会导致关闭按钮不可点，因此限制卡片高度并让 .n-card__content 内部滚动。 */
+.n-modal.n-card {
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+}
+.n-modal.n-card > .n-card-header {
+  flex-shrink: 0;
+}
+.n-modal.n-card > .n-card-content,
+.n-modal.n-card > .n-card__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+.n-modal.n-card > .n-card__action {
+  flex-shrink: 0;
+}
+
+/* 键盘可达性：可聚焦的表格行/卡片式操作项此前没有可见焦点，
+   仅靠鼠标可点击的行对键盘用户完全不可用 */
+[tabindex]:focus-visible {
+  outline: 2px solid #18a058;
+  outline-offset: -2px;
+}

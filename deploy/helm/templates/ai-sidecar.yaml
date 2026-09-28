@@ -1,0 +1,91 @@
+{{- if .Values.aiSidecar.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "edgelite.fullname" . }}-ai-sidecar
+  labels:
+    {{- include "edgelite.aiSidecarLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.aiSidecar.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "edgelite.aiSidecarSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "edgelite.aiSidecarSelectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: ai-sidecar
+          image: "{{ .Values.aiSidecar.image.repository }}:{{ .Values.aiSidecar.image.tag }}"
+          imagePullPolicy: {{ .Values.aiSidecar.image.pullPolicy }}
+          ports:
+            - name: grpc
+              containerPort: 50052
+              protocol: TCP
+          volumeMounts:
+            - name: models
+              mountPath: /models
+              readOnly: true
+          resources:
+            {{- toYaml .Values.aiSidecar.resources | nindent 12 }}
+          livenessProbe:
+            tcpSocket:
+              port: grpc
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: models
+          {{- if .Values.aiSidecar.modelStorage.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.aiSidecar.modelStorage.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "edgelite.fullname" . }}-ai-models
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "edgelite.fullname" . }}-ai-sidecar
+  labels:
+    {{- include "edgelite.aiSidecarLabels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 50052
+      targetPort: grpc
+      protocol: TCP
+      name: grpc
+  selector:
+    {{- include "edgelite.aiSidecarSelectorLabels" . | nindent 4 }}
+---
+{{- if not .Values.aiSidecar.modelStorage.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "edgelite.fullname" . }}-ai-models
+  labels:
+    {{- include "edgelite.aiSidecarLabels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.aiSidecar.modelStorage.size | quote }}
+  {{- if .Values.aiSidecar.modelStorage.storageClass }}
+  storageClassName: {{ .Values.aiSidecar.modelStorage.storageClass | quote }}
+  {{- end }}
+{{- end }}
+{{- end -}}

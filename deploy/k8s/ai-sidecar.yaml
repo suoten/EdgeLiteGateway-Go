@@ -1,0 +1,174 @@
+# EdgeLite AI Sidecar Kubernetes Deployment
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: edgelite
+  labels:
+    app.kubernetes.io/part-of: edgelite-gateway
+---
+# ConfigMap for non-secret configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-sidecar-config
+  namespace: edgelite
+  labels:
+    app.kubernetes.io/name: ai-sidecar
+    app.kubernetes.io/part-of: edgelite-gateway
+data:
+  AI_SIDECAR_HOST: "0.0.0.0"
+  AI_SIDECAR_PORT: "50052"
+  AI_MODELS_DIR: "/app/models"
+  AI_SIDECAR_LOG_LEVEL: "INFO"
+  AI_SIDECAR_JSON_LOGS: "1"
+---
+# PersistentVolumeClaim for model files
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-sidecar-models
+  namespace: edgelite
+  labels:
+    app.kubernetes.io/name: ai-sidecar
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-sidecar
+  namespace: edgelite
+  labels:
+    app.kubernetes.io/name: ai-sidecar
+    app.kubernetes.io/part-of: edgelite-gateway
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ai-sidecar
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ai-sidecar
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: ai-sidecar
+          image: edgelite-ai-sidecar:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 50052
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: ai-sidecar-config
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 2000m
+              memory: 512Mi
+          volumeMounts:
+            - name: models
+              mountPath: /app/models
+              readOnly: false
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: ai-sidecar-models
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-sidecar
+  namespace: edgelite
+  labels:
+    app.kubernetes.io/name: ai-sidecar
+    app.kubernetes.io/part-of: edgelite-gateway
+spec:
+  type: ClusterIP
+  ports:
+    - port: 50052
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: ai-sidecar
+---
+# HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-sidecar
+  namespace: edgelite
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-sidecar
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# PodDisruptionBudget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ai-sidecar
+  namespace: edgelite
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ai-sidecar

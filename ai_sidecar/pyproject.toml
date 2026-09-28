@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edgelite-ai-sidecar"
+version = "1.0.0"
+description = "EdgeLite AI Sidecar - Python HTTP JSON server wrapping ONNX Runtime"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [
+    { name = "EdgeLite Team" },
+]
+keywords = ["edge-ai", "onnx", "inference", "industrial-iot", "gateway"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "aiohttp>=3.9.0,<4.0.0",
+    "onnxruntime>=1.16.0,<2.0.0",
+    "numpy>=1.24.0,<2.0.0",
+    "onnx>=1.14.0,<2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0,<9.0.0",
+    "pytest-asyncio>=0.21.0,<1.0.0",
+    "pytest-cov>=4.1.0,<6.0.0",
+    "flake8>=6.0.0,<8.0.0",
+    "mypy>=1.5.0,<2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/edgelite/edgelite-gateway"
+Repository = "https://github.com/edgelite/edgelite-gateway"
+Issues = "https://github.com/edgelite/edgelite-gateway/issues"
+
+[project.scripts]
+edgelite-ai-sidecar = "server:main"
+
+[tool.setuptools]
+py-modules = ["server"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = ["E203", "W503"]
+exclude = ["models", ".git", "__pycache__"]
+per-file-ignores = [
+    "tests/*:F401,F811,F841",
+]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+check_untyped_defs = true
+
+[tool.coverage.run]
+source = ["server"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+fail_under = 90

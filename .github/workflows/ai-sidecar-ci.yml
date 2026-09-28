@@ -1,0 +1,82 @@
+# EdgeLite AI Sidecar CI/CD Pipeline
+name: AI Sidecar CI
+
+on:
+  push:
+    paths:
+      - 'ai_sidecar/**'
+      - '.github/workflows/ai-sidecar-ci.yml'
+  pull_request:
+    paths:
+      - 'ai_sidecar/**'
+
+jobs:
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai_sidecar
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Flake8 lint
+        run: flake8 server.py tests/ --max-line-length=120 --extend-ignore=E203,W503
+
+      - name: MyPy type check
+        run: mypy server.py --ignore-missing-imports || true
+
+  test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai_sidecar
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ -v --tb=short --cov=server --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ai_sidecar/coverage.xml
+          fail_ci_if_error: false
+
+  docker-build:
+    name: Docker Build Verification
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Sidecar Docker image
+        working-directory: .
+        run: |
+          docker build -f docker/Dockerfile.sidecar -t edgelite-ai-sidecar:ci .
+          docker run --rm -d --name sidecar-test -p 50052:50052 edgelite-ai-sidecar:ci
+          sleep 10
+          curl -s http://localhost:50052/health | grep -q '"healthy":true'
+          docker stop sidecar-test

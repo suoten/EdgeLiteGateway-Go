@@ -1,0 +1,565 @@
+openapi: 3.0.3
+info:
+  title: EdgeLite AI Sidecar API
+  description: |
+    HTTP JSON API for ONNX Runtime inference, self-learning anomaly detection,
+    and model lifecycle management.
+
+    ## Authentication
+    No authentication required (internal service behind gateway).
+
+    ## Error Format
+    All errors return a standardised JSON body:
+    ```json
+    {
+      "success": false,
+      "error_code": "ERR_*",
+      "error_message": "Human-readable message"
+    }
+    ```
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:50052
+    description: Local development
+  - url: http://ai-sidecar:50052
+    description: Docker/K8s internal
+
+tags:
+  - name: Health
+    description: Liveness, readiness, and metrics endpoints
+  - name: Models
+    description: Model lifecycle management (load, unload, reload, enable, disable)
+  - name: Inference
+    description: ONNX model inference
+  - name: Scheduled
+    description: Scheduled inference loops
+  - name: Self-Learning
+    description: EWMA-based anomaly detection and prediction
+  - name: Providers
+    description: Execution provider management
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        "200":
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /health/live:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      responses:
+        "200":
+          description: Server is alive
+
+  /health/ready:
+    get:
+      tags: [Health]
+      summary: Readiness probe
+      responses:
+        "200":
+          description: Server is ready to serve requests
+        "503":
+          description: Server is not ready
+
+  /metrics:
+    get:
+      tags: [Health]
+      summary: Prometheus metrics
+      responses:
+        "200":
+          description: Prometheus text exposition format
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /models:
+    get:
+      tags: [Models]
+      summary: List all loaded models
+      responses:
+        "200":
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ModelInfo"
+
+  /models/load:
+    post:
+      tags: [Models]
+      summary: Load a model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id]
+              properties:
+                model_id:
+                  type: string
+                model_path:
+                  type: string
+                is_preset:
+                  type: boolean
+      responses:
+        "200":
+          description: Model loaded successfully
+        "400":
+          description: Missing model_id
+
+  /models/unload:
+    post:
+      tags: [Models]
+      summary: Unload a model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id]
+              properties:
+                model_id:
+                  type: string
+      responses:
+        "200":
+          description: Model unloaded or not found
+
+  /models/reload:
+    post:
+      tags: [Models]
+      summary: Hot-reload a model with auto version bump
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id]
+              properties:
+                model_id:
+                  type: string
+                model_path:
+                  type: string
+      responses:
+        "200":
+          description: Model reloaded with new version
+
+  /models/enable:
+    post:
+      tags: [Models]
+      summary: Enable a model (load if needed)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id]
+              properties:
+                model_id:
+                  type: string
+      responses:
+        "200":
+          description: Model enabled or already active
+
+  /models/disable:
+    post:
+      tags: [Models]
+      summary: Disable a model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id]
+              properties:
+                model_id:
+                  type: string
+      responses:
+        "200":
+          description: Model disabled
+
+  /models/remove:
+    post:
+      tags: [Models]
+      summary: Remove a model permanently
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id]
+              properties:
+                model_id:
+                  type: string
+      responses:
+        "200":
+          description: Model removed
+
+  /models/rollback:
+    post:
+      tags: [Models]
+      summary: Rollback model to a previous version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id, target_version]
+              properties:
+                model_id:
+                  type: string
+                target_version:
+                  type: string
+      responses:
+        "200":
+          description: Rollback result
+
+  /models/generate-presets:
+    post:
+      tags: [Models]
+      summary: Regenerate preset ONNX model files
+      responses:
+        "200":
+          description: Generation results
+
+  /models/{model_id}/status:
+    get:
+      tags: [Models]
+      summary: Get model status
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Model status
+
+  /models/{model_id}/stats:
+    get:
+      tags: [Models]
+      summary: Get model inference statistics
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Model statistics
+
+  /models/{model_id}/history:
+    get:
+      tags: [Models]
+      summary: Get model version history
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Version history
+
+  /infer:
+    post:
+      tags: [Inference]
+      summary: Run inference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id, input_data]
+              properties:
+                model_id:
+                  type: string
+                input_data:
+                  type: array
+                  items:
+                    type: number
+                    format: float
+      responses:
+        "200":
+          description: Inference result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InferenceResponse"
+
+  /scheduled/start:
+    post:
+      tags: [Scheduled]
+      summary: Start scheduled inference loop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id]
+              properties:
+                model_id:
+                  type: string
+                interval_seconds:
+                  type: integer
+                  default: 60
+                device_id:
+                  type: string
+                point_name:
+                  type: string
+      responses:
+        "200":
+          description: Scheduled loop started
+
+  /scheduled/stop:
+    post:
+      tags: [Scheduled]
+      summary: Stop scheduled inference loop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model_id]
+              properties:
+                model_id:
+                  type: string
+      responses:
+        "200":
+          description: Scheduled loop stopped
+
+  /self-learning/sample:
+    post:
+      tags: [Self-Learning]
+      summary: Add a sample for anomaly detection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [device_id, point_name, value]
+              properties:
+                device_id:
+                  type: string
+                point_name:
+                  type: string
+                value:
+                  type: number
+                  format: float
+                window_size:
+                  type: integer
+                  default: 100
+      responses:
+        "200":
+          description: Anomaly detection result
+
+  /self-learning/predict:
+    post:
+      tags: [Self-Learning]
+      summary: Predict next value using EWMA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [device_id, point_name]
+              properties:
+                device_id:
+                  type: string
+                point_name:
+                  type: string
+      responses:
+        "200":
+          description: Prediction result
+
+  /self-learning/stats:
+    post:
+      tags: [Self-Learning]
+      summary: Get self-learning model statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [device_id, point_name]
+              properties:
+                device_id:
+                  type: string
+                point_name:
+                  type: string
+      responses:
+        "200":
+          description: Statistics
+
+  /self-learning/stats/all:
+    get:
+      tags: [Self-Learning]
+      summary: Get all self-learning model statistics
+      responses:
+        "200":
+          description: All statistics
+
+  /self-learning/reset:
+    post:
+      tags: [Self-Learning]
+      summary: Reset a self-learning model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [device_id, point_name]
+              properties:
+                device_id:
+                  type: string
+                point_name:
+                  type: string
+      responses:
+        "200":
+          description: Reset result
+
+  /self-learning/threshold:
+    post:
+      tags: [Self-Learning]
+      summary: Set anomaly threshold
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [device_id, point_name, threshold]
+              properties:
+                device_id:
+                  type: string
+                point_name:
+                  type: string
+                threshold:
+                  type: number
+                  format: float
+      responses:
+        "200":
+          description: Threshold set
+
+  /stats:
+    get:
+      tags: [Health]
+      summary: Get engine-wide statistics
+      responses:
+        "200":
+          description: Engine statistics
+
+  /execution-providers:
+    get:
+      tags: [Providers]
+      summary: List available execution providers
+      responses:
+        "200":
+          description: Available providers
+
+  /execution-provider:
+    post:
+      tags: [Providers]
+      summary: Switch execution provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider]
+              properties:
+                provider:
+                  type: string
+                  enum: [CPU, CUDA, OpenVINO]
+      responses:
+        "200":
+          description: Provider switched
+        "400":
+          description: Invalid provider
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        healthy:
+          type: boolean
+        status:
+          type: string
+        version:
+          type: string
+        uptime_seconds:
+          type: number
+
+    ModelInfo:
+      type: object
+      properties:
+        model_id:
+          type: string
+        model_name:
+          type: string
+        model_version:
+          type: string
+        model_type:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, loading, error, unavailable]
+        is_preset:
+          type: boolean
+        inference_count:
+          type: integer
+        error_count:
+          type: integer
+
+    InferenceResponse:
+      type: object
+      properties:
+        model_id:
+          type: string
+        output_data:
+          type: object
+        latency_ms:
+          type: integer
+        status:
+          type: string
+          enum: [success, degraded, error]
+        error_code:
+          type: string
+        error_message:
+          type: string

@@ -1,0 +1,387 @@
+syntax = "proto3";
+
+package edgelite.ai;
+
+// EdgeLite AI Inference gRPC Service
+// Python sidecar implements this service; Go gateway calls it as a gRPC client.
+// This proto is a 1:1 mapping of the Python AiInferenceEngine interface.
+
+option go_package = "edgelite/proto/aipb;aipb";
+
+// ─── Model Management ───
+
+message ModelInfo {
+  string model_id = 1;
+  string model_name = 2;
+  string model_version = 3;
+  string model_type = 4;        // anomaly, trend, threshold, custom
+  bool is_preset = 5;
+  string model_path = 6;
+  string status = 7;             // active, inactive, loading, error, unavailable
+  string loaded_at = 8;          // ISO 8601 timestamp
+  map<string, string> input_schema = 9;   // JSON-encoded
+  map<string, string> output_schema = 10;  // JSON-encoded
+  int64 inference_count = 11;
+  int64 error_count = 12;
+  double avg_latency_ms = 13;
+  string last_inference_at = 14;
+}
+
+message ListModelsRequest {}
+
+message ListModelsResponse {
+  repeated ModelInfo models = 1;
+}
+
+message LoadModelRequest {
+  string model_id = 1;
+  string model_name = 2;
+  string model_version = 3;
+  string model_type = 4;
+  string model_path = 5;
+  string input_schema_json = 6;
+  string output_schema_json = 7;
+  bool is_preset = 8;
+}
+
+message LoadModelResponse {
+  bool success = 1;
+  string error_message = 2;
+  ModelInfo model_info = 3;
+}
+
+message UnloadModelRequest {
+  string model_id = 1;
+}
+
+message UnloadModelResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+message ReloadModelRequest {
+  string model_id = 1;
+  string model_path = 2;
+}
+
+message ReloadModelResponse {
+  bool success = 1;
+  string error_message = 2;
+  string new_version = 3;
+}
+
+message EnableModelRequest {
+  string model_id = 1;
+}
+
+message EnableModelResponse {
+  bool success = 1;
+  string error_code = 2;   // ERR_AI_MODEL_FILE_NOT_FOUND, etc.
+  string error_message = 3;
+}
+
+message DisableModelRequest {
+  string model_id = 1;
+}
+
+message DisableModelResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+message RemoveModelRequest {
+  string model_id = 1;
+}
+
+message RemoveModelResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+message GetModelStatusRequest {
+  string model_id = 1;
+}
+
+message GetModelStatusResponse {
+  string status = 1;
+}
+
+// ─── Inference ───
+
+message InferenceRequest {
+  string model_id = 1;
+  repeated double input_data = 2;
+}
+
+message InferenceResult {
+  string model_id = 1;
+  string output_data_json = 2;    // JSON-encoded output dict
+  int32 latency_ms = 3;
+  string status = 4;              // success, error
+  string error_message = 5;
+}
+
+message InferenceRequestStream {
+  string model_id = 1;
+  repeated double input_data = 2;
+}
+
+// ─── Scheduled Inference ───
+
+message StartScheduledInferenceRequest {
+  string model_id = 1;
+  string device_id = 2;
+  string point_name = 3;
+  int32 interval_seconds = 4;
+  int32 input_window_size = 5;
+}
+
+message StartScheduledInferenceResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+message StopScheduledInferenceRequest {
+  string model_id = 1;
+}
+
+message StopScheduledInferenceResponse {
+  bool success = 1;
+}
+
+message GetScheduledInferencesRequest {}
+
+message ScheduledInferenceConfig {
+  string model_id = 1;
+  string device_id = 2;
+  string point_name = 3;
+  int32 interval_seconds = 4;
+  int32 input_window_size = 5;
+  bool running = 6;
+}
+
+message GetScheduledInferencesResponse {
+  repeated ScheduledInferenceConfig configs = 1;
+}
+
+// ─── Self-Learning ───
+
+message AddSampleRequest {
+  string device_id = 1;
+  string point_name = 2;
+  double value = 3;
+  int32 window_size = 4;
+}
+
+message AddSampleResponse {
+  bool is_anomaly = 1;
+  double ewma = 2;
+  double mean = 3;
+  double std_dev = 4;
+  double confidence = 5;
+}
+
+message PredictRequest {
+  string device_id = 1;
+  string point_name = 2;
+}
+
+message PredictResponse {
+  double predicted_value = 1;
+  double confidence = 2;
+}
+
+message GetSelfLearningStatsRequest {
+  string device_id = 1;
+  string point_name = 2;
+}
+
+message SelfLearningStats {
+  string device_id = 1;
+  string point_name = 2;
+  int64 total_samples = 3;
+  int32 window_size = 4;
+  int32 max_window = 5;
+  double mean = 6;
+  double std_dev = 7;
+  double ewma = 8;
+  int64 anomaly_count = 9;
+  string last_anomaly = 10;
+  double confidence = 11;
+}
+
+message GetSelfLearningStatsResponse {
+  SelfLearningStats stats = 1;
+}
+
+message GetAllSelfLearningStatsRequest {}
+
+message GetAllSelfLearningStatsResponse {
+  repeated SelfLearningStats stats = 1;
+}
+
+message ResetSelfLearningRequest {
+  string device_id = 1;
+  string point_name = 2;
+}
+
+message ResetSelfLearningResponse {
+  bool success = 1;
+}
+
+message SetSelfLearningThresholdRequest {
+  string device_id = 1;
+  string point_name = 2;
+  double threshold = 3;
+}
+
+message SetSelfLearningThresholdResponse {
+  bool success = 1;
+}
+
+// ─── Statistics & Health ───
+
+message GetStatsRequest {}
+
+message EngineStats {
+  int64 total_calls = 1;
+  int64 total_errors = 2;
+  int32 avg_latency_ms = 3;
+  map<string, int64> model_distribution = 4;
+  repeated int32 recent_latencies = 5;
+  int32 loaded_models = 6;
+  int32 max_concurrent = 7;
+  int32 current_in_flight = 8;
+}
+
+message GetStatsResponse {
+  EngineStats stats = 1;
+}
+
+message GetModelStatsRequest {
+  string model_id = 1;
+}
+
+message ModelStats {
+  string model_id = 1;
+  int64 call_count = 2;
+  int64 error_count = 3;
+  int32 avg_latency_ms = 4;
+  int32 max_latency_ms = 5;
+  int32 min_latency_ms = 6;
+}
+
+message GetModelStatsResponse {
+  ModelStats stats = 1;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string version = 2;
+  string execution_provider = 3;  // CPU, CUDA, OpenVINO
+  bool onnx_available = 4;
+  bool numpy_available = 5;
+  int32 loaded_model_count = 6;
+}
+
+// ─── Execution Provider ───
+
+message SetExecutionProviderRequest {
+  string provider = 1;  // CPU, CUDA, OpenVINO
+}
+
+message SetExecutionProviderResponse {
+  bool success = 1;
+  string actual_provider = 2;
+  string error_message = 3;
+}
+
+message GetAvailableProvidersRequest {}
+
+message GetAvailableProvidersResponse {
+  repeated string providers = 1;
+}
+
+// ─── Version Management ───
+
+message GetModelVersionHistoryRequest {
+  string model_id = 1;
+}
+
+message VersionHistoryEntry {
+  string version = 1;
+  string model_path = 2;
+  string timestamp = 3;
+  string status = 4;
+}
+
+message GetModelVersionHistoryResponse {
+  repeated VersionHistoryEntry history = 1;
+}
+
+message RollbackModelVersionRequest {
+  string model_id = 1;
+  string target_version = 2;
+}
+
+message RollbackModelVersionResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+// ─── Generate Preset Models ───
+
+message GeneratePresetModelsRequest {}
+
+message GeneratePresetModelsResponse {
+  map<string, bool> results = 1;
+}
+
+// ─── AI Inference Service ───
+
+service AIInferenceService {
+  // Model Management
+  rpc ListModels(ListModelsRequest) returns (ListModelsResponse);
+  rpc LoadModel(LoadModelRequest) returns (LoadModelResponse);
+  rpc UnloadModel(UnloadModelRequest) returns (UnloadModelResponse);
+  rpc ReloadModel(ReloadModelRequest) returns (ReloadModelResponse);
+  rpc EnableModel(EnableModelRequest) returns (EnableModelResponse);
+  rpc DisableModel(DisableModelRequest) returns (DisableModelResponse);
+  rpc RemoveModel(RemoveModelRequest) returns (RemoveModelResponse);
+  rpc GetModelStatus(GetModelStatusRequest) returns (GetModelStatusResponse);
+
+  // Inference
+  rpc Infer(InferenceRequest) returns (InferenceResult);
+  rpc InferStream(stream InferenceRequestStream) returns (stream InferenceResult);
+
+  // Scheduled Inference
+  rpc StartScheduledInference(StartScheduledInferenceRequest) returns (StartScheduledInferenceResponse);
+  rpc StopScheduledInference(StopScheduledInferenceRequest) returns (StopScheduledInferenceResponse);
+  rpc GetScheduledInferences(GetScheduledInferencesRequest) returns (GetScheduledInferencesResponse);
+
+  // Self-Learning
+  rpc AddSample(AddSampleRequest) returns (AddSampleResponse);
+  rpc Predict(PredictRequest) returns (PredictResponse);
+  rpc GetSelfLearningStats(GetSelfLearningStatsRequest) returns (GetSelfLearningStatsResponse);
+  rpc GetAllSelfLearningStats(GetAllSelfLearningStatsRequest) returns (GetAllSelfLearningStatsResponse);
+  rpc ResetSelfLearning(ResetSelfLearningRequest) returns (ResetSelfLearningResponse);
+  rpc SetSelfLearningThreshold(SetSelfLearningThresholdRequest) returns (SetSelfLearningThresholdResponse);
+
+  // Statistics & Health
+  rpc GetStats(GetStatsRequest) returns (GetStatsResponse);
+  rpc GetModelStats(GetModelStatsRequest) returns (GetModelStatsResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+
+  // Execution Provider
+  rpc SetExecutionProvider(SetExecutionProviderRequest) returns (SetExecutionProviderResponse);
+  rpc GetAvailableProviders(GetAvailableProvidersRequest) returns (GetAvailableProvidersResponse);
+
+  // Version Management
+  rpc GetModelVersionHistory(GetModelVersionHistoryRequest) returns (GetModelVersionHistoryResponse);
+  rpc RollbackModelVersion(RollbackModelVersionRequest) returns (RollbackModelVersionResponse);
+
+  // Preset Models
+  rpc GeneratePresetModels(GeneratePresetModelsRequest) returns (GeneratePresetModelsResponse);
+}

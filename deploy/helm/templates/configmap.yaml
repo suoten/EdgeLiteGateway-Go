@@ -1,0 +1,60 @@
+{{- if .Values.gateway.logging.jsonFormat -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "edgelite.fullname" . }}-config
+  labels:
+    {{- include "edgelite.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    server:
+      host: {{ .Values.gateway.host | quote }}
+      port: {{ .Values.gateway.port }}
+      debug_api_enabled: false
+
+    security:
+      access_token_expire_minutes: {{ .Values.gateway.security.accessTokenExpireMinutes }}
+      refresh_token_expire_days: {{ .Values.gateway.security.refreshTokenExpireDays }}
+      rate_limit_requests_per_minute: {{ .Values.gateway.security.rateLimitRequestsPerMinute }}
+
+    database:
+      sqlite_path: {{ .Values.gateway.database.sqlitePath | quote }}
+      pool_size: {{ .Values.gateway.database.poolSize }}
+      max_overflow: {{ .Values.gateway.database.maxOverflow }}
+      backup_dir: {{ .Values.gateway.database.backupDir | quote }}
+
+    influxdb:
+      {{- if .Values.gateway.influxdb.url }}
+      url: {{ .Values.gateway.influxdb.url | quote }}
+      {{- end }}
+      org: {{ .Values.gateway.influxdb.org | quote }}
+      bucket: {{ .Values.gateway.influxdb.bucket | quote }}
+      sqlite_ts_path: {{ .Values.gateway.influxdb.sqliteTSPath | quote }}
+      retention_days: {{ .Values.gateway.influxdb.retentionDays }}
+
+    mqtt:
+      {{- if .Values.gateway.mqtt.broker }}
+      broker: {{ .Values.gateway.mqtt.broker | quote }}
+      {{- end }}
+      port: {{ .Values.gateway.mqtt.port }}
+      topic_prefix: {{ .Values.gateway.mqtt.topicPrefix | quote }}
+      offline_cache_enabled: {{ .Values.gateway.mqtt.offlineCacheEnabled }}
+      offline_db_path: {{ .Values.gateway.mqtt.offlineDBPath | quote }}
+
+    ai_sidecar:
+      enabled: {{ .Values.gateway.aiSidecar.enabled }}
+      {{- if .Values.gateway.aiSidecar.sidecarURL }}
+      sidecar_url: {{ .Values.gateway.aiSidecar.sidecarURL | quote }}
+      {{- end }}
+      models_dir: {{ .Values.gateway.aiSidecar.modelsDir | quote }}
+      max_concurrent_inferences: {{ .Values.gateway.aiSidecar.maxConcurrentInferences }}
+      inference_timeout: {{ .Values.gateway.aiSidecar.inferenceTimeout }}
+
+    logging:
+      level: {{ .Values.gateway.logging.level | quote }}
+      json_format: {{ .Values.gateway.logging.jsonFormat }}
+      log_dir: {{ .Values.gateway.logging.logDir | quote }}
+
+    simulator:
+      auto_create: {{ .Values.gateway.simulator.autoCreate }}
+{{- end -}}

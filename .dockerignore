@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# Python / AI Sidecar (built separately)
+ai_sidecar/__pycache__
+ai_sidecar/.pytest_cache
+ai_sidecar/.mypy_cache
+ai_sidecar/venv
+ai_sidecar/.venv
+
+# Node.js / Frontend (built in Dockerfile)
+frontend/node_modules
+
+# Test artifacts
+coverage.out
+coverage.html
+coverage_engine
+engine_cover
+*.prof
+
+# Documentation
+docs/
+
+# Deploy artifacts
+deploy/
+
+# CI/CD
+.github/
+
+# Misc
+*.md
+!README.md
+LICENSE
+Makefile
+scripts/
+data/

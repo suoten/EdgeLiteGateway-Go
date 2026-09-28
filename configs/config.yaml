@@ -1,0 +1,218 @@
+server:
+    host: 127.0.0.1
+    port: 8080
+    cors_allowed_origins: []
+    cors_origins:
+        - http://localhost:3000
+        - http://localhost:5173
+        - http://127.0.0.1:8080
+    webhook_api_key: ""
+    debug_api_enabled: false
+    debug_api_allowed_ips:
+        - 127.0.0.1
+        - ::1
+    trusted_proxies: []
+    allowed_hosts: []
+database:
+    backend: sqlite
+    sqlite_path: data/edgelite.db
+    host: localhost
+    port: 3306
+    username: ""
+    password: ""
+    database: edgelite
+    backup_dir: data/backups
+    pool_size: 5
+    max_overflow: 10
+    echo: false
+    optimistic_lock_retries: 3
+    trust_server_certificate: false
+    slow_query_threshold_s: 1
+influxdb:
+    url: http://localhost:8086
+    token: ""
+    org: edgelite
+    bucket: edgelite
+    batch_size: 1000
+    flush_interval: 5000
+    retention_days: 30
+    fallback_backend: sqlite
+    sqlite_ts_path: data/edgelite_ts.db
+    auto_sync_on_recovery: true
+    sync_batch_size: 500
+    sync_interval: 30
+    downsample:
+        enabled: true
+        tier1_age_days: 7
+        tier2_age_days: 30
+        tier3_age_days: 90
+        auto_run: false
+        run_interval_hours: 24
+    network_probe_url: https://www.baidu.com
+mqtt:
+    broker: localhost
+    port: 1883
+    username: ""
+    password: ""
+    topic_prefix: edgelite
+    offline_cache_enabled: true
+    offline_db_path: data/mqtt_offline_queue.db
+    max_queue_size: 10000
+    max_retries: 100
+    retry_interval: 5
+    ring_buffer_capacity: 50000
+    ring_buffer_compress: true
+mqtt_server:
+    enabled: true
+    host: 127.0.0.1
+    port: 1888
+    ws_port: null
+    username: edge
+    password: ""  # change me: set a strong password for the built-in MQTT server
+    allow_no_auth: false
+modbus_slave:
+    enabled: true
+    host: 127.0.0.1
+    port: 5100
+    holding_size: 1000
+    input_size: 1000
+    coil_size: 1000
+    discrete_size: 1000
+video:
+    pygbsentry:
+        endpoint: ""
+        api_key: ""
+        timeout: 10
+security:
+    secret_key: edgelite-dev-secret-key-please-change-in-production-32chars
+    access_token_expire_minutes: 30
+    refresh_token_expire_days: 7
+    algorithm: HS256
+    max_token_ttl_days: 30
+    secret_key_previous: ""
+    key_id: default
+    previous_key_id: ""
+    rate_limit_requests_per_minute: 600
+    rate_limit_login_per_minute: 5
+    login_lockout_threshold: 5
+    login_lockout_minutes: 15
+    global_lockout_threshold: 10
+    global_lockout_duration: 30
+    global_failure_rate_threshold: 50
+    global_lockout_window: 15
+    protected_roles:
+        - admin
+    csrf_secret: ""
+    cookie_secure: true
+logging:
+    level: INFO
+    format: '%(asctime)s | %(levelname)-8s | %(name)s | %(message)s'
+    json_format: false
+    log_dir: data/logs
+    max_bytes: 52428800
+    backup_count: 10
+simulator:
+    auto_create: false
+    default_devices: []
+notify:
+    dingtalk:
+        enabled: true
+        name: 钉钉通知
+        webhook_url: ""
+        secret: ""
+        at_mobiles: []
+        is_at_all: false
+        max_per_minute: 10
+        cooldown_seconds: 60
+    email:
+        smtp_host: ""
+        smtp_port: 587
+        smtp_user: ""
+        smtp_password: ""
+        use_tls: true
+        use_ssl: false
+        use_starttls: false
+        from_addr: ""
+        to_addrs: []
+        max_per_minute: 60
+        cooldown_seconds: 60
+    wechat:
+        webhook_url: ""
+        max_per_minute: 10
+        cooldown_seconds: 60
+    webhook:
+        enabled: true
+        name: joint-hook
+        url: http://127.0.0.1:19777/hook
+        method: POST
+        headers: {}
+        auth_type: none
+        auth_token: ""
+        auth_username: ""
+        auth_password: ""
+        max_per_minute: 60
+        cooldown_seconds: 0
+platforms: {}
+serial_bridge:
+    enabled: false
+    serial_port: COM1
+    baud_rate: 9600
+    data_bits: 8
+    parity: "N"
+    stop_bits: 1
+    tcp_port: 9000
+    ip_whitelist: []
+    max_clients: 5
+preprocess:
+    enabled: false
+    default_deadband: 0
+    default_filter_window: 3
+    default_aggregate_window_sec: 0
+webhook_auth:
+    mode: none
+    token: ""
+    username: ""
+    password: ""
+mqtt_tls:
+    enabled: false
+    ca_cert: ""
+    client_cert: ""
+    client_key: ""
+    cert_reqs: required
+mcp_server:
+    enabled: false
+grafana:
+    enabled: false
+    url: http://localhost:3001
+    api_key: ""
+    datasource: InfluxDB
+drivers:
+    custom_dir: ""
+    auto_reload: false
+scheduler:
+    max_concurrent_collects: 50
+    error_rate_threshold: 0.1
+    watchdog_interval: 30
+    watchdog_stale_cycles: 3
+    watchdog_restart_cycles: 10
+backup:
+    enabled: true
+    interval_hours: 24
+    retain_days: 7
+    backup_dir: data/backups
+    min_free_mb: 100
+ai_inference:
+    enabled: true
+    models_dir: models
+    sidecar_url: http://127.0.0.1:50052
+    hot_reload_timeout: 30
+    inference_timeout: 10
+    max_concurrent_inferences: 4
+    stats_retention_days: 7
+cache:
+    ring_buffer_capacity: 100000
+    ring_buffer_compress: true
+    incremental_sync_enabled: true
+    high_watermark_pct: 0.8
+    critical_watermark_pct: 0.9
+ota_update_url: ""
