@@ -1,59 +1,75 @@
-# EdgeLite Gateway - golangci-lint configuration
-# https://golangci-lint.run/usage/configuration/
-
+version: "2"
 run:
   timeout: 5m
-  tests: true
   modules-download-mode: readonly
-
+  tests: true
 linters:
   enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - typecheck
-    - unused
     - misspell
     - revive
-    - gofmt
-    - goimports
-
-linters-settings:
-  errcheck:
-    check-type-assertions: false
-    check-blank: false
-  goimports:
-    local-prefixes: edgelite
-  revive:
+  settings:
+    errcheck:
+      check-type-assertions: false
+      check-blank: false
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-naming
+        - name: error-strings
+        - name: error-return
+        - name: errorf
+        - name: exported
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: var-declaration
+        - name: var-naming
+    staticcheck:
+      # Match the v1 linter set: stylecheck (ST*) was not enabled and QF* are
+      # optional "quickfix" refactor suggestions that staticcheck's own CLI
+      # does not enable by default.
+      checks:
+        - all
+        - -ST*
+        - -QF*
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
     rules:
-      - name: blank-imports
-      - name: context-as-argument
-      - name: context-keys-type
-      - name: dot-imports
-      - name: error-naming
-      - name: error-strings
-      - name: error-return
-      - name: errorf
-      - name: exported
-      - name: increment-decrement
-      - name: indent-error-flow
-      - name: range
-      - name: receiver-naming
-      - name: time-naming
-      - name: var-declaration
-      - name: var-naming
-
+      - linters:
+          - errcheck
+          - revive
+        path: _test\.go
+      - linters:
+          - revive
+        path: cmd/
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-        - gosimple
-        - revive
-    - path: cmd/
-      linters:
-        - revive
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - edgelite
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

@@ -909,7 +909,7 @@ func TestRuleStoreLoadRulesEmpty(t *testing.T) {
 	defer store.Close()
 
 	rules := store.LoadRules()
-	if rules != nil && len(rules) != 0 {
+	if len(rules) != 0 {
 		t.Errorf("Expected 0 rules, got %d", len(rules))
 	}
 }

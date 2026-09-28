@@ -96,7 +96,7 @@ func mintSession(t *testing.T, m *security.JWTManager, userID, username string) 
 func crossSecondBoundary(t *testing.T, from time.Time) {
 	t.Helper()
 	deadline := time.Now().Add(5 * time.Second)
-	for time.Now().Truncate(time.Second) == from.Truncate(time.Second) {
+	for time.Now().Truncate(time.Second).Equal(from.Truncate(time.Second)) {
 		if time.Now().After(deadline) {
 			t.Fatal("wall clock did not advance a second")
 		}

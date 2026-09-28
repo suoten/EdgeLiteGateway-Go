@@ -64,11 +64,8 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          # v1.64.8 matches the repo's v1-format .golangci.yml.
-          # install-mode: source builds it with the job's Go 1.25 — the
-          # official binary is built with go1.24 and refuses go.mod >= 1.25.
-          version: v1.64.8
-          install-mode: source
+          # golangci-lint v2 (config migrated to the v2 schema in .golangci.yml)
+          version: latest
           args: --timeout 5m --max-issues-per-linter 0
 
   # ── AI Sidecar (Python) ────────────────────────────────────────

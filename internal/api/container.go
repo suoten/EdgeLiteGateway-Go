@@ -146,7 +146,7 @@ func missingServices(c *ServiceContainer) []string {
 	for i := 0; i < t.NumField(); i++ {
 		fv := v.Field(i)
 		switch fv.Kind() {
-		case reflect.Ptr, reflect.Interface, reflect.Map, reflect.Slice:
+		case reflect.Pointer, reflect.Interface, reflect.Map, reflect.Slice:
 			if fv.IsNil() {
 				missing = append(missing, t.Field(i).Name)
 			}

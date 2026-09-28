@@ -107,7 +107,7 @@ func TestDeviceRepoListEmpty(t *testing.T) {
 	if total != 0 {
 		t.Fatalf("Expected total 0, got %d", total)
 	}
-	if devices != nil && len(devices) != 0 {
+	if len(devices) != 0 {
 		t.Fatal("Expected nil/empty devices")
 	}
 }
