@@ -64,7 +64,8 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          # Pinned to match the repo's v1-format .golangci.yml (v2 changed the config schema)
+          version: v1.64.8
           args: --timeout 5m --max-issues-per-linter 0
 
   # ── AI Sidecar (Python) ────────────────────────────────────────
