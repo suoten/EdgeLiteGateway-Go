@@ -64,8 +64,10 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          # golangci-lint v2 (config migrated to the v2 schema in .golangci.yml)
-          version: latest
+          # golangci-lint v2 (config migrated to the v2 schema in .golangci.yml).
+          # Pinned explicitly: the action's "latest" resolves to v1.64.8,
+          # whose prebuilt binary (go1.24) refuses go.mod >= 1.25.
+          version: v2.14.0
           args: --timeout 5m --max-issues-per-linter 0
 
   # ── AI Sidecar (Python) ────────────────────────────────────────
