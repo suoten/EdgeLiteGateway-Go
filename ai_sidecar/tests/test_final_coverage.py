@@ -1,12 +1,9 @@
 """
 Targeted tests for remaining uncovered code paths to reach 90%+ coverage.
 """
-import asyncio
 import json
-import os
 import tempfile
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import numpy as np
 import pytest
@@ -15,13 +12,6 @@ from aiohttp import web
 from server import (
     AISidecarServer,
     OnnxModelWrapper,
-    PRESET_MODELS,
-    PROVIDER_CPU,
-    PROVIDER_CUDA,
-    STATUS_ACTIVE,
-    STATUS_ERROR,
-    STATUS_INACTIVE,
-    STATUS_LOADING,
     STATUS_UNAVAILABLE,
     _build_default_graph,
     create_app,
@@ -51,7 +41,6 @@ class TestBuildDefaultGraph:
     """Cover _build_default_graph."""
 
     def test_build_default_graph(self):
-        import onnx
         from onnx import helper, TensorProto
         X = helper.make_tensor_value_info("input", TensorProto.FLOAT, [1, 10])
         Y = helper.make_tensor_value_info("output", TensorProto.FLOAT, [1, 1])
@@ -174,7 +163,6 @@ class TestBatchInferencePath:
         """Test that batch mode is used when model expects [1] shape."""
         sidecar = AISidecarServer(models_dir=tempfile.mkdtemp())
         await sidecar.initialize()
-        wrapper = list(sidecar._loaded_models.values())[0]
         # Check if model has [1, 100] shape - batch mode won't trigger
         # But we can test _is_batch_mode directly
         arr_multi = np.array([1.0, 2.0, 3.0], dtype=np.float32)

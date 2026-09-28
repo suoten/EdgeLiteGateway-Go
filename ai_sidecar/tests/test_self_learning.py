@@ -1,11 +1,8 @@
 """
 Unit tests for SelfLearningModel and SelfLearningManager.
 """
-import math
 import threading
-import time
 
-import pytest
 
 from server import SelfLearningModel, SelfLearningManager
 

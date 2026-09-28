@@ -5,18 +5,13 @@ These tests target code paths not covered by the API integration tests,
 including helper functions, OnnxModelWrapper internals, InferenceStatsCollector,
 JsonFormatter, _setup_logging, and create_app route registration.
 """
-import asyncio
 import json
 import logging
-import os
-import sys
 import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
-import pytest_asyncio
 
 from server import (
     AISidecarServer,
@@ -24,7 +19,6 @@ from server import (
     DEFAULT_EWMA_ALPHA,
     DEFAULT_HOST,
     DEFAULT_PORT,
-    DEFAULT_SCHEDULED_INTERVAL,
     DEFAULT_WINDOW_SIZE,
     InferenceStatsCollector,
     JsonFormatter,

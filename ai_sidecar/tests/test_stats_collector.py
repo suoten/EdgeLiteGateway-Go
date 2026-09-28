@@ -3,7 +3,6 @@ Unit tests for InferenceStatsCollector.
 """
 import threading
 
-import pytest
 
 from server import InferenceStatsCollector
 

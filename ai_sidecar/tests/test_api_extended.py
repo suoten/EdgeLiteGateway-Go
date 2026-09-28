@@ -2,17 +2,12 @@
 Extended API integration tests covering model lifecycle, scheduled inference,
 rollback, middleware edge cases, and error paths.
 """
-import asyncio
-import json
 
-import pytest
 import pytest_asyncio
 from aiohttp.test_utils import TestClient, TestServer
 
 from server import (
     AISidecarServer,
-    STATUS_ACTIVE,
-    STATUS_ERROR,
     STATUS_INACTIVE,
     STATUS_UNAVAILABLE,
     create_app,

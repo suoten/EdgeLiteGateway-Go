@@ -1,10 +1,7 @@
 """
 Integration tests for the AI Sidecar HTTP API.
 """
-import asyncio
-import json
 
-import pytest
 import pytest_asyncio
 
 from server import AISidecarServer, create_app

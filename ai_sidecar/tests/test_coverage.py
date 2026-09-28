@@ -3,10 +3,8 @@ Tests for serve(), main(), _render_prometheus, and other uncovered paths.
 """
 import asyncio
 import json
-import os
 import sys
 import tempfile
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -24,7 +22,6 @@ from server import (
     _render_prometheus,
     _metric_inc,
     _metric_set,
-    create_app,
     serve,
 )
 
@@ -204,7 +201,6 @@ class TestRollbackPaths:
             target_version = history[0].get("version", "")
             if target_version:
                 # Create a mock request
-                from aiohttp import web
                 request = MagicMock()
                 request.json = AsyncMock(return_value={
                     "model_id": wrapper.model_id,
@@ -227,7 +223,6 @@ class TestRollbackPaths:
             "model_path": model_path,
             "note": "manual",
         })
-        from aiohttp import web
         request = MagicMock()
         request.json = AsyncMock(return_value={
             "model_id": wrapper.model_id,
@@ -370,7 +365,6 @@ class TestOnnxModelWrapperLoad:
         """Load a real preset model file."""
         sidecar = AISidecarServer(models_dir=tempfile.mkdtemp())
         await sidecar.initialize()
-        wrapper = list(sidecar._loaded_models.values())[0]
         model_path = str(sidecar._models_dir / PRESET_MODELS[0]["model_file"])
         w = OnnxModelWrapper(
             model_id="test", model_name="Test", model_version="v1",
