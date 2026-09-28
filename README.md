@@ -21,18 +21,107 @@
 
 > 🐍 追求 10 分钟零门槛 Docker 体验、或需要改 Python 源码做二次开发？请用 [Python 版](https://github.com/suoten/EdgeLiteGateway)。
 
-## Releases / 预编译下载
+## 🚀 快速开始 / Quick Start
 
-`release/` 目录随仓库提供 v1.0.0 预编译二进制（Linux amd64 / arm64 / armv7）：
+> 不懂 Go、不想装环境？选方式一，复制粘贴命令即可。
+
+### 方式一：预编译包一键部署（推荐小白，无需 Go / 无需 Docker）
+
+**第 1 步**：确认服务器架构，选对包（在服务器上执行）
 
 ```bash
-# 校验后解压即用（内置 install.sh）
-sha256sum -c checksums.txt
-tar -xzf edgelite-1.0.0-linux-amd64.tar.gz
-cd edgelite-1.0.0 && ./install.sh
+uname -m
+# x86_64  → 下载 amd64 包（普通云服务器/PC）
+# aarch64 → 下载 arm64 包（飞腾/唱麟等 ARM 服务器）
+# armv7l  → 下载 arm7 包（工控机/边缘盒子）
 ```
 
-也可自行从源码构建：`make all`。
+**第 2 步**：下载并安装（以最常见的 x86_64 为例）
+
+```bash
+# 下载（也可在浏览器打开仓库 release/ 目录直接下载后上传）
+wget https://gitee.com/suoten/EdgeLiteGateway-Go/raw/master/release/edgelite-1.0.0-linux-amd64.tar.gz
+
+# 校验完整性（可选但建议）
+sha256sum edgelite-1.0.0-linux-amd64.tar.gz
+
+# 解压
+mkdir -p /tmp/edgelite && tar -xzf edgelite-1.0.0-linux-amd64.tar.gz -C /tmp/edgelite
+
+# 一键安装（自动注册 systemd 服务、创建专用用户、开机自启）
+cd /tmp/edgelite/edgelite-1.0.0
+sudo bash install.sh            # 可选参数：--port 8080 --dir /opt/edgelite
+```
+
+**第 3 步**：登录管理后台
+
+浏览器打开 `http://服务器IP:8080`，默认账号 `admin` / 默认密码 `admin123`。
+
+> ⚠️ 登录后请立即在右上角头像 → 修改密码处更换默认密码。
+
+**第 4 步**：添加第一台设备
+
+后台依次进入：设备管理 → 新建设备 → 选择协议（Modbus TCP / S7 / OPC UA…）→ 填 IP 和端口 → 保存。采集、规则、告警、时序存储、监控看板全部开箱即用。
+
+<details>
+<summary>📌 预编译包能做什么 / 不能做什么（重要）</summary>
+
+预编译包包含网关主程序 + 完整 Web 管理后台，**设备采集、规则引擎、告警、时序存储、数据导出、北向转发等核心功能全部可用**。
+但 AI 推理（异常检测/趋势预测）需要 Python AI Sidecar，不在预编译包内——需要 AI 功能请用方式二（Docker，一条命令全带走）或源码部署。
+
+预编译包仅提供 Linux 版（amd64/arm64/armv7）。Windows 用户请用方式二（Docker Desktop）或源码编译。
+
+</details>
+
+### 方式二：Docker Compose（推荐服务器 / 含 AI 推理完整功能）
+
+```bash
+# 克隆并配置
+git clone https://gitee.com/suoten/EdgeLiteGateway-Go.git
+cd EdgeLiteGateway-Go
+cp docker/.env.example docker/.env
+# 编辑 docker/.env 设置你的密码（必须改！）
+
+# 启动全部服务（含 AI 推理）
+make docker-up
+
+# 附带监控栈（Prometheus + Grafana）
+make docker-up-monitoring
+
+# 查看日志
+make docker-logs
+
+# 同样打开 http://localhost:8080 登录（账号密码见 docker/.env 配置）
+```
+
+### 方式三：源码编译（开发者）
+
+前置要求：Go 1.25+、Node.js 20+（前端）、Python 3.11+（AI Sidecar）、可选 Docker。
+
+```bash
+# 安装 AI Sidecar 依赖
+make ai-sidecar-dev-install
+
+# 启动 AI Sidecar（终端 1）
+make ai-sidecar-run
+
+# 编译并运行网关（终端 2）
+make go-build
+./edgelite
+
+# 或直接运行
+make go-run
+```
+
+### 常见问题（小白必读）
+
+| 问题 | 解决办法 |
+|------|----------|
+| 打不开 8080 页面 | 服务器安全组/防火墙放行 8080 端口；确认服务状态：`systemctl status edgelite` |
+| admin/admin123 登录不上 | 查看安装日志确认初始化完成：`journalctl -u edgelite -n 50` |
+| AI 功能页面提示不可用 | 预编译包不含 AI Sidecar，属正常；需要 AI 请用 Docker 方式部署 |
+| 想换端口 | 重新安装：`sudo bash install.sh --port 9090`，或改 `configs/config.yaml` 后 `systemctl restart edgelite` |
+| 数据存在哪里 | 默认 `/opt/edgelite/data`（SQLite），备份此目录即可 |
 
 ## Overview
 
@@ -77,56 +166,6 @@ EdgeLite Gateway is an industrial IoT edge computing platform that provides:
                     │  ONNX Runtime │ Self-Learning │ Preset Models      │
                     │  Prometheus /metrics │ Health Probes               │
                     └───────────────────────────────────────────────────┘
-```
-
-## Quick Start
-
-### Prerequisites
-
-- Go 1.25+
-- Python 3.11+ (for AI sidecar)
-- Docker & Docker Compose (recommended)
-
-### Option 1: Docker Compose (Recommended)
-
-```bash
-# Clone and configure
-git clone https://gitee.com/suoten/EdgeLiteGateway-Go.git
-cd EdgeLiteGateway-Go
-cp docker/.env.example docker/.env
-# Edit docker/.env with your secrets!
-
-# Start all services
-make docker-up
-
-# With monitoring stack (Prometheus + Grafana)
-make docker-up-monitoring
-
-# View logs
-make docker-logs
-```
-
-### Option 2: Local Development
-
-```bash
-# Install AI sidecar dependencies
-make ai-sidecar-dev-install
-
-# Start AI sidecar (terminal 1)
-make ai-sidecar-run
-
-# Build and run Go gateway (terminal 2)
-make go-build
-./edgelite.exe
-
-# Or run directly
-make go-run
-```
-
-### Option 3: Make All
-
-```bash
-make all  # Install deps + build
 ```
 
 ## Project Structure
