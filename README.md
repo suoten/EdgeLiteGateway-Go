@@ -141,7 +141,11 @@ EdgeLite Gateway is an industrial IoT edge computing platform that provides:
 | Project | Description |
 |---------|-------------|
 | [EdgeLiteGateway (Python)](https://gitee.com/suoten/EdgeLiteGateway) · [GitHub](https://github.com/suoten/EdgeLiteGateway) | Python 社区版：13 种工业协议 + ONNX，10 分钟 Docker 部署，源码级二开首选 |
-| [ProtoForge](https://gitee.com/suoten/ProtoForge) | 开源 PLC 协议模拟器，与 EdgeLite 联调采集/下写链路 |
+| [ProtoForge](https://gitee.com/suoten/ProtoForge) · [GitHub](https://github.com/suoten/ProtoForge) | 开源 PLC 协议模拟器：零硬件仿真 Modbus/S7/OPC UA 等 28 种协议设备，与 EdgeLite 联调采集/下写链路 |
+| [EdgeAgent-Hub](https://gitee.com/suoten/edgeagent-hub) · [GitHub](https://github.com/suoten/EdgeAgent-Hub) | 工业边缘 AI 平台：ONNX 推理 + LLM + RAG + 多智能体编排，断网自治 + A/B 分区 OTA |
+| [IoT-ZTNA](https://gitee.com/suoten/iot-ztna) | IoT 零信任网络接入（ZTNA）方案（仅 Gitee） |
+| [PyGBSentry](https://gitee.com/suoten/PyGBSentry) · [GitHub](https://github.com/suoten/PyGBSentry) | 开箱即用的国标（GB/T 28181-2022）视频管理平台：纯 Python 自研 SIP 栈 + ZLMediaKit |
+| [GBDoctor](https://gitee.com/suoten/GBDoctor) · [GitHub](https://github.com/suoten/GBDoctor) | GB/T 28181 国标接入诊断工具：12 环节全链路体检，快速定位摄像头无法上线、黑屏、丢包等问题 |
 
 ## Architecture
 
